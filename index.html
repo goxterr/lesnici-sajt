@@ -565,6 +565,186 @@
     border: 1px solid #6ee7b7;
   }
 
+  /* Sub-section divider for orders */
+  .orders-subsection {
+    margin-top: 32px;
+  }
+
+  .orders-subsection-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 0 4px;
+  }
+
+  .orders-subsection-title {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .orders-subsection-title.done-title {
+    color: var(--ink-3);
+  }
+
+  .orders-subsection-count {
+    background: var(--husk);
+    color: var(--ink-2);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+
+  .orders-subsection-title.done-title .orders-subsection-count {
+    background: var(--cream-2);
+    color: var(--ink-3);
+  }
+
+  /* Minimized (completed) order cards */
+  .order-item.minimized {
+    padding: 10px 16px;
+    background: var(--cream-2);
+    border: 1px solid var(--husk);
+    opacity: 0.75;
+    cursor: pointer;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 12px;
+    transition: all 0.2s;
+  }
+
+  .order-item.minimized:hover {
+    opacity: 1;
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(139, 99, 50, 0.08);
+  }
+
+  .order-item.minimized .order-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+    background: var(--cream);
+  }
+
+  .order-item.minimized .order-mini-info {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .order-item.minimized .order-mini-name {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  .order-item.minimized .order-mini-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  .order-item.minimized .order-mini-amount {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    color: var(--ink-3);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .expand-chevron {
+    width: 20px;
+    height: 20px;
+    color: var(--ink-3);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .order-item.minimized.expanded .expand-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* When expanded, minimized card looks like normal card */
+  .order-item.minimized.expanded {
+    grid-template-columns: auto 1fr auto;
+    padding: 16px 20px;
+    background: white;
+    opacity: 1;
+  }
+
+  .order-item.minimized.expanded .order-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+    background: var(--husk);
+  }
+
+  .order-item.minimized.expanded .order-mini-info {
+    display: block;
+  }
+
+  .order-item.minimized.expanded .order-mini-name {
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .order-item.minimized.expanded .order-mini-meta {
+    font-size: 12px;
+    display: block;
+    margin-top: 1px;
+  }
+
+  .order-item.minimized.expanded .expanded-details {
+    display: block;
+  }
+
+  .order-item.minimized.expanded .order-mini-amount {
+    font-size: 15px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .order-item.minimized.expanded .expand-chevron {
+    display: none;
+  }
+
+  .expanded-details {
+    display: none;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 4px;
+  }
+
+  /* Show more button */
+  .show-more-btn {
+    display: block;
+    margin: 12px auto 0;
+    background: transparent;
+    border: 1px dashed var(--shell);
+    color: var(--ink-2);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .show-more-btn:hover {
+    background: var(--cream-2);
+    color: var(--ink);
+    border-color: var(--shell-dark);
+  }
+
   .empty {
     text-align: center;
     padding: 32px;
@@ -1236,6 +1416,18 @@
     document.getElementById('submitBtn').disabled = false;
   }
 
+  let showAllDone = false; // state: prikazati sve završene ili samo prvih 5
+
+  function toggleOrderCard(id) {
+    const card = document.getElementById('order-' + id);
+    if (card) card.classList.toggle('expanded');
+  }
+
+  function toggleShowAllDone() {
+    showAllDone = !showAllDone;
+    renderOrders();
+  }
+
   function renderOrders() {
     const container = document.getElementById('ordersContainer');
     document.getElementById('orderCount').textContent = orders.length + ' do sad';
@@ -1248,18 +1440,20 @@
     // SVG ikone za bedževe
     const checkIcon = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
     const dollarIcon = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>';
+    const chevronIcon = '<svg class="expand-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
 
-    container.innerHTML = '<div class="orders-list">' + orders.map(o => {
+    // Razvrstavanje: aktuelne vs završene
+    // Završeno = isporučeno DA i plaćeno (eP ili P)
+    const isDone = (o) => o.picked && (o.paid === 'eP' || o.paid === 'P');
+    const active = orders.filter(o => !isDone(o));
+    const done = orders.filter(o => isDone(o));
+
+    // Render aktivnih (pune kartice)
+    const renderFullCard = (o) => {
       const dateShort = formatDate(o.date);
-      
-      // Napravi bedževe na osnovu statusa
       let badgesHtml = '';
-      if (o.picked) {
-        badgesHtml += `<span class="status-badge badge-delivered">${checkIcon} Isporučeno</span>`;
-      }
-      if (o.paid === 'eP' || o.paid === 'P') {
-        badgesHtml += `<span class="status-badge badge-paid">${dollarIcon} Plaćeno</span>`;
-      }
+      if (o.picked) badgesHtml += `<span class="status-badge badge-delivered">${checkIcon} Isporučeno</span>`;
+      if (o.paid === 'eP' || o.paid === 'P') badgesHtml += `<span class="status-badge badge-paid">${dollarIcon} Plaćeno</span>`;
       const badgesDiv = badgesHtml ? `<div class="order-badges">${badgesHtml}</div>` : '';
       
       return `
@@ -1276,7 +1470,73 @@
           <div class="order-amount">${Number(o.total).toLocaleString('sr')} din</div>
         </div>
       `;
-    }).join('') + '</div>';
+    };
+
+    // Render minimiziranih (završenih) - klikom se proširuju
+    const renderMiniCard = (o) => {
+      const dateShort = formatDate(o.date);
+      const badgesInline = `
+        <span class="status-badge badge-delivered">${checkIcon} Isporučeno</span>
+        <span class="status-badge badge-paid">${dollarIcon} Plaćeno</span>
+      `;
+      
+      return `
+        <div class="order-item minimized" id="order-${o.id}" onclick="toggleOrderCard(${o.id})">
+          <div class="order-avatar">${getInitials(o.name)}</div>
+          <div class="order-mini-info">
+            <span class="order-mini-name">${o.name}</span>
+            <span class="order-mini-meta">sektor ${o.office} · ${dateShort}</span>
+            <div class="expanded-details">
+              <div class="order-items" style="margin-top:4px">${o.items}</div>
+              <div class="order-badges">${badgesInline}</div>
+            </div>
+          </div>
+          <div class="order-mini-amount">${Number(o.total).toLocaleString('sr')} din</div>
+          ${chevronIcon}
+        </div>
+      `;
+    };
+
+    let html = '';
+
+    // SEKCIJA 1: Aktuelne
+    if (active.length > 0) {
+      html += `
+        <div class="orders-subsection-head">
+          <span class="orders-subsection-title">🟢 Aktuelne 
+            <span class="orders-subsection-count">${active.length}</span>
+          </span>
+        </div>
+        <div class="orders-list">
+          ${active.map(renderFullCard).join('')}
+        </div>
+      `;
+    }
+
+    // SEKCIJA 2: Završene (minimizirane)
+    if (done.length > 0) {
+      const DONE_LIMIT = 5;
+      const shownDone = showAllDone ? done : done.slice(0, DONE_LIMIT);
+      const hasHidden = !showAllDone && done.length > DONE_LIMIT;
+      
+      const sectionClass = active.length > 0 ? 'orders-subsection' : '';
+      html += `
+        <div class="${sectionClass}">
+          <div class="orders-subsection-head">
+            <span class="orders-subsection-title done-title">✓ Završene 
+              <span class="orders-subsection-count">${done.length}</span>
+            </span>
+          </div>
+          <div class="orders-list">
+            ${shownDone.map(renderMiniCard).join('')}
+          </div>
+          ${hasHidden ? `<button class="show-more-btn" onclick="toggleShowAllDone()">Prikaži još ${done.length - DONE_LIMIT} ↓</button>` : ''}
+          ${showAllDone && done.length > DONE_LIMIT ? `<button class="show-more-btn" onclick="toggleShowAllDone()">Sakrij ↑</button>` : ''}
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
   }
 
   function showToast(msg, isError = false) {
