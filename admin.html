@@ -324,7 +324,7 @@
 
   .table-head {
     display: grid;
-    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px;
+    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px 36px;
     padding: 12px 16px;
     background: var(--cream-2);
     border-bottom: 1px solid var(--husk);
@@ -339,7 +339,7 @@
 
   .order-row {
     display: grid;
-    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px;
+    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px 36px;
     padding: 14px 16px;
     border-bottom: 1px solid var(--husk);
     align-items: center;
@@ -887,6 +887,246 @@
   }
 
   .modal-btn.confirm:hover { background: #991b1b; }
+
+  /* Comment icon na kartici */
+  .comment-btn {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--husk);
+    background: var(--cream);
+    color: var(--ink-3);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .comment-btn:hover {
+    background: var(--husk);
+    color: var(--ink-2);
+  }
+
+  .comment-btn.has-comments {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .comment-btn.has-comments:hover {
+    background: var(--shell-dark);
+  }
+
+  .comment-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .comment-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--red);
+    color: white;
+    border-radius: 50%;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  /* Comment modal - širi */
+  .modal.comments-modal {
+    max-width: 520px;
+    padding: 0;
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .comments-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--husk);
+    background: var(--cream);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .comments-header h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .comments-header h3 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .comments-subject {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 2px;
+  }
+
+  .close-modal-btn {
+    background: transparent;
+    border: none;
+    color: var(--ink-3);
+    font-size: 24px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .close-modal-btn:hover {
+    background: var(--cream-2);
+    color: var(--ink);
+  }
+
+  .comments-list {
+    max-height: 360px;
+    overflow-y: auto;
+    padding: 16px 24px;
+  }
+
+  .comments-empty {
+    text-align: center;
+    padding: 30px 16px;
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--ink-3);
+  }
+
+  .comment-item {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    position: relative;
+    border: 1px solid var(--husk);
+  }
+
+  .comment-item:last-child { margin-bottom: 0; }
+
+  .comment-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .comment-text {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .comment-delete {
+    background: transparent;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .comment-delete:hover {
+    background: #fef2f2;
+    color: var(--red);
+  }
+
+  .comments-input-area {
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--husk);
+    background: white;
+  }
+
+  .comments-input-area textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--husk);
+    border-radius: 10px;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    resize: vertical;
+    min-height: 60px;
+    max-height: 160px;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .comments-input-area textarea:focus {
+    outline: none;
+    border-color: var(--leaf);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(122, 145, 80, 0.15);
+  }
+
+  .comments-input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  .add-comment-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+
+  .add-comment-btn:hover:not(:disabled) {
+    background: var(--shell-dark);
+  }
+
+  .add-comment-btn:disabled {
+    background: var(--ink-3);
+    cursor: not-allowed;
+  }
 </style>
 </head>
 <body>
@@ -985,6 +1225,7 @@
           <div>Plaćeno</div>
           <div>Preuzeto</div>
           <div></div>
+          <div></div>
         </div>
         <div id="ordersBody">
           <div class="loading-placeholder">učitavanje</div>
@@ -1016,6 +1257,27 @@
   </div>
 </div>
 
+<!-- Comments modal -->
+<div class="modal-overlay" id="commentsModal">
+  <div class="modal comments-modal">
+    <div class="comments-header">
+      <div>
+        <h3>Komentari <em id="commentsCount"></em></h3>
+        <div class="comments-subject" id="commentsSubject"></div>
+      </div>
+      <button class="close-modal-btn" onclick="closeCommentsModal()">×</button>
+    </div>
+    <div class="comments-list" id="commentsList"></div>
+    <div class="comments-input-area">
+      <textarea id="commentInput" placeholder="Dodaj komentar... (npr. javljeno preko telefona, poseban zahtev, itd.)" maxlength="500" oninput="updateCharCount()"></textarea>
+      <div class="comments-input-actions">
+        <span class="char-count"><span id="charCount">0</span>/500</span>
+        <button class="add-comment-btn" id="addCommentBtn" onclick="addComment()" disabled>Dodaj komentar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <span class="toast-icon">✓</span>
   <span id="toastText">Sačuvano</span>
@@ -1036,8 +1298,9 @@
   let products = [];
   let orders = [];
   let currentFilter = 'all';
-  let selectedIds = new Set();  // IDs porudžbina koje su čekirane
-  let pendingDelete = null;     // { type: 'single' | 'bulk', ids: [...] }
+  let selectedIds = new Set();
+  let pendingDelete = null;
+  let commentsOpenOrderId = null;  // ID porudžbine čiji su komentari otvoreni
 
   // ============================================
   // AUTH
@@ -1200,6 +1463,7 @@
     const isMobile = window.innerWidth <= 800;
 
     const trashIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
+    const commentIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
 
     container.innerHTML = filtered.map(o => {
       const isDone = o.paid !== '' && o.picked;
@@ -1225,6 +1489,12 @@
 
       const checkbox = `<input type="checkbox" class="order-select" ${checked} onchange="toggleSelection(${o.id})" onclick="event.stopPropagation()">`;
       const deleteBtn = `<button class="delete-btn" onclick="event.stopPropagation(); confirmSingleDelete(${o.id})" title="Obriši porudžbinu">${trashIcon}</button>`;
+      
+      // Comment button sa badge-om
+      const commentCount = (o.comments && o.comments.length) || 0;
+      const hasComments = commentCount > 0;
+      const commentBadge = hasComments ? `<span class="comment-badge">${commentCount}</span>` : '';
+      const commentBtn = `<button class="comment-btn ${hasComments ? 'has-comments' : ''}" onclick="event.stopPropagation(); openComments(${o.id})" title="${hasComments ? 'Pogledaj komentare' : 'Dodaj komentar'}">${commentIcon}${commentBadge}</button>`;
 
       if (isMobile) {
         return `
@@ -1247,7 +1517,8 @@
               ${paidSelect}
               ${pickedToggle}
             </div>
-            <div style="display:flex;justify-content:flex-end;margin-top:4px">
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
+              ${commentBtn}
               ${deleteBtn}
             </div>
           </div>
@@ -1263,6 +1534,7 @@
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
             <div>${paidSelect}</div>
             <div>${pickedToggle}</div>
+            <div>${commentBtn}</div>
             <div>${deleteBtn}</div>
           </div>
         `;
@@ -1393,16 +1665,173 @@
     }
   }
 
+  // --- KOMENTARI ---
+  
+  function openComments(orderId) {
+    const order = orders.find(o => o.id == orderId);
+    if (!order) return;
+    
+    commentsOpenOrderId = orderId;
+    
+    // Setuj header
+    const count = (order.comments || []).length;
+    document.getElementById('commentsCount').textContent = count > 0 ? `· ${count}` : '';
+    document.getElementById('commentsSubject').textContent = `${order.name} · sektor ${order.office}`;
+    
+    // Renderuj komentare
+    renderCommentsList(order.comments || []);
+    
+    // Reset textarea
+    document.getElementById('commentInput').value = '';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('addCommentBtn').disabled = true;
+    
+    document.getElementById('commentsModal').classList.add('show');
+    
+    // Focus na textarea
+    setTimeout(() => document.getElementById('commentInput').focus(), 100);
+  }
+
+  function closeCommentsModal() {
+    document.getElementById('commentsModal').classList.remove('show');
+    commentsOpenOrderId = null;
+  }
+
+  function renderCommentsList(comments) {
+    const container = document.getElementById('commentsList');
+    
+    if (!comments || comments.length === 0) {
+      container.innerHTML = '<div class="comments-empty">~ još nema komentara ~</div>';
+      return;
+    }
+    
+    // Sortiraj: najnoviji na vrhu
+    const sorted = [...comments].sort((a, b) => Number(b.id) - Number(a.id));
+    
+    container.innerHTML = sorted.map(c => `
+      <div class="comment-item">
+        <div class="comment-meta">
+          <span>${c.date}</span>
+          <button class="comment-delete" onclick="deleteComment(${c.id})">obriši</button>
+        </div>
+        <div class="comment-text">${escapeHtml(c.text)}</div>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function updateCharCount() {
+    const input = document.getElementById('commentInput');
+    const count = input.value.length;
+    document.getElementById('charCount').textContent = count;
+    document.getElementById('addCommentBtn').disabled = input.value.trim().length === 0;
+  }
+
+  async function addComment() {
+    if (!commentsOpenOrderId) return;
+    const input = document.getElementById('commentInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    const btn = document.getElementById('addCommentBtn');
+    btn.disabled = true;
+    btn.textContent = 'Dodajem...';
+    
+    try {
+      const result = await apiCall({
+        action: 'addComment',
+        id: commentsOpenOrderId,
+        text: text
+      });
+      
+      if (result.success) {
+        // Ažuriraj lokalno
+        const order = orders.find(o => o.id == commentsOpenOrderId);
+        if (order) {
+          order.comments = result.comments;
+          renderCommentsList(order.comments);
+          const count = order.comments.length;
+          document.getElementById('commentsCount').textContent = count > 0 ? `· ${count}` : '';
+        }
+        
+        // Reset input
+        input.value = '';
+        document.getElementById('charCount').textContent = '0';
+        
+        // Re-render orders (da se badge ažurira)
+        renderOrdersTable();
+        
+        showToast('Komentar dodat');
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Greška u snimanju', true);
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Dodaj komentar';
+    }
+  }
+
+  async function deleteComment(commentId) {
+    if (!commentsOpenOrderId) return;
+    
+    try {
+      const result = await apiCall({
+        action: 'deleteComment',
+        id: commentsOpenOrderId,
+        commentId: commentId
+      });
+      
+      if (result.success) {
+        const order = orders.find(o => o.id == commentsOpenOrderId);
+        if (order) {
+          order.comments = result.comments;
+          renderCommentsList(order.comments);
+          const count = order.comments.length;
+          document.getElementById('commentsCount').textContent = count > 0 ? `· ${count}` : '';
+        }
+        renderOrdersTable();
+        showToast('Komentar obrisan');
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Greška u brisanju', true);
+    }
+  }
+
   // Bind modal confirm button
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('modalConfirmBtn').addEventListener('click', executeDelete);
     // Escape za zatvaranje modal-a
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') {
+        closeModal();
+        closeCommentsModal();
+      }
     });
     // Klik van modala zatvara
     document.getElementById('confirmModal').addEventListener('click', (e) => {
       if (e.target.id === 'confirmModal') closeModal();
+    });
+    document.getElementById('commentsModal').addEventListener('click', (e) => {
+      if (e.target.id === 'commentsModal') closeCommentsModal();
+    });
+    // Ctrl+Enter u textarea šalje komentar
+    document.getElementById('commentInput').addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (!document.getElementById('addCommentBtn').disabled) {
+          addComment();
+        }
+      }
     });
   });
 
