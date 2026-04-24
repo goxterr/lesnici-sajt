@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — Lešnici</title>
+<title>Lešnici — Porudžbine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
   :root {
     --cream: #faf5eb;
@@ -22,7 +23,6 @@
     --accent: #9c4a1b;
     --accent-soft: #e8b88f;
     --red: #b91c1c;
-    --yellow: #d97706;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,610 +31,724 @@
     font-family: 'Inter', sans-serif;
     background: var(--cream);
     color: var(--ink);
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
-  .login-screen {
-    min-height: 100vh;
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(156, 74, 27, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 60%, rgba(122, 145, 80, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 50% 90%, rgba(200, 166, 120, 0.04) 0%, transparent 50%);
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .botanical {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.85;
+    z-index: 0;
+  }
+
+  .botanical-1 { top: 20px; right: -20px; width: 180px; transform: rotate(15deg); }
+  .botanical-2 { top: 380px; left: -60px; width: 140px; transform: rotate(-20deg); opacity: 0.7; }
+  .botanical-3 { bottom: 400px; right: -40px; width: 160px; transform: rotate(25deg); opacity: 0.7; }
+
+  @media (max-width: 700px) {
+    .botanical-1 { width: 120px; top: 10px; right: -30px; }
+    .botanical-2 { width: 100px; left: -40px; }
+    .botanical-3 { width: 110px; right: -30px; }
+    .container { padding: 20px 16px 60px; }
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 0 48px;
+    position: relative;
+  }
+
+  .hero-illustration {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 8px;
+  }
+
+  .tagline {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--leaf-dark);
+    margin-bottom: 8px;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(42px, 7vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+    position: relative;
+  }
+
+  h1 em::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 2px;
+    right: 2px;
+    height: 3px;
+    background: var(--accent-soft);
+    border-radius: 2px;
+    z-index: -1;
+    opacity: 0.6;
+  }
+
+  .intro {
+    color: var(--ink-2);
+    font-size: 16px;
+    max-width: 440px;
+    margin: 0 auto;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+  }
+
+  section {
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .section-head {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
+    gap: 14px;
+    margin-bottom: 24px;
   }
 
-  .login-box {
-    background: white;
-    border: 2px solid var(--shell);
-    border-radius: 20px;
-    padding: 40px 32px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 8px 0 rgba(139, 99, 50, 0.1);
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
   }
 
-  .login-icon { width: 64px; height: 64px; margin: 0 auto 20px; }
-
-  .login-title {
+  .section-title {
     font-family: 'Fraunces', serif;
     font-size: 28px;
     font-weight: 500;
-    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+    line-height: 1;
   }
 
-  .login-title em { font-style: italic; color: var(--accent); }
+  .section-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
 
-  .login-subtitle {
+  .section-handwrite {
     font-family: 'Caveat', cursive;
     font-size: 18px;
     color: var(--leaf-dark);
-    margin-bottom: 28px;
+    margin-left: auto;
+    transform: rotate(-3deg);
   }
 
-  .login-input {
+  .products-wrap {
+    background: var(--cream-2);
+    border-radius: 20px;
+    padding: 12px 24px;
+    position: relative;
+    box-shadow: 0 2px 0 rgba(139, 99, 50, 0.08);
+  }
+
+  .product {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px dashed var(--shell);
+    transition: opacity 0.2s;
+  }
+
+  .product:last-child { border-bottom: none; }
+
+  .product.unavailable { opacity: 0.55; }
+  .product.unavailable .product-icon { filter: grayscale(0.5); }
+
+  .product-icon {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  .product-body { min-width: 0; }
+
+  .product-name {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .product-meta {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+
+  .product-price {
+    color: var(--accent);
+    font-weight: 600;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+  }
+
+  .unavailable-badge {
+    display: inline-block;
+    background: var(--red);
+    color: white;
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    margin-top: 4px;
+    transform: rotate(-2deg);
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    background: var(--cream);
+    border: 2px solid var(--shell);
+    border-radius: 999px;
+    padding: 3px;
+  }
+
+  .stepper-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Fraunces', serif;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stepper-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: white;
+  }
+
+  .stepper-btn:disabled { color: var(--ink-3); cursor: not-allowed; opacity: 0.4; }
+
+  .stepper-value {
+    font-family: 'Fraunces', serif;
+    min-width: 36px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .form-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(139, 99, 50, 0.06);
+    border: 1px solid var(--husk);
+  }
+
+  @media (max-width: 500px) {
+    .form-card { padding: 22px 18px; }
+  }
+
+  .form-group { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--leaf-dark);
+    margin-bottom: 4px;
+  }
+
+  input {
     width: 100%;
     padding: 12px 14px;
     border: 2px solid var(--husk);
     border-radius: 10px;
     background: var(--cream);
-    font-family: inherit;
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
     font-size: 15px;
-    margin-bottom: 16px;
     transition: all 0.15s;
   }
 
-  .login-input:focus {
+  input::placeholder { color: var(--ink-3); }
+
+  input:focus {
     outline: none;
     border-color: var(--leaf);
     background: white;
     box-shadow: 0 0 0 4px rgba(122, 145, 80, 0.15);
   }
 
-  .login-btn {
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  .summary {
+    background: linear-gradient(170deg, #fffbee 0%, #fff4d9 100%);
+    border: 2px solid var(--shell);
+    border-radius: 14px;
+    padding: 20px;
+    margin: 24px 0 20px;
+    position: relative;
+    box-shadow: 0 3px 0 rgba(139, 99, 50, 0.12);
+  }
+
+  .summary::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 20px;
+    width: 24px;
+    height: 16px;
+    background: var(--accent);
+    opacity: 0.85;
+    clip-path: polygon(50% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    transform: rotate(-8deg);
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+
+  .summary-row .qty {
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+    color: var(--leaf-dark);
+    margin-left: 6px;
+  }
+
+  .summary-row .amount {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .summary-row.total {
+    margin-top: 10px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--shell);
+    font-size: 17px;
+    color: var(--ink);
+  }
+
+  .summary-row.total .label {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+  }
+
+  .summary-row.total .amount {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .empty-summary {
+    text-align: center;
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--ink-3);
+    padding: 8px;
+  }
+
+  .submit-btn {
     width: 100%;
-    padding: 14px;
+    padding: 16px;
     background: var(--accent);
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     font-family: 'Fraunces', serif;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 500;
     cursor: pointer;
+    transition: all 0.15s;
     box-shadow: 0 4px 0 var(--shell-dark);
-    transition: all 0.15s;
-  }
-
-  .login-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--shell-dark); }
-  .login-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--shell-dark); }
-  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .login-error {
-    color: var(--red);
-    font-size: 13px;
-    margin-top: 10px;
-    min-height: 18px;
-  }
-
-  .admin-app { display: none; }
-  .admin-app.active { display: block; }
-  .login-screen.hidden { display: none; }
-
-  .topbar {
-    background: white;
-    border-bottom: 2px solid var(--husk);
-    padding: 14px 24px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
+    letter-spacing: 0.02em;
     display: flex;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
+    gap: 8px;
   }
 
-  .topbar-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'Fraunces', serif;
-    font-size: 20px;
-    font-weight: 500;
+  .submit-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 var(--shell-dark);
   }
 
-  .topbar-logo em { font-style: italic; color: var(--accent); }
-  .topbar-logo-icon { width: 32px; height: 32px; }
-
-  .topbar-badge {
-    background: var(--accent);
-    color: white;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-family: 'Inter', sans-serif;
+  .submit-btn:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--shell-dark);
   }
 
-  .refresh-btn, .logout-btn {
-    background: transparent;
-    border: 1px solid var(--husk);
-    color: var(--ink-2);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .submit-btn:disabled {
+    background: var(--ink-3);
+    cursor: not-allowed;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
   }
 
-  .refresh-btn { margin-left: auto; }
-  .refresh-btn:hover, .logout-btn:hover { background: var(--cream-2); color: var(--ink); }
-  .refresh-btn .spinner-small { animation: spin 1s linear infinite; }
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
 
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
 
-  .tabs {
+  .orders-list {
     display: flex;
-    gap: 4px;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .order-item {
     background: white;
-    padding: 12px 24px;
-    border-bottom: 1px solid var(--husk);
-    overflow-x: auto;
-  }
-
-  .tab {
-    background: transparent;
-    border: none;
-    padding: 10px 16px;
-    font-family: 'Fraunces', serif;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--ink-2);
-    cursor: pointer;
-    border-radius: 10px;
-    white-space: nowrap;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .tab:hover { background: var(--cream-2); color: var(--ink); }
-  .tab.active { background: var(--ink); color: var(--cream); }
-
-  .tab-count {
-    background: rgba(255,255,255,0.15);
-    padding: 1px 7px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    min-width: 20px;
-    text-align: center;
-  }
-
-  .tab:not(.active) .tab-count { background: var(--husk); color: var(--ink-2); }
-
-  .main {
-    padding: 24px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .stats-bar {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .stat-card {
-    background: white;
-    border: 1px solid var(--husk);
-    border-radius: 12px;
-    padding: 16px;
-  }
-
-  .stat-label {
-    font-family: 'Caveat', cursive;
-    font-size: 15px;
-    color: var(--leaf-dark);
-    margin-bottom: 4px;
-  }
-
-  .stat-value {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1;
-  }
-
-  .stat-value.accent { color: var(--accent); }
-
-  .stat-sub {
-    font-size: 11px;
-    color: var(--ink-3);
-    margin-top: 4px;
-  }
-
-  .filter-bar {
-    background: white;
-    border: 1px solid var(--husk);
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .filter-chip {
-    background: var(--cream);
-    border: 1px solid var(--husk);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: inherit;
-    color: var(--ink-2);
-  }
-
-  .filter-chip:hover { background: var(--cream-2); }
-  .filter-chip.active {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
-
-  .search-input {
-    flex: 1;
-    min-width: 200px;
-    padding: 8px 12px;
-    border: 1px solid var(--husk);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 13px;
-    background: var(--cream);
-  }
-
-  .search-input:focus {
-    outline: none;
-    border-color: var(--leaf);
-    background: white;
-  }
-
-  .orders-table {
-    background: white;
-    border: 1px solid var(--husk);
     border-radius: 14px;
-    overflow: hidden;
-  }
-
-  .table-head {
-    display: grid;
-    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px 36px;
-    padding: 12px 16px;
-    background: var(--cream-2);
-    border-bottom: 1px solid var(--husk);
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ink-2);
-    align-items: center;
-  }
-
-  .order-row {
-    display: grid;
-    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px 36px;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--husk);
-    align-items: center;
-    transition: background 0.15s;
-    gap: 6px;
-  }
-
-  .order-row.selected {
-    background: #fef3e2;
-  }
-
-  .order-row.selected:hover {
-    background: #fce8c7;
-  }
-
-  .order-row:hover { background: var(--cream); }
-  .order-row:last-child { border-bottom: none; }
-  .order-row.done { opacity: 0.6; background: var(--cream); }
-
-  .col-date {
-    font-size: 12px;
-    color: var(--ink-2);
-    font-family: 'Inter', sans-serif;
-  }
-
-  .col-name {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 14px;
-  }
-
-  .col-name .phone-small {
-    display: block;
-    font-family: 'Inter', sans-serif;
-    font-weight: 400;
-    font-size: 11px;
-    color: var(--ink-3);
-    margin-top: 2px;
-  }
-
-  .col-office {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    color: var(--accent);
-    font-size: 15px;
-  }
-
-  .col-items {
-    font-size: 13px;
-    color: var(--ink-2);
-  }
-
-  .col-amount {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    color: var(--accent);
-    font-size: 15px;
-    text-align: right;
-  }
-
-  .status-select {
-    background: var(--cream);
+    padding: 16px 20px;
     border: 1px solid var(--husk);
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--ink);
-    width: 100%;
-  }
-
-  .status-select:disabled { opacity: 0.6; cursor: wait; }
-
-  .status-select.paid-ep {
-    background: #e8f5d8;
-    border-color: var(--leaf);
-    color: var(--leaf-dark);
-  }
-
-  .status-select.paid-p {
-    background: #fef3e2;
-    border-color: var(--yellow);
-    color: var(--yellow);
-  }
-
-  .status-select.unpaid {
-    background: #fef2f2;
-    border-color: #fca5a5;
-    color: var(--red);
-  }
-
-  .pickup-toggle {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
     align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--husk);
-    background: var(--cream);
-    font-size: 12px;
-    color: var(--ink-2);
-    font-weight: 500;
-    transition: all 0.15s;
-    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
   }
 
-  .pickup-toggle:hover { background: var(--cream-2); }
-  .pickup-toggle.checked {
-    background: #e8f5d8;
-    border-color: var(--leaf);
-    color: var(--leaf-dark);
+  .order-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 99, 50, 0.08);
   }
-  .pickup-toggle.saving { opacity: 0.6; cursor: wait; }
 
-  .pickup-check {
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid var(--ink-3);
-    border-radius: 4px;
+  .order-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--husk);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
-
-  .pickup-toggle.checked .pickup-check {
-    background: var(--leaf);
-    border-color: var(--leaf);
-  }
-
-  .pickup-toggle.checked .pickup-check::after {
-    content: '✓';
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  @media (max-width: 800px) {
-    .table-head { display: none; }
-
-    .order-row {
-      grid-template-columns: 1fr;
-      gap: 10px;
-      padding: 14px;
-    }
-
-    .order-row.done { border-left: 3px solid var(--leaf); }
-
-    .mobile-row-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      gap: 10px;
-    }
-
-    .mobile-name-block { flex: 1; }
-    .mobile-date-amount { text-align: right; }
-
-    .col-office {
-      display: inline-block;
-      background: var(--cream-2);
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 13px;
-      margin-top: 4px;
-    }
-
-    .mobile-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .col-amount { text-align: right; }
-    .stats-bar { grid-template-columns: 1fr 1fr; }
-  }
-
-  .products-admin {
-    background: white;
-    border: 1px solid var(--husk);
-    border-radius: 14px;
-    padding: 20px;
-  }
-
-  .product-admin {
-    display: grid;
-    grid-template-columns: 48px 1fr auto auto;
-    gap: 14px;
-    padding: 16px 0;
-    border-bottom: 1px dashed var(--husk);
-    align-items: center;
-  }
-
-  .product-admin:last-child { border-bottom: none; }
-  .product-admin-icon { width: 48px; height: 48px; }
-
-  .product-admin-name {
     font-family: 'Fraunces', serif;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
   }
 
-  .product-admin-price {
-    font-size: 13px;
-    color: var(--ink-2);
+  .order-body { min-width: 0; }
+
+  .order-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
-  .avail-toggle {
-    position: relative;
-    width: 52px;
-    height: 30px;
-    background: var(--husk);
-    border-radius: 15px;
-    cursor: pointer;
-    border: none;
-    transition: background 0.2s;
-  }
-
-  .avail-toggle::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 24px;
-    height: 24px;
-    background: white;
-    border-radius: 50%;
-    transition: transform 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  }
-
-  .avail-toggle.on { background: var(--leaf); }
-  .avail-toggle.on::after { transform: translateX(22px); }
-  .avail-toggle:disabled { opacity: 0.6; cursor: wait; }
-
-  .avail-label {
-    font-family: 'Caveat', cursive;
+  .order-name {
+    font-family: 'Fraunces', serif;
     font-size: 16px;
     font-weight: 600;
   }
 
-  .avail-label.on { color: var(--leaf-dark); }
-  .avail-label.off { color: var(--red); }
+  .order-meta {
+    font-size: 12px;
+    color: var(--ink-3);
+  }
 
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(120%);
-    background: white;
-    color: var(--ink);
-    padding: 12px 18px;
-    border-radius: 12px;
+  .order-items {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 2px;
+  }
+
+  .order-amount {
     font-family: 'Fraunces', serif;
-    font-size: 14px;
-    box-shadow: 0 12px 30px rgba(139, 99, 50, 0.25);
-    border: 2px solid var(--leaf);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 200;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* Status badges on order cards */
+  .order-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+  }
+
+  .status-badge svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+
+  .badge-delivered {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+  }
+
+  .badge-paid {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+
+  /* Sub-section divider for orders */
+  .orders-subsection {
+    margin-top: 32px;
+  }
+
+  .orders-subsection-head {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 14px;
+    padding: 0 4px;
   }
 
-  .toast.show {
-    transform: translateX(-50%) translateY(0);
+  .orders-subsection-title {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .orders-subsection-title.done-title {
+    color: var(--ink-3);
+  }
+
+  .orders-subsection-count {
+    background: var(--husk);
+    color: var(--ink-2);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+
+  .orders-subsection-title.done-title .orders-subsection-count {
+    background: var(--cream-2);
+    color: var(--ink-3);
+  }
+
+  /* Minimized (completed) order cards */
+  .order-item.minimized {
+    padding: 10px 16px;
+    background: var(--cream-2);
+    border: 1px solid var(--husk);
+    opacity: 0.75;
+    cursor: pointer;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 12px;
+    transition: all 0.2s;
+  }
+
+  .order-item.minimized:hover {
+    opacity: 1;
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(139, 99, 50, 0.08);
+  }
+
+  .order-item.minimized .order-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+    background: var(--cream);
+  }
+
+  .order-item.minimized .order-mini-info {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .order-item.minimized .order-mini-name {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  .order-item.minimized .order-mini-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  .order-item.minimized .order-mini-amount {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    color: var(--ink-3);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .expand-chevron {
+    width: 20px;
+    height: 20px;
+    color: var(--ink-3);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .order-item.minimized.expanded .expand-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* When expanded, minimized card looks like normal card */
+  .order-item.minimized.expanded {
+    grid-template-columns: auto 1fr auto;
+    padding: 16px 20px;
+    background: white;
     opacity: 1;
   }
 
-  .toast-icon {
-    width: 20px;
-    height: 20px;
-    background: var(--leaf);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 11px;
-    font-weight: 700;
+  .order-item.minimized.expanded .order-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+    background: var(--husk);
   }
 
-  .toast.error { border-color: var(--red); }
-  .toast.error .toast-icon { background: var(--red); }
+  .order-item.minimized.expanded .order-mini-info {
+    display: block;
+  }
 
-  .empty-state {
+  .order-item.minimized.expanded .order-mini-name {
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .order-item.minimized.expanded .order-mini-meta {
+    font-size: 12px;
+    display: block;
+    margin-top: 1px;
+  }
+
+  .order-item.minimized.expanded .expanded-details {
+    display: block;
+  }
+
+  .order-item.minimized.expanded .order-mini-amount {
+    font-size: 15px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .order-item.minimized.expanded .expand-chevron {
+    display: none;
+  }
+
+  .expanded-details {
+    display: none;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 4px;
+  }
+
+  /* Show more button */
+  .show-more-btn {
+    display: block;
+    margin: 12px auto 0;
+    background: transparent;
+    border: 1px dashed var(--shell);
+    color: var(--ink-2);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .show-more-btn:hover {
+    background: var(--cream-2);
+    color: var(--ink);
+    border-color: var(--shell-dark);
+  }
+
+  .empty {
     text-align: center;
-    padding: 60px 20px;
+    padding: 32px;
     font-family: 'Caveat', cursive;
     font-size: 22px;
     color: var(--ink-3);
@@ -642,7 +756,7 @@
 
   .loading-placeholder {
     text-align: center;
-    padding: 40px 20px;
+    padding: 32px;
     font-family: 'Caveat', cursive;
     font-size: 20px;
     color: var(--ink-3);
@@ -659,1269 +773,777 @@
     60%, 100% { content: '...'; }
   }
 
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* Checkbox za selektovanje */
-  .order-select {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: var(--accent);
-    flex-shrink: 0;
-  }
-
-  /* Delete dugme po kartici */
-  .delete-btn {
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--husk);
-    background: white;
-    color: var(--ink-3);
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    flex-shrink: 0;
-  }
-
-  .delete-btn:hover {
-    background: #fef2f2;
-    border-color: var(--red);
-    color: var(--red);
-  }
-
-  .delete-btn svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  /* Bulk toolbar na vrhu kad imaš selektovano */
-  .bulk-toolbar {
-    background: var(--ink);
-    color: var(--cream);
-    border-radius: 12px;
-    padding: 10px 16px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    box-shadow: 0 4px 14px rgba(42, 31, 21, 0.2);
-    animation: slideDown 0.2s ease-out;
-  }
-
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .bulk-count {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 15px;
-  }
-
-  .bulk-actions {
-    display: flex;
-    gap: 8px;
-    margin-left: auto;
-    flex-wrap: wrap;
-  }
-
-  .bulk-btn {
-    background: transparent;
-    color: var(--cream);
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 6px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .bulk-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.4);
-  }
-
-  .bulk-btn.danger {
-    background: var(--red);
-    border-color: var(--red);
-  }
-
-  .bulk-btn.danger:hover {
-    background: #991b1b;
-  }
-
-  /* "Selektuj sve" checkbox u filter bar-u */
-  .select-all-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border: 1px solid var(--husk);
-    border-radius: 20px;
-    background: var(--cream);
-    font-size: 12px;
-    color: var(--ink-2);
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .select-all-wrapper:hover { background: var(--cream-2); }
-
-  .select-all-wrapper input {
-    margin: 0;
-    cursor: pointer;
-    accent-color: var(--accent);
-  }
-
-  /* Modal za potvrdu brisanja */
-  .modal-overlay {
+  /* Success screen */
+  .success-screen {
     position: fixed;
     inset: 0;
-    background: rgba(42, 31, 21, 0.5);
-    z-index: 300;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    animation: fadeIn 0.15s;
+    background: var(--cream);
+    z-index: 200;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  .success-screen.show {
+    opacity: 1;
+    pointer-events: all;
   }
 
-  .modal-overlay.show { display: flex; }
-
-  .modal {
-    background: white;
-    border-radius: 16px;
-    max-width: 420px;
-    width: 100%;
-    padding: 28px;
+  .success-inner {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+
+  .success-confetti {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 120px;
+    pointer-events: none;
+  }
+
+  .success-icon-wrap {
+    width: 100px;
+    height: 100px;
+    margin: 40px auto 24px;
+    position: relative;
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   @keyframes popIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
   }
 
-  .modal-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 16px;
-    background: #fef2f2;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--red);
-    font-size: 28px;
-  }
-
-  .modal-title {
+  .success-title {
     font-family: 'Fraunces', serif;
-    font-size: 22px;
-    font-weight: 600;
+    font-size: 38px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
     margin-bottom: 8px;
+    line-height: 1.1;
   }
 
-  .modal-message {
-    color: var(--ink-2);
-    margin-bottom: 24px;
-    line-height: 1.5;
+  .success-title em {
+    font-style: italic;
+    color: var(--accent);
   }
 
-  .modal-highlight {
-    background: var(--cream-2);
-    padding: 10px 14px;
-    border-radius: 8px;
-    margin: 12px 0 16px;
-    font-family: 'Fraunces', serif;
-    font-size: 14px;
-    color: var(--ink);
+  .success-subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--leaf-dark);
+    margin-bottom: 32px;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+
+  .payment-card {
+    background: white;
+    border: 2px solid var(--shell);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 0 rgba(139, 99, 50, 0.15);
     text-align: left;
   }
 
-  .modal-actions {
+  .payment-total {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed var(--shell);
+    margin-bottom: 20px;
+  }
+
+  .payment-total-label {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--ink-2);
+    margin-bottom: 4px;
+  }
+
+  .payment-total-amount {
+    font-family: 'Fraunces', serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  .payment-qr-section {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .payment-qr-label {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--leaf-dark);
+    margin-bottom: 12px;
+  }
+
+  .payment-qr-img {
+    width: 180px;
+    height: 180px;
+    border: 4px solid var(--cream-2);
+    border-radius: 12px;
+    background: white;
+    padding: 8px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  #dynamicQR img,
+  #dynamicQR canvas {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .payment-qr-hint {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-top: 10px;
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+  }
+
+  .payment-details {
     display: flex;
+    flex-direction: column;
     gap: 10px;
   }
 
-  .modal-btn {
-    flex: 1;
-    padding: 12px;
+  .payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--cream);
     border-radius: 10px;
-    font-family: inherit;
     font-size: 14px;
+  }
+
+  .payment-row-label {
+    color: var(--ink-2);
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  .payment-row-value {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--shell);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
-    border: none;
-    transition: all 0.15s;
-  }
-
-  .modal-btn.cancel {
-    background: var(--cream);
-    color: var(--ink-2);
-    border: 1px solid var(--husk);
-  }
-
-  .modal-btn.cancel:hover { background: var(--cream-2); }
-
-  .modal-btn.confirm {
-    background: var(--red);
-    color: white;
-  }
-
-  .modal-btn.confirm:hover { background: #991b1b; }
-
-  /* Comment icon na kartici */
-  .comment-btn {
-    position: relative;
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--husk);
-    background: var(--cream);
-    color: var(--ink-3);
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-family: 'Inter', sans-serif;
     transition: all 0.15s;
     flex-shrink: 0;
   }
 
-  .comment-btn:hover {
-    background: var(--husk);
-    color: var(--ink-2);
-  }
-
-  .comment-btn.has-comments {
+  .copy-btn:hover {
     background: var(--accent);
     color: white;
     border-color: var(--accent);
   }
 
-  .comment-btn.has-comments:hover {
-    background: var(--shell-dark);
-  }
-
-  .comment-btn svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .comment-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: var(--red);
+  .copy-btn.copied {
+    background: var(--leaf);
     color: white;
-    border-radius: 50%;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    font-size: 10px;
-    font-weight: 700;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  }
-
-  /* Comment modal - širi */
-  .modal.comments-modal {
-    max-width: 520px;
-    padding: 0;
-    overflow: hidden;
-    text-align: left;
-  }
-
-  .comments-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--husk);
-    background: var(--cream);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .comments-header h3 {
-    font-family: 'Fraunces', serif;
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .comments-header h3 em {
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  .comments-subject {
-    font-size: 13px;
-    color: var(--ink-2);
-    margin-top: 2px;
-  }
-
-  .close-modal-btn {
-    background: transparent;
-    border: none;
-    color: var(--ink-3);
-    font-size: 24px;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    transition: background 0.15s;
-    flex-shrink: 0;
-  }
-
-  .close-modal-btn:hover {
-    background: var(--cream-2);
-    color: var(--ink);
-  }
-
-  .comments-list {
-    max-height: 360px;
-    overflow-y: auto;
-    padding: 16px 24px;
-  }
-
-  .comments-empty {
-    text-align: center;
-    padding: 30px 16px;
-    font-family: 'Caveat', cursive;
-    font-size: 20px;
-    color: var(--ink-3);
-  }
-
-  .comment-item {
-    background: var(--cream);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    position: relative;
-    border: 1px solid var(--husk);
-  }
-
-  .comment-item:last-child { margin-bottom: 0; }
-
-  .comment-meta {
-    font-family: 'Inter', sans-serif;
-    font-size: 11px;
-    color: var(--ink-3);
-    margin-bottom: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .comment-text {
-    font-size: 14px;
-    color: var(--ink);
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-
-  .comment-delete {
-    background: transparent;
-    border: none;
-    color: var(--ink-3);
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.15s;
-  }
-
-  .comment-delete:hover {
-    background: #fef2f2;
-    color: var(--red);
-  }
-
-  .comments-input-area {
-    padding: 16px 24px 20px;
-    border-top: 1px solid var(--husk);
-    background: white;
-  }
-
-  .comments-input-area textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1.5px solid var(--husk);
-    border-radius: 10px;
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    line-height: 1.4;
-    resize: vertical;
-    min-height: 60px;
-    max-height: 160px;
-    transition: all 0.15s;
-    font-family: inherit;
-  }
-
-  .comments-input-area textarea:focus {
-    outline: none;
     border-color: var(--leaf);
-    background: white;
-    box-shadow: 0 0 0 3px rgba(122, 145, 80, 0.15);
   }
 
-  .comments-input-actions {
+  .pickup-note {
+    background: linear-gradient(170deg, #fffbee 0%, #fff4d9 100%);
+    border: 2px dashed var(--shell);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--ink-2);
+    font-size: 14px;
+  }
+
+  .pickup-note strong {
+    font-family: 'Caveat', cursive;
+    font-style: normal;
+    font-size: 18px;
+    color: var(--leaf-dark);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .success-close-btn {
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .success-close-btn:hover {
+    background: var(--accent);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: white;
+    color: var(--ink);
+    padding: 14px 20px 14px 16px;
+    border-radius: 14px;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 12px 30px rgba(139, 99, 50, 0.25);
+    border: 2px solid var(--leaf);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 300;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
     gap: 10px;
   }
 
-  .char-count {
-    font-size: 11px;
-    color: var(--ink-3);
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
   }
 
-  .add-comment-btn {
-    background: var(--accent);
+  .toast-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--leaf);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
     font-size: 13px;
-    font-weight: 500;
-    transition: all 0.15s;
+    font-weight: 700;
+    flex-shrink: 0;
   }
 
-  .add-comment-btn:hover:not(:disabled) {
-    background: var(--shell-dark);
+  .toast.error { border-color: var(--red); }
+  .toast.error .toast-icon { background: var(--red); }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+    50% { transform: translateY(-6px) rotate(var(--r, 0deg)); }
   }
 
-  .add-comment-btn:disabled {
-    background: var(--ink-3);
-    cursor: not-allowed;
-  }
+  .botanical-1 { --r: 15deg; animation: float 8s ease-in-out infinite; }
+  .botanical-2 { --r: -20deg; animation: float 10s ease-in-out infinite 1s; }
+  .botanical-3 { --r: 25deg; animation: float 9s ease-in-out infinite 2s; }
 </style>
 </head>
 <body>
 
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
-    <svg class="login-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="32" cy="36" rx="20" ry="22" fill="#a87544" opacity="0.9"/>
-      <ellipse cx="32" cy="36" rx="20" ry="22" fill="none" stroke="#6b4520" stroke-width="1.5" opacity="0.7"/>
-      <path d="M 17 22 Q 18 16 24 16 L 40 16 Q 46 16 47 22 Q 40 20 32 21 Q 24 20 17 22 Z" fill="#7a9150" opacity="0.85"/>
-      <rect x="26" y="40" width="12" height="12" fill="#6b4520" opacity="0.8" rx="2"/>
-      <rect x="29" y="36" width="6" height="8" fill="none" stroke="#6b4520" stroke-width="1.5"/>
-    </svg>
-    <h1 class="login-title">Admin <em>panel</em></h1>
-    <p class="login-subtitle">samo za vlasnika</p>
-    <input type="password" class="login-input" id="passwordInput" placeholder="Unesite lozinku" onkeypress="if(event.key==='Enter') doLogin()">
-    <button class="login-btn" id="loginBtn" onclick="doLogin()">Uđi →</button>
-    <div class="login-error" id="loginError"></div>
-  </div>
-</div>
+<!-- Decorative botanicals -->
+<svg class="botanical botanical-1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <path d="M 60 40 Q 40 60 45 95 Q 55 115 85 110 Q 105 95 95 65 Q 85 40 60 40 Z" fill="#a8c077" opacity="0.75"/>
+    <path d="M 60 40 Q 40 60 45 95 Q 55 115 85 110 Q 105 95 95 65 Q 85 40 60 40 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.6"/>
+    <path d="M 55 50 Q 65 75 80 105" stroke="#5a7535" stroke-width="1.2" fill="none" opacity="0.7"/>
+    <path d="M 58 65 L 75 70 M 65 80 L 78 85 M 70 95 L 82 98" stroke="#5a7535" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 120 50 Q 105 85 120 120 Q 145 135 160 115 Q 170 85 155 55 Q 135 45 120 50 Z" fill="#8fb055" opacity="0.8"/>
+    <path d="M 120 50 Q 105 85 120 120 Q 145 135 160 115 Q 170 85 155 55 Q 135 45 120 50 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.6"/>
+    <path d="M 135 55 Q 140 85 145 125" stroke="#4d6030" stroke-width="1.2" fill="none" opacity="0.7"/>
+    <path d="M 130 70 L 148 72 M 132 90 L 155 92 M 135 108 L 152 115" stroke="#4d6030" stroke-width="0.8" opacity="0.5"/>
+    <ellipse cx="85" cy="140" rx="14" ry="17" fill="#a87544" opacity="0.85"/>
+    <ellipse cx="85" cy="140" rx="14" ry="17" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.7"/>
+    <path d="M 75 125 Q 82 130 95 128" fill="#c8a678" opacity="0.9"/>
+    <ellipse cx="85" cy="130" rx="12" ry="4" fill="#d4b88a" opacity="0.7"/>
+    <ellipse cx="108" cy="155" rx="12" ry="15" fill="#9c6838" opacity="0.8"/>
+    <ellipse cx="108" cy="155" rx="12" ry="15" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.6"/>
+    <path d="M 90 120 Q 95 130 100 145" stroke="#6b4520" stroke-width="2" fill="none" opacity="0.7"/>
+  </g>
+</svg>
 
-<div class="admin-app" id="adminApp">
-  <div class="topbar">
-    <div class="topbar-logo">
-      <svg class="topbar-logo-icon" viewBox="0 0 40 40">
+<svg class="botanical botanical-2" viewBox="0 0 150 200" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 30 20 Q 50 60 55 100 Q 60 140 45 180" stroke="#6b4520" stroke-width="2.5" fill="none" opacity="0.7"/>
+  <path d="M 55 40 Q 35 60 40 95 Q 60 110 85 90 Q 95 65 75 42 Q 60 35 55 40 Z" fill="#7a9150" opacity="0.8"/>
+  <path d="M 55 40 Q 35 60 40 95 Q 60 110 85 90 Q 95 65 75 42 Q 60 35 55 40 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.7"/>
+  <path d="M 60 45 Q 65 70 70 100" stroke="#4d6030" stroke-width="1" fill="none" opacity="0.7"/>
+  <ellipse cx="70" cy="130" rx="13" ry="16" fill="#a87544" opacity="0.85"/>
+  <ellipse cx="70" cy="130" rx="13" ry="16" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.6"/>
+  <ellipse cx="45" cy="155" rx="11" ry="14" fill="#9c6838" opacity="0.8"/>
+</svg>
+
+<svg class="botanical botanical-3" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 90 30 Q 65 50 70 95 Q 90 115 120 95 Q 135 65 115 35 Q 100 25 90 30 Z" fill="#a8c077" opacity="0.8"/>
+  <path d="M 90 30 Q 65 50 70 95 Q 90 115 120 95 Q 135 65 115 35 Q 100 25 90 30 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.7"/>
+  <path d="M 95 35 Q 100 65 105 110" stroke="#5a7535" stroke-width="1.2" fill="none" opacity="0.7"/>
+  <path d="M 45 110 Q 40 130 50 150 Q 75 165 95 150 Q 105 130 95 110 Q 70 100 45 110 Z" fill="#d4b88a" opacity="0.85"/>
+  <path d="M 45 110 L 42 105 L 50 108 L 55 102 L 62 107 L 70 100 L 78 106 L 85 101 L 92 107 L 98 105 L 95 110" fill="#d4b88a" stroke="#8b6332" stroke-width="1" opacity="0.85"/>
+  <ellipse cx="70" cy="135" rx="14" ry="15" fill="#8b5a2b" opacity="0.85"/>
+</svg>
+
+<div class="container">
+  <header>
+    <svg class="hero-illustration" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 75 20 Q 55 35 55 60 Q 70 75 90 62 Q 100 40 88 22 Q 80 18 75 20 Z" fill="#8fb055" opacity="0.75"/>
+      <path d="M 75 20 Q 55 35 55 60 Q 70 75 90 62 Q 100 40 88 22 Q 80 18 75 20 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.7"/>
+      <path d="M 78 25 Q 80 45 82 68" stroke="#4d6030" stroke-width="0.8" fill="none" opacity="0.7"/>
+      <path d="M 30 25 Q 15 45 22 70 Q 40 82 58 68 Q 65 45 50 28 Q 38 20 30 25 Z" fill="#a8c077" opacity="0.85"/>
+      <path d="M 30 25 Q 15 45 22 70 Q 40 82 58 68 Q 65 45 50 28 Q 38 20 30 25 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.7"/>
+      <path d="M 36 30 Q 40 50 45 72" stroke="#5a7535" stroke-width="1" fill="none" opacity="0.7"/>
+      <ellipse cx="62" cy="82" rx="20" ry="24" fill="#a87544" opacity="0.9"/>
+      <ellipse cx="62" cy="82" rx="20" ry="24" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.8"/>
+      <ellipse cx="56" cy="74" rx="10" ry="8" fill="#d4b88a" opacity="0.5"/>
+      <path d="M 45 68 Q 45 62 50 60 L 75 60 Q 80 62 80 70 Q 72 68 62 70 Q 50 68 45 68 Z" fill="#8b6332" opacity="0.8"/>
+      <path d="M 58 102 Q 62 108 66 102" fill="#6b4520" opacity="0.7"/>
+    </svg>
+
+    <div class="tagline">~ domaći, sveži ~</div>
+    <h1>Lešnici <em>&amp;</em> co.</h1>
+    <p class="intro">Poručivanje za kolege iz firme — jednostavno, svako sa svog stola.</p>
+  </header>
+
+  <!-- Proizvodi -->
+  <section>
+    <div class="section-head">
+      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="20" cy="22" rx="12" ry="14" fill="#a87544" opacity="0.9"/>
+        <ellipse cx="20" cy="22" rx="12" ry="14" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/>
         <path d="M 11 12 Q 12 8 16 8 L 24 8 Q 28 8 29 12 Q 24 11 20 12 Q 15 11 11 12 Z" fill="#7a9150" opacity="0.85"/>
       </svg>
-      <span>Lešnici <em>admin</em></span>
+      <h2 class="section-title">Naši <em>proizvodi</em></h2>
+      <span class="section-handwrite">1kg pakovanja</span>
     </div>
-    <span class="topbar-badge">Goran</span>
-    <button class="refresh-btn" id="refreshBtn" onclick="loadData()">
-      <span id="refreshIcon">↻</span> Osveži
-    </button>
-    <button class="logout-btn" onclick="doLogout()">Odjava</button>
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('orders', this)">📋 Porudžbine <span class="tab-count" id="countOrders">0</span></button>
-    <button class="tab" onclick="switchTab('products', this)">🌰 Proizvodi <span class="tab-count" id="countProducts">0</span></button>
-  </div>
-
-  <div class="main">
-    <div class="view active" id="viewOrders">
-      <div class="stats-bar">
-        <div class="stat-card">
-          <div class="stat-label">Ukupno aktivno</div>
-          <div class="stat-value" id="statActive">0</div>
-          <div class="stat-sub">porudžbina u obradi</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Neplaćeno</div>
-          <div class="stat-value accent" id="statUnpaid">0 din</div>
-          <div class="stat-sub" id="statUnpaidCount">0 porudžbina</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Ukupno kg</div>
-          <div class="stat-value" id="statKg">0 kg</div>
-          <div class="stat-sub">za pripremu</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Završeno</div>
-          <div class="stat-value" id="statDone">0</div>
-          <div class="stat-sub">plaćeno i preuzeto</div>
-        </div>
-      </div>
-
-      <div class="filter-bar">
-        <label class="select-all-wrapper">
-          <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
-          <span>Selektuj sve</span>
-        </label>
-        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">Sve</button>
-        <button class="filter-chip" data-filter="unpaid" onclick="setFilter('unpaid')">Neplaćeno</button>
-        <button class="filter-chip" data-filter="not-picked" onclick="setFilter('not-picked')">Nije preuzeto</button>
-        <button class="filter-chip" data-filter="done" onclick="setFilter('done')">Završeno</button>
-        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili sektoru..." oninput="renderOrdersTable()">
-      </div>
-
-      <div class="bulk-toolbar" id="bulkToolbar" style="display:none">
-        <span class="bulk-count" id="bulkCount">0 izabrano</span>
-        <div class="bulk-actions">
-          <button class="bulk-btn" onclick="clearSelection()">Poništi</button>
-          <button class="bulk-btn danger" onclick="confirmBulkDelete()">🗑️ Obriši izabrane</button>
-        </div>
-      </div>
-
-      <div class="orders-table">
-        <div class="table-head">
-          <div></div>
-          <div>Datum</div>
-          <div>Ime</div>
-          <div>Sektor</div>
-          <div>Proizvodi</div>
-          <div style="text-align:right">Iznos</div>
-          <div>Plaćeno</div>
-          <div>Preuzeto</div>
-          <div></div>
-          <div></div>
-        </div>
-        <div id="ordersBody">
-          <div class="loading-placeholder">učitavanje</div>
-        </div>
+    <div class="products-wrap">
+      <div id="products">
+        <div class="loading-placeholder">učitavanje proizvoda</div>
       </div>
     </div>
+  </section>
 
-    <div class="view" id="viewProducts">
-      <div class="products-admin" id="productsAdmin">
-        <div class="loading-placeholder">učitavanje</div>
-      </div>
-      <p style="font-size:13px;color:var(--ink-3);text-align:center;margin-top:16px;font-style:italic">
-        Kad promeniš dostupnost, korisnici će na sajtu odmah videti promenu.
-      </p>
+  <!-- Podaci -->
+  <section>
+    <div class="section-head">
+      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 8 12 L 32 12 L 32 32 L 8 32 Z" fill="#faf5eb" stroke="#8b6332" stroke-width="1.5" opacity="0.9"/>
+        <path d="M 12 18 L 28 18 M 12 23 L 24 23 M 12 28 L 26 28" stroke="#8b6332" stroke-width="1.2" opacity="0.7"/>
+        <path d="M 22 6 L 30 14 L 26 16 L 18 8 Z" fill="#9c4a1b" opacity="0.85"/>
+      </svg>
+      <h2 class="section-title">Vaši <em>podaci</em></h2>
     </div>
-  </div>
+
+    <div class="form-card">
+      <div class="form-group">
+        <label for="name">Ime i prezime</label>
+        <input type="text" id="name" placeholder="npr. Marko Petrović">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="office">Sektor</label>
+          <input type="text" id="office" placeholder="npr. Marketing, IT, Finansije">
+        </div>
+        <div class="form-group">
+          <label for="phone">Telefon (opciono)</label>
+          <input type="tel" id="phone" placeholder="npr. 064 123 4567">
+        </div>
+      </div>
+
+      <div class="summary" id="summary">
+        <div class="empty-summary">~ niste još ništa izabrali ~</div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" disabled>
+        <span id="submitText">Pošalji porudžbinu →</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Lista porudžbina -->
+  <section>
+    <div class="section-head">
+      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="8" width="24" height="26" rx="2" fill="#fff" stroke="#8b6332" stroke-width="1.5" opacity="0.9"/>
+        <path d="M 12 14 L 28 14 M 12 19 L 28 19 M 12 24 L 26 24 M 12 29 L 24 29" stroke="#c8a678" stroke-width="0.8"/>
+        <path d="M 28 6 Q 32 8 34 12 Q 30 14 26 12 Q 25 8 28 6 Z" fill="#7a9150" opacity="0.85"/>
+      </svg>
+      <h2 class="section-title">Sve <em>porudžbine</em></h2>
+      <span class="section-handwrite" id="orderCount">učitavam...</span>
+    </div>
+
+    <div id="ordersContainer">
+      <div class="loading-placeholder">učitavanje porudžbina</div>
+    </div>
+  </section>
 </div>
 
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal">
-    <div class="modal-icon">🗑️</div>
-    <div class="modal-title" id="modalTitle">Obriši porudžbinu?</div>
-    <div class="modal-message" id="modalMessage">Ova akcija je trajna i ne može se poništiti.</div>
-    <div class="modal-highlight" id="modalDetails" style="display:none"></div>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" onclick="closeModal()">Otkaži</button>
-      <button class="modal-btn confirm" id="modalConfirmBtn">Obriši</button>
-    </div>
-  </div>
-</div>
+<!-- Success screen -->
+<div class="success-screen" id="successScreen">
+  <div class="success-inner">
+    <svg class="success-confetti" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="40" r="3" fill="#9c4a1b"/>
+      <circle cx="170" cy="30" r="3" fill="#7a9150"/>
+      <circle cx="50" cy="80" r="2" fill="#c8a678"/>
+      <circle cx="150" cy="70" r="2.5" fill="#b8732a"/>
+      <path d="M 80 20 L 85 25 M 120 50 L 125 55 M 60 60 L 65 65 M 140 90 L 145 95" stroke="#9c4a1b" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 100 15 L 103 10 L 106 15 L 103 20 Z" fill="#7a9150"/>
+    </svg>
 
-<!-- Comments modal -->
-<div class="modal-overlay" id="commentsModal">
-  <div class="modal comments-modal">
-    <div class="comments-header">
-      <div>
-        <h3>Komentari <em id="commentsCount"></em></h3>
-        <div class="comments-subject" id="commentsSubject"></div>
-      </div>
-      <button class="close-modal-btn" onclick="closeCommentsModal()">×</button>
+    <div class="success-icon-wrap">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="45" fill="#7a9150" opacity="0.9"/>
+        <path d="M 32 52 L 45 65 L 70 38" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </div>
-    <div class="comments-list" id="commentsList"></div>
-    <div class="comments-input-area">
-      <textarea id="commentInput" placeholder="Dodaj komentar... (npr. javljeno preko telefona, poseban zahtev, itd.)" maxlength="500" oninput="updateCharCount()"></textarea>
-      <div class="comments-input-actions">
-        <span class="char-count"><span id="charCount">0</span>/500</span>
-        <button class="add-comment-btn" id="addCommentBtn" onclick="addComment()" disabled>Dodaj komentar</button>
+
+    <h2 class="success-title">Porudžbina <em>primljena!</em></h2>
+    <div class="success-subtitle">Hvala <span id="successName">vam</span> 🌰</div>
+
+    <div class="payment-card">
+      <div class="payment-total">
+        <div class="payment-total-label">Iznos za uplatu</div>
+        <div class="payment-total-amount" id="successAmount">0 din</div>
+      </div>
+
+      <div class="payment-qr-section">
+        <div class="payment-qr-label">📱 Skeniraj QR za uplatu</div>
+        <div id="dynamicQR" class="payment-qr-img" style="display:flex;align-items:center;justify-content:center"></div>
+        <div class="payment-qr-hint">Otvori m-banking, skeniraj — iznos je već unet ✓</div>
+      </div>
+
+      <div class="payment-details">
+        <div class="payment-row">
+          <div>
+            <div class="payment-row-label">Broj računa</div>
+            <div class="payment-row-value">325-9300706871370-70</div>
+          </div>
+          <button class="copy-btn" onclick="copyToClipboard('325-9300706871370-70', this)">Kopiraj</button>
+        </div>
+        <div class="payment-row">
+          <div>
+            <div class="payment-row-label">Telefon za pitanja</div>
+            <div class="payment-row-value">063/869-0881</div>
+          </div>
+          <a href="tel:+381638690881" class="copy-btn" style="text-decoration:none">Pozovi</a>
+        </div>
       </div>
     </div>
+
+    <div class="pickup-note">
+      <strong>Preuzimanje</strong>
+      Javiću vam kad porudžbina bude spremna za preuzimanje.
+    </div>
+
+    <button class="success-close-btn" onclick="closeSuccess()">U redu, zatvori</button>
   </div>
 </div>
 
 <div class="toast" id="toast">
   <span class="toast-icon">✓</span>
-  <span id="toastText">Sačuvano</span>
+  <span id="toastText">Porudžbina primljena</span>
 </div>
 
 <script>
   // ============================================
-  // API URL
+  // API URL - tvoj Google Apps Script endpoint
   // ============================================
   const API_URL = 'https://script.google.com/macros/s/AKfycbyHOmZR1m4d2IlfdNVJCB-X0IPN-6Lbsp4vnIOYsq2_xZ7yCtA6bI7WfWovfJpV3YhxSw/exec';
 
+  // Ikone za proizvode
   const PRODUCT_ICONS = {
-    peceni: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><ellipse cx="30" cy="32" rx="17" ry="20" fill="#c9a47b" opacity="0.95"/><ellipse cx="30" cy="32" rx="17" ry="20" fill="none" stroke="#8b6332" stroke-width="1" opacity="0.6"/><ellipse cx="25" cy="24" rx="7" ry="5" fill="#e8cba1" opacity="0.6"/><path d="M 30 12 Q 33 15 30 18 Q 27 15 30 12 Z" fill="#6b4520" opacity="0.7"/><circle cx="36" cy="38" r="2" fill="#8b5a2b" opacity="0.4"/></svg>`,
-    sirovi: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><ellipse cx="30" cy="35" rx="18" ry="20" fill="#a87544" opacity="0.9"/><ellipse cx="30" cy="35" rx="18" ry="20" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/><path d="M 17 20 Q 18 14 24 14 L 36 14 Q 42 14 43 20 Q 36 18 30 19 Q 24 18 17 20 Z" fill="#8b6332" opacity="0.85"/></svg>`
+    peceni: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="30" cy="32" rx="17" ry="20" fill="#c9a47b" opacity="0.95"/>
+      <ellipse cx="30" cy="32" rx="17" ry="20" fill="none" stroke="#8b6332" stroke-width="1" opacity="0.6"/>
+      <ellipse cx="25" cy="24" rx="7" ry="5" fill="#e8cba1" opacity="0.6"/>
+      <path d="M 30 12 Q 33 15 30 18 Q 27 15 30 12 Z" fill="#6b4520" opacity="0.7"/>
+      <circle cx="36" cy="38" r="2" fill="#8b5a2b" opacity="0.4"/>
+      <circle cx="22" cy="42" r="1.5" fill="#8b5a2b" opacity="0.4"/>
+    </svg>`,
+    sirovi: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="30" cy="35" rx="18" ry="20" fill="#a87544" opacity="0.9"/>
+      <ellipse cx="30" cy="35" rx="18" ry="20" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/>
+      <ellipse cx="25" cy="28" rx="6" ry="4" fill="#d4b88a" opacity="0.5"/>
+      <path d="M 17 20 Q 18 14 24 14 L 36 14 Q 42 14 43 20 Q 36 18 30 19 Q 24 18 17 20 Z" fill="#8b6332" opacity="0.85"/>
+    </svg>`
   };
 
-  let password = '';
+  // State
   let products = [];
   let orders = [];
-  let currentFilter = 'all';
-  let selectedIds = new Set();
-  let pendingDelete = null;
-  let commentsOpenOrderId = null;  // ID porudžbine čiji su komentari otvoreni
+  const cart = {};
 
-  // ============================================
-  // AUTH
-  // ============================================
-  async function doLogin() {
-    const input = document.getElementById('passwordInput');
-    const error = document.getElementById('loginError');
-    const btn = document.getElementById('loginBtn');
-    
-    const attemptedPassword = input.value;
-    if (!attemptedPassword) {
-      error.textContent = 'Unesite lozinku';
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Proveravam...';
-    error.textContent = '';
-
-    try {
-      const response = await fetch(API_URL + '?action=getAdminData&password=' + encodeURIComponent(attemptedPassword));
-      const data = await response.json();
-      
-      if (data.success) {
-        password = attemptedPassword;
-        products = data.products;
-        orders = data.orders;
-        
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('adminApp').classList.add('active');
-        renderAll();
-      } else {
-        error.textContent = data.error || 'Pogrešna lozinka';
-        input.value = '';
-        setTimeout(() => error.textContent = '', 3000);
-      }
-    } catch (err) {
-      error.textContent = 'Greška u vezi. Pokušajte ponovo.';
-      console.error(err);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Uđi →';
-    }
+  // Helpers
+  function getInitials(name) {
+    return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
   }
 
-  function doLogout() {
-    password = '';
-    document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('adminApp').classList.remove('active');
-    document.getElementById('passwordInput').value = '';
+  function formatDate(dateStr) {
+    // Ulazni format: "23.04.2026 14:30" ili sl.
+    if (!dateStr) return '';
+    // Skratimo na dan.mesec
+    const match = String(dateStr).match(/^(\d{1,2})\.(\d{1,2})/);
+    if (match) return match[1] + '.' + match[2] + '.';
+    return String(dateStr);
   }
 
   // ============================================
   // API CALLS
   // ============================================
   async function loadData() {
-    const refreshIcon = document.getElementById('refreshIcon');
-    refreshIcon.classList.add('spinner-small');
-
     try {
-      const response = await fetch(API_URL + '?action=getAdminData&password=' + encodeURIComponent(password));
+      const response = await fetch(API_URL + '?action=getData');
       const data = await response.json();
       
       if (data.success) {
         products = data.products;
         orders = data.orders;
-        renderAll();
+        
+        // Inicijalizuj cart
+        products.forEach(p => { cart[p.id] = 0; });
+        
+        renderProducts();
+        renderOrders();
       } else {
-        showToast('Greška: ' + (data.error || 'nepoznato'), true);
+        showError('Greška pri učitavanju: ' + (data.error || 'nepoznato'));
       }
     } catch (err) {
-      showToast('Nije moguće učitati podatke', true);
+      showError('Nije moguće povezati se. Proverite internet vezu.');
       console.error(err);
-    } finally {
-      refreshIcon.classList.remove('spinner-small');
     }
   }
 
-  async function apiCall(payload) {
+  async function sendOrder(orderData) {
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(Object.assign({ password }, payload))
+      // Mode 'no-cors' nije potreban - Apps Script dozvoljava CORS
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'  // Apps Script trik
+      },
+      body: JSON.stringify(orderData)
     });
     return await response.json();
   }
 
   // ============================================
-  // UI
+  // RENDERING
   // ============================================
-  function switchTab(tab, btn) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('view' + (tab === 'orders' ? 'Orders' : 'Products')).classList.add('active');
-  }
-
-  function setFilter(f) {
-    currentFilter = f;
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    document.querySelector(`.filter-chip[data-filter="${f}"]`).classList.add('active');
-    renderOrdersTable();
-  }
-
-  function getFilteredOrders() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    return orders.filter(o => {
-      if (currentFilter === 'unpaid' && o.paid !== '') return false;
-      if (currentFilter === 'not-picked' && o.picked) return false;
-      if (currentFilter === 'done' && !(o.paid !== '' && o.picked)) return false;
-      if (searchTerm) {
-        const match = String(o.name).toLowerCase().includes(searchTerm) || 
-                      String(o.office).toLowerCase().includes(searchTerm);
-        if (!match) return false;
-      }
-      return true;
-    });
-  }
-
-  function renderStats() {
-    const active = orders.filter(o => !(o.paid !== '' && o.picked)).length;
-    const unpaidOrders = orders.filter(o => o.paid === '');
-    const unpaidAmount = unpaidOrders.reduce((s, o) => s + Number(o.total), 0);
+  function renderProducts() {
+    const container = document.getElementById('products');
     
-    // Extract kg from items string (e.g. "Pečeni 2kg, Sirovi 1kg")
-    const notPickedKg = orders.filter(o => !o.picked).reduce((s, o) => {
-      const matches = String(o.items).match(/(\d+(?:\.\d+)?)kg/g) || [];
-      return s + matches.reduce((ss, m) => ss + parseFloat(m), 0);
-    }, 0);
-    
-    const done = orders.filter(o => o.paid !== '' && o.picked).length;
-
-    document.getElementById('statActive').textContent = active;
-    document.getElementById('statUnpaid').textContent = unpaidAmount.toLocaleString('sr') + ' din';
-    document.getElementById('statUnpaidCount').textContent = unpaidOrders.length + ' porudžbina';
-    document.getElementById('statKg').textContent = notPickedKg + ' kg';
-    document.getElementById('statDone').textContent = done;
-
-    document.getElementById('countOrders').textContent = orders.length;
-    document.getElementById('countProducts').textContent = products.length;
-  }
-
-  function formatShortDate(dateStr) {
-    if (!dateStr) return '';
-    const match = String(dateStr).match(/^(\d{1,2})\.(\d{1,2})/);
-    if (match) return match[1] + '.' + match[2] + '.';
-    return String(dateStr);
-  }
-
-  function renderOrdersTable() {
-    const container = document.getElementById('ordersBody');
-    const filtered = getFilteredOrders();
-    
-    if (filtered.length === 0) {
-      container.innerHTML = '<div class="empty-state">~ nema porudžbina po ovim kriterijumima ~</div>';
-      updateBulkToolbar();
+    if (products.length === 0) {
+      container.innerHTML = '<div class="empty">~ nema proizvoda ~</div>';
       return;
     }
 
-    const isMobile = window.innerWidth <= 800;
-
-    const trashIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
-    const commentIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
-
-    container.innerHTML = filtered.map(o => {
-      const isDone = o.paid !== '' && o.picked;
-      const doneClass = isDone ? 'done' : '';
-      const selectedClass = selectedIds.has(o.id) ? 'selected' : '';
-      const checked = selectedIds.has(o.id) ? 'checked' : '';
+    container.innerHTML = products.map(p => {
+      const unavailableClass = p.available ? '' : 'unavailable';
+      const unavailableBadge = p.available ? '' : '<div class="unavailable-badge">trenutno nemam</div>';
+      const stepperDisabled = p.available ? '' : 'disabled';
+      const icon = PRODUCT_ICONS[p.id] || PRODUCT_ICONS.peceni;
+      const meta = p.id === 'sirovi' ? 'U ljusci · 1kg' : 'Očišćeni · 1kg';
       
-      const paidClass = o.paid === 'eP' ? 'paid-ep' : (o.paid === 'P' ? 'paid-p' : 'unpaid');
-      const paidSelect = `
-        <select class="status-select ${paidClass}" onchange="updatePaid(${o.id}, this.value, this)" onclick="event.stopPropagation()">
-          <option value="" ${o.paid === '' ? 'selected' : ''}>— nije plaćeno</option>
-          <option value="eP" ${o.paid === 'eP' ? 'selected' : ''}>eP (e-račun)</option>
-          <option value="P" ${o.paid === 'P' ? 'selected' : ''}>P (gotovina)</option>
-        </select>
-      `;
-
-      const pickedToggle = `
-        <div class="pickup-toggle ${o.picked ? 'checked' : ''}" onclick="event.stopPropagation(); togglePicked(${o.id}, this)">
-          <span class="pickup-check"></span>
-          <span>${o.picked ? 'Preuzeto' : 'Nije preuzeto'}</span>
+      return `
+        <div class="product ${unavailableClass}">
+          <div class="product-icon">${icon}</div>
+          <div class="product-body">
+            <div class="product-name">${p.name}</div>
+            <div class="product-meta">${meta} · <span class="product-price">${p.price.toLocaleString('sr')} din</span></div>
+            ${unavailableBadge}
+          </div>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="changeQty('${p.id}', -1)" ${stepperDisabled}>−</button>
+            <span class="stepper-value" id="qty-${p.id}">0</span>
+            <button class="stepper-btn" onclick="changeQty('${p.id}', 1)" ${stepperDisabled}>+</button>
+          </div>
         </div>
       `;
+    }).join('');
+  }
 
-      const checkbox = `<input type="checkbox" class="order-select" ${checked} onchange="toggleSelection(${o.id})" onclick="event.stopPropagation()">`;
-      const deleteBtn = `<button class="delete-btn" onclick="event.stopPropagation(); confirmSingleDelete(${o.id})" title="Obriši porudžbinu">${trashIcon}</button>`;
-      
-      // Comment button sa badge-om
-      const commentCount = (o.comments && o.comments.length) || 0;
-      const hasComments = commentCount > 0;
-      const commentBadge = hasComments ? `<span class="comment-badge">${commentCount}</span>` : '';
-      const commentBtn = `<button class="comment-btn ${hasComments ? 'has-comments' : ''}" onclick="event.stopPropagation(); openComments(${o.id})" title="${hasComments ? 'Pogledaj komentare' : 'Dodaj komentar'}">${commentIcon}${commentBadge}</button>`;
+  function changeQty(id, delta) {
+    const product = products.find(p => p.id === id);
+    if (!product || !product.available) return;
+    cart[id] = Math.max(0, cart[id] + delta);
+    document.getElementById('qty-' + id).textContent = cart[id];
+    updateSummary();
+  }
 
-      if (isMobile) {
-        return `
-          <div class="order-row ${doneClass} ${selectedClass}">
-            <div class="mobile-row-top">
-              <div style="display:flex;align-items:start;gap:10px;flex:1">
-                ${checkbox}
-                <div class="mobile-name-block">
-                  <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
-                  <div class="col-office">sektor ${o.office}</div>
-                </div>
-              </div>
-              <div class="mobile-date-amount">
-                <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
-                <div class="col-date" style="margin-top:4px">${formatShortDate(o.date)}</div>
-              </div>
-            </div>
-            <div class="col-items">${o.items}</div>
-            <div class="mobile-actions">
-              ${paidSelect}
-              ${pickedToggle}
-            </div>
-            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
-              ${commentBtn}
-              ${deleteBtn}
-            </div>
-          </div>
-        `;
-      } else {
-        return `
-          <div class="order-row ${doneClass} ${selectedClass}">
-            <div>${checkbox}</div>
-            <div class="col-date">${formatShortDate(o.date)}</div>
-            <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
-            <div class="col-office">${o.office}</div>
-            <div class="col-items">${o.items}</div>
-            <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
-            <div>${paidSelect}</div>
-            <div>${pickedToggle}</div>
-            <div>${commentBtn}</div>
-            <div>${deleteBtn}</div>
-          </div>
-        `;
-      }
+  function updateSummary() {
+    const container = document.getElementById('summary');
+    const items = products.filter(p => cart[p.id] > 0);
+    
+    if (items.length === 0) {
+      container.innerHTML = '<div class="empty-summary">~ niste još ništa izabrali ~</div>';
+      document.getElementById('submitBtn').disabled = true;
+      return;
+    }
+
+    let total = 0;
+    const rowsHtml = items.map(p => {
+      const subtotal = cart[p.id] * p.price;
+      total += subtotal;
+      return `
+        <div class="summary-row">
+          <span>${p.name} <span class="qty">× ${cart[p.id]}kg</span></span>
+          <span class="amount">${subtotal.toLocaleString('sr')} din</span>
+        </div>
+      `;
     }).join('');
 
-    updateBulkToolbar();
+    container.innerHTML = rowsHtml + `
+      <div class="summary-row total">
+        <span class="label">Ukupno</span>
+        <span class="amount">${total.toLocaleString('sr')} din</span>
+      </div>
+    `;
+
+    document.getElementById('submitBtn').disabled = false;
   }
 
-  // --- SELEKCIJA I BRISANJE ---
-  
-  function toggleSelection(id) {
-    if (selectedIds.has(id)) {
-      selectedIds.delete(id);
-    } else {
-      selectedIds.add(id);
-    }
-    renderOrdersTable();
+  let showAllDone = false; // state: prikazati sve završene ili samo prvih 5
+
+  function toggleOrderCard(id) {
+    const card = document.getElementById('order-' + id);
+    if (card) card.classList.toggle('expanded');
   }
 
-  function toggleSelectAll() {
-    const checkbox = document.getElementById('selectAllCheckbox');
-    const filtered = getFilteredOrders();
-    
-    if (checkbox.checked) {
-      filtered.forEach(o => selectedIds.add(o.id));
-    } else {
-      filtered.forEach(o => selectedIds.delete(o.id));
-    }
-    renderOrdersTable();
+  function toggleShowAllDone() {
+    showAllDone = !showAllDone;
+    renderOrders();
   }
 
-  function clearSelection() {
-    selectedIds.clear();
-    document.getElementById('selectAllCheckbox').checked = false;
-    renderOrdersTable();
-  }
-
-  function updateBulkToolbar() {
-    const toolbar = document.getElementById('bulkToolbar');
-    const count = selectedIds.size;
+  function renderOrders() {
+    const container = document.getElementById('ordersContainer');
+    document.getElementById('orderCount').textContent = orders.length + ' do sad';
     
-    if (count > 0) {
-      toolbar.style.display = 'flex';
-      document.getElementById('bulkCount').textContent = count + ' izabrano';
-    } else {
-      toolbar.style.display = 'none';
-    }
-
-    // Sinhronizuj "Selektuj sve"
-    const filtered = getFilteredOrders();
-    const selectAll = document.getElementById('selectAllCheckbox');
-    if (filtered.length > 0 && filtered.every(o => selectedIds.has(o.id))) {
-      selectAll.checked = true;
-    } else {
-      selectAll.checked = false;
-    }
-  }
-
-  function confirmSingleDelete(id) {
-    const order = orders.find(o => o.id == id);
-    if (!order) return;
-    
-    pendingDelete = { type: 'single', ids: [id] };
-    
-    document.getElementById('modalTitle').textContent = 'Obriši porudžbinu?';
-    document.getElementById('modalMessage').textContent = 'Ova akcija je trajna i ne može se poništiti. Red će biti obrisan iz Google Sheet-a.';
-    const details = document.getElementById('modalDetails');
-    details.style.display = 'block';
-    details.innerHTML = `<strong>${order.name}</strong> · sektor ${order.office}<br><span style="color:var(--ink-2);font-size:13px">${order.items} — ${Number(order.total).toLocaleString('sr')} din</span>`;
-    document.getElementById('modalConfirmBtn').textContent = 'Obriši';
-    document.getElementById('confirmModal').classList.add('show');
-  }
-
-  function confirmBulkDelete() {
-    if (selectedIds.size === 0) return;
-    
-    pendingDelete = { type: 'bulk', ids: Array.from(selectedIds) };
-    
-    document.getElementById('modalTitle').textContent = `Obriši ${selectedIds.size} porudžbina?`;
-    document.getElementById('modalMessage').textContent = 'Ova akcija je trajna i ne može se poništiti. Sve selektovane porudžbine biće obrisane iz Google Sheet-a.';
-    document.getElementById('modalDetails').style.display = 'none';
-    document.getElementById('modalConfirmBtn').textContent = 'Obriši ' + selectedIds.size;
-    document.getElementById('confirmModal').classList.add('show');
-  }
-
-  function closeModal() {
-    document.getElementById('confirmModal').classList.remove('show');
-    pendingDelete = null;
-  }
-
-  async function executeDelete() {
-    if (!pendingDelete) return;
-    
-    const btn = document.getElementById('modalConfirmBtn');
-    btn.disabled = true;
-    btn.textContent = 'Brišem...';
-    
-    try {
-      let result;
-      if (pendingDelete.type === 'single') {
-        result = await apiCall({ action: 'deleteOrder', id: pendingDelete.ids[0] });
-      } else {
-        result = await apiCall({ action: 'deleteOrders', ids: pendingDelete.ids });
-      }
-      
-      if (result.success) {
-        const count = pendingDelete.ids.length;
-        // Ukloni iz lokalnog state-a
-        orders = orders.filter(o => !pendingDelete.ids.includes(o.id));
-        pendingDelete.ids.forEach(id => selectedIds.delete(id));
-        
-        closeModal();
-        showToast(count === 1 ? 'Porudžbina obrisana' : `Obrisano: ${count} porudžbina`);
-        
-        renderStats();
-        renderOrdersTable();
-      } else {
-        showToast('Greška: ' + (result.error || 'nepoznato'), true);
-        btn.disabled = false;
-        btn.textContent = pendingDelete.type === 'single' ? 'Obriši' : 'Obriši ' + pendingDelete.ids.length;
-      }
-    } catch (err) {
-      showToast('Greška u brisanju', true);
-      btn.disabled = false;
-      btn.textContent = pendingDelete.type === 'single' ? 'Obriši' : 'Obriši ' + pendingDelete.ids.length;
-      console.error(err);
-    }
-  }
-
-  // --- KOMENTARI ---
-  
-  function openComments(orderId) {
-    const order = orders.find(o => o.id == orderId);
-    if (!order) return;
-    
-    commentsOpenOrderId = orderId;
-    
-    // Setuj header
-    const count = (order.comments || []).length;
-    document.getElementById('commentsCount').textContent = count > 0 ? `· ${count}` : '';
-    document.getElementById('commentsSubject').textContent = `${order.name} · sektor ${order.office}`;
-    
-    // Renderuj komentare
-    renderCommentsList(order.comments || []);
-    
-    // Reset textarea
-    document.getElementById('commentInput').value = '';
-    document.getElementById('charCount').textContent = '0';
-    document.getElementById('addCommentBtn').disabled = true;
-    
-    document.getElementById('commentsModal').classList.add('show');
-    
-    // Focus na textarea
-    setTimeout(() => document.getElementById('commentInput').focus(), 100);
-  }
-
-  function closeCommentsModal() {
-    document.getElementById('commentsModal').classList.remove('show');
-    commentsOpenOrderId = null;
-  }
-
-  function renderCommentsList(comments) {
-    const container = document.getElementById('commentsList');
-    
-    if (!comments || comments.length === 0) {
-      container.innerHTML = '<div class="comments-empty">~ još nema komentara ~</div>';
+    if (orders.length === 0) {
+      container.innerHTML = '<div class="empty">~ još nema porudžbina, budite prvi ~</div>';
       return;
     }
-    
-    // Sortiraj: najnoviji na vrhu
-    const sorted = [...comments].sort((a, b) => Number(b.id) - Number(a.id));
-    
-    container.innerHTML = sorted.map(c => `
-      <div class="comment-item">
-        <div class="comment-meta">
-          <span>${c.date}</span>
-          <button class="comment-delete" onclick="deleteComment(${c.id})">obriši</button>
-        </div>
-        <div class="comment-text">${escapeHtml(c.text)}</div>
-      </div>
-    `).join('');
-  }
 
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
+    // SVG ikone za bedževe
+    const checkIcon = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+    const dollarIcon = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>';
+    const chevronIcon = '<svg class="expand-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
 
-  function updateCharCount() {
-    const input = document.getElementById('commentInput');
-    const count = input.value.length;
-    document.getElementById('charCount').textContent = count;
-    document.getElementById('addCommentBtn').disabled = input.value.trim().length === 0;
-  }
+    // Razvrstavanje: aktuelne vs završene
+    // Završeno = isporučeno DA i plaćeno (eP ili P)
+    const isDone = (o) => o.picked && (o.paid === 'eP' || o.paid === 'P');
+    const active = orders.filter(o => !isDone(o));
+    const done = orders.filter(o => isDone(o));
 
-  async function addComment() {
-    if (!commentsOpenOrderId) return;
-    const input = document.getElementById('commentInput');
-    const text = input.value.trim();
-    if (!text) return;
-    
-    const btn = document.getElementById('addCommentBtn');
-    btn.disabled = true;
-    btn.textContent = 'Dodajem...';
-    
-    try {
-      const result = await apiCall({
-        action: 'addComment',
-        id: commentsOpenOrderId,
-        text: text
-      });
+    // Render aktivnih (pune kartice)
+    const renderFullCard = (o) => {
+      const dateShort = formatDate(o.date);
+      let badgesHtml = '';
+      if (o.picked) badgesHtml += `<span class="status-badge badge-delivered">${checkIcon} Isporučeno</span>`;
+      if (o.paid === 'eP' || o.paid === 'P') badgesHtml += `<span class="status-badge badge-paid">${dollarIcon} Plaćeno</span>`;
+      const badgesDiv = badgesHtml ? `<div class="order-badges">${badgesHtml}</div>` : '';
       
-      if (result.success) {
-        // Ažuriraj lokalno
-        const order = orders.find(o => o.id == commentsOpenOrderId);
-        if (order) {
-          order.comments = result.comments;
-          renderCommentsList(order.comments);
-          const count = order.comments.length;
-          document.getElementById('commentsCount').textContent = count > 0 ? `· ${count}` : '';
-        }
-        
-        // Reset input
-        input.value = '';
-        document.getElementById('charCount').textContent = '0';
-        
-        // Re-render orders (da se badge ažurira)
-        renderOrdersTable();
-        
-        showToast('Komentar dodat');
-      } else {
-        showToast('Greška: ' + (result.error || 'nepoznato'), true);
-      }
-    } catch (err) {
-      showToast('Greška u snimanju', true);
-      console.error(err);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Dodaj komentar';
-    }
-  }
-
-  async function deleteComment(commentId) {
-    if (!commentsOpenOrderId) return;
-    
-    try {
-      const result = await apiCall({
-        action: 'deleteComment',
-        id: commentsOpenOrderId,
-        commentId: commentId
-      });
-      
-      if (result.success) {
-        const order = orders.find(o => o.id == commentsOpenOrderId);
-        if (order) {
-          order.comments = result.comments;
-          renderCommentsList(order.comments);
-          const count = order.comments.length;
-          document.getElementById('commentsCount').textContent = count > 0 ? `· ${count}` : '';
-        }
-        renderOrdersTable();
-        showToast('Komentar obrisan');
-      } else {
-        showToast('Greška: ' + (result.error || 'nepoznato'), true);
-      }
-    } catch (err) {
-      showToast('Greška u brisanju', true);
-    }
-  }
-
-  // Bind modal confirm button
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('modalConfirmBtn').addEventListener('click', executeDelete);
-    // Escape za zatvaranje modal-a
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-        closeCommentsModal();
-      }
-    });
-    // Klik van modala zatvara
-    document.getElementById('confirmModal').addEventListener('click', (e) => {
-      if (e.target.id === 'confirmModal') closeModal();
-    });
-    document.getElementById('commentsModal').addEventListener('click', (e) => {
-      if (e.target.id === 'commentsModal') closeCommentsModal();
-    });
-    // Ctrl+Enter u textarea šalje komentar
-    document.getElementById('commentInput').addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        if (!document.getElementById('addCommentBtn').disabled) {
-          addComment();
-        }
-      }
-    });
-  });
-
-  async function updatePaid(id, value, selectEl) {
-    selectEl.disabled = true;
-    try {
-      const result = await apiCall({ action: 'updatePaid', id, value });
-      if (result.success) {
-        const order = orders.find(o => o.id == id);
-        if (order) order.paid = value;
-        showToast('Status plaćanja ažuriran');
-        renderStats();
-        renderOrdersTable();
-      } else {
-        showToast('Greška: ' + (result.error || 'nepoznato'), true);
-      }
-    } catch (err) {
-      showToast('Greška u snimanju', true);
-    } finally {
-      selectEl.disabled = false;
-    }
-  }
-
-  async function togglePicked(id, el) {
-    if (el.classList.contains('saving')) return;
-    el.classList.add('saving');
-    
-    const order = orders.find(o => o.id == id);
-    const newValue = !order.picked;
-    
-    try {
-      const result = await apiCall({ action: 'updatePicked', id, picked: newValue });
-      if (result.success) {
-        order.picked = newValue;
-        showToast(newValue ? 'Označeno kao preuzeto' : 'Označeno kao nepreuzeto');
-        renderStats();
-        renderOrdersTable();
-      } else {
-        showToast('Greška: ' + (result.error || 'nepoznato'), true);
-      }
-    } catch (err) {
-      showToast('Greška u snimanju', true);
-    } finally {
-      el.classList.remove('saving');
-    }
-  }
-
-  function renderProductsAdmin() {
-    const container = document.getElementById('productsAdmin');
-    if (products.length === 0) {
-      container.innerHTML = '<div class="empty-state">Nema proizvoda</div>';
-      return;
-    }
-    container.innerHTML = products.map(p => `
-      <div class="product-admin">
-        <div class="product-admin-icon">${PRODUCT_ICONS[p.id] || PRODUCT_ICONS.peceni}</div>
-        <div>
-          <div class="product-admin-name">${p.name}</div>
-          <div class="product-admin-price">${Number(p.price).toLocaleString('sr')} din / kg · 1kg pakovanje</div>
+      return `
+        <div class="order-item">
+          <div class="order-avatar">${getInitials(o.name)}</div>
+          <div class="order-body">
+            <div class="order-head">
+              <span class="order-name">${o.name}</span>
+              <span class="order-meta">sektor ${o.office} · ${dateShort}</span>
+            </div>
+            <div class="order-items">${o.items}</div>
+            ${badgesDiv}
+          </div>
+          <div class="order-amount">${Number(o.total).toLocaleString('sr')} din</div>
         </div>
-        <span class="avail-label ${p.available ? 'on' : 'off'}" id="avail-label-${p.id}">${p.available ? 'dostupno' : 'nedostupno'}</span>
-        <button class="avail-toggle ${p.available ? 'on' : ''}" id="avail-toggle-${p.id}" onclick="toggleAvailability('${p.id}')"></button>
-      </div>
-    `).join('');
-  }
+      `;
+    };
 
-  async function toggleAvailability(id) {
-    const p = products.find(x => x.id === id);
-    const newValue = !p.available;
-    const toggleEl = document.getElementById('avail-toggle-' + id);
-    const labelEl = document.getElementById('avail-label-' + id);
-    
-    toggleEl.disabled = true;
+    // Render minimiziranih (završenih) - klikom se proširuju
+    const renderMiniCard = (o) => {
+      const dateShort = formatDate(o.date);
+      const badgesInline = `
+        <span class="status-badge badge-delivered">${checkIcon} Isporučeno</span>
+        <span class="status-badge badge-paid">${dollarIcon} Plaćeno</span>
+      `;
+      
+      return `
+        <div class="order-item minimized" id="order-${o.id}" onclick="toggleOrderCard(${o.id})">
+          <div class="order-avatar">${getInitials(o.name)}</div>
+          <div class="order-mini-info">
+            <span class="order-mini-name">${o.name}</span>
+            <span class="order-mini-meta">sektor ${o.office} · ${dateShort}</span>
+            <div class="expanded-details">
+              <div class="order-items" style="margin-top:4px">${o.items}</div>
+              <div class="order-badges">${badgesInline}</div>
+            </div>
+          </div>
+          <div class="order-mini-amount">${Number(o.total).toLocaleString('sr')} din</div>
+          ${chevronIcon}
+        </div>
+      `;
+    };
 
-    try {
-      const result = await apiCall({ action: 'toggleProduct', id, available: newValue });
-      if (result.success) {
-        p.available = newValue;
-        toggleEl.classList.toggle('on', newValue);
-        labelEl.className = 'avail-label ' + (newValue ? 'on' : 'off');
-        labelEl.textContent = newValue ? 'dostupno' : 'nedostupno';
-        showToast(newValue ? p.name + ' je sada dostupan' : p.name + ' je sada nedostupan');
-      } else {
-        showToast('Greška: ' + (result.error || 'nepoznato'), true);
-      }
-    } catch (err) {
-      showToast('Greška u snimanju', true);
-    } finally {
-      toggleEl.disabled = false;
+    let html = '';
+
+    // SEKCIJA 1: Aktuelne
+    if (active.length > 0) {
+      html += `
+        <div class="orders-subsection-head">
+          <span class="orders-subsection-title">🟢 Aktuelne 
+            <span class="orders-subsection-count">${active.length}</span>
+          </span>
+        </div>
+        <div class="orders-list">
+          ${active.map(renderFullCard).join('')}
+        </div>
+      `;
     }
+
+    // SEKCIJA 2: Završene (minimizirane)
+    if (done.length > 0) {
+      const DONE_LIMIT = 5;
+      const shownDone = showAllDone ? done : done.slice(0, DONE_LIMIT);
+      const hasHidden = !showAllDone && done.length > DONE_LIMIT;
+      
+      const sectionClass = active.length > 0 ? 'orders-subsection' : '';
+      html += `
+        <div class="${sectionClass}">
+          <div class="orders-subsection-head">
+            <span class="orders-subsection-title done-title">✓ Završene 
+              <span class="orders-subsection-count">${done.length}</span>
+            </span>
+          </div>
+          <div class="orders-list">
+            ${shownDone.map(renderMiniCard).join('')}
+          </div>
+          ${hasHidden ? `<button class="show-more-btn" onclick="toggleShowAllDone()">Prikaži još ${done.length - DONE_LIMIT} ↓</button>` : ''}
+          ${showAllDone && done.length > DONE_LIMIT ? `<button class="show-more-btn" onclick="toggleShowAllDone()">Sakrij ↑</button>` : ''}
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
   }
 
   function showToast(msg, isError = false) {
@@ -1929,16 +1551,164 @@
     document.getElementById('toastText').textContent = msg;
     toast.classList.toggle('error', isError);
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
+    setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  function renderAll() {
-    renderStats();
-    renderOrdersTable();
-    renderProductsAdmin();
+  function showError(msg) {
+    showToast(msg, true);
   }
 
-  window.addEventListener('resize', renderOrdersTable);
+  function showSuccessScreen(name, total, orderId) {
+    document.getElementById('successName').textContent = name.split(' ')[0];
+    document.getElementById('successAmount').textContent = total.toLocaleString('sr') + ' din';
+    
+    // Generiši dinamički QR kod sa tačnim iznosom i ID-jem porudžbine
+    generateIpsQR(total, orderId);
+    
+    document.getElementById('successScreen').classList.add('show');
+    window.scrollTo(0, 0);
+  }
+
+  // Generiše NBS IPS QR string prema zvaničnoj specifikaciji
+  function generateIpsQR(amount, orderId) {
+    // Formatiraj iznos: RSD123,45 (zarez kao decimalni separator)
+    const amountStr = 'RSD' + Number(amount).toFixed(2).replace('.', ',');
+    
+    // Poziv na broj - automatski po ID porudžbine, npr. "00123"
+    const pozivNaBroj = orderId ? '00' + orderId : '';
+    
+    // Polja po IPS QR standardu, razdvojena sa | (pipe)
+    const fields = [
+      'K:PR',                              // Vrsta IPS QR koda
+      'V:01',                              // Verzija
+      'C:1',                               // Znak
+      'R:325930070687137070',              // Broj računa (bez crtica)
+      'N:Goran Bilic',                     // Naziv primaoca (bez dijakritika)
+      'I:' + amountStr,                    // Iznos
+      'SF:289',                            // Šifra plaćanja
+      'S:Lesnici',                         // Svrha
+      'RO:' + pozivNaBroj                  // Poziv na broj
+    ];
+    
+    const ipsString = fields.join('|');
+    
+    // Očisti postojeći QR
+    const container = document.getElementById('dynamicQR');
+    container.innerHTML = '';
+    
+    try {
+      // qrcode-generator biblioteka:
+      // typeNumber 0 = auto-size, errorCorrectionLevel 'M' = srednji nivo
+      const qr = qrcode(0, 'M');
+      qr.addData(ipsString);
+      qr.make();
+      
+      // createImgTag vraća <img> tag sa data URI
+      // cellSize 5 ~ 164px za ~33 modula
+      container.innerHTML = qr.createImgTag(5, 4);
+      
+      // Podesi sliku da popuni kontejner
+      const img = container.querySelector('img');
+      if (img) {
+        img.style.width = '100%';
+        img.style.height = '100%';
+      }
+    } catch (err) {
+      console.error('QR greška:', err);
+      container.innerHTML = '<div style="text-align:center;color:#9a8b72;font-size:13px;padding:20px;font-family:Fraunces,serif;font-style:italic">QR trenutno nedostupan.<br>Koristi podatke za uplatu ispod ↓</div>';
+    }
+  }
+
+  function closeSuccess() {
+    document.getElementById('successScreen').classList.remove('show');
+  }
+
+  function copyToClipboard(text, btn) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      btn.textContent = 'Kopirano ✓';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Kopiraj';
+        btn.classList.remove('copied');
+      }, 2000);
+    } catch (err) {
+      showToast('Nije moguće kopirati', true);
+    }
+    document.body.removeChild(textarea);
+  }
+
+  // Submit handler
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const name = document.getElementById('name').value.trim();
+    const office = document.getElementById('office').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name || !office) {
+      showToast('Unesite ime i kancelariju', true);
+      return;
+    }
+
+    const items = products
+      .filter(p => cart[p.id] > 0)
+      .map(p => ({ name: p.name.split(' ')[0], qty: cart[p.id] }));
+
+    if (items.length === 0) {
+      showToast('Izaberite bar jedan proizvod', true);
+      return;
+    }
+
+    let total = 0;
+    products.forEach(p => total += cart[p.id] * p.price);
+
+    // Disable button & show loading
+    const btn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('submitText');
+    btn.disabled = true;
+    btnText.innerHTML = '<span class="spinner"></span> Šaljem...';
+
+    try {
+      const result = await sendOrder({
+        action: 'createOrder',
+        name,
+        office,
+        phone,
+        items,
+        total
+      });
+
+      if (result.success) {
+        showSuccessScreen(name, total, result.id);
+        
+        // Reset
+        products.forEach(p => cart[p.id] = 0);
+        document.getElementById('name').value = '';
+        document.getElementById('office').value = '';
+        document.getElementById('phone').value = '';
+        
+        // Reload podatke
+        await loadData();
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Nije moguće poslati porudžbinu. Proverite internet.', true);
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = 'Pošalji porudžbinu →';
+      updateSummary();
+    }
+  });
+
+  // Init
+  loadData();
 </script>
 
 </body>
