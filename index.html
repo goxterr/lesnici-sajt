@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root {
     --cream: #faf5eb;
@@ -898,6 +899,12 @@
     margin: 0 auto;
   }
 
+  #dynamicQR img,
+  #dynamicQR canvas {
+    display: block;
+    margin: 0 auto;
+  }
+
   .payment-qr-hint {
     font-size: 12px;
     color: var(--ink-3);
@@ -1223,8 +1230,8 @@
 
       <div class="payment-qr-section">
         <div class="payment-qr-label">📱 Skeniraj QR za uplatu</div>
-        <img src="qr-racun.png" alt="QR kod za uplatu" class="payment-qr-img">
-        <div class="payment-qr-hint">Otvori m-banking, skeniraj i upiši iznos</div>
+        <div id="dynamicQR" class="payment-qr-img" style="display:flex;align-items:center;justify-content:center"></div>
+        <div class="payment-qr-hint">Otvori m-banking, skeniraj — iznos je već unet ✓</div>
       </div>
 
       <div class="payment-details">
@@ -1551,11 +1558,57 @@
     showToast(msg, true);
   }
 
-  function showSuccessScreen(name, total) {
+  function showSuccessScreen(name, total, orderId) {
     document.getElementById('successName').textContent = name.split(' ')[0];
     document.getElementById('successAmount').textContent = total.toLocaleString('sr') + ' din';
+    
+    // Generiši dinamički QR kod sa tačnim iznosom i ID-jem porudžbine
+    generateIpsQR(total, orderId);
+    
     document.getElementById('successScreen').classList.add('show');
     window.scrollTo(0, 0);
+  }
+
+  // Generiše NBS IPS QR string prema zvaničnoj specifikaciji
+  function generateIpsQR(amount, orderId) {
+    // Formatiraj iznos: RSD123,45 (zarez kao decimalni separator)
+    const amountStr = 'RSD' + Number(amount).toFixed(2).replace('.', ',');
+    
+    // Poziv na broj - automatski po ID porudžbine, npr. "00123"
+    const pozivNaBroj = orderId ? '00' + orderId : '';
+    
+    // Polja po IPS QR standardu, razdvojena sa | (pipe)
+    // K: = verzija, V: = valuta (01), C: = znak (1=platilac izdaje)
+    // R: = broj računa (18 cifara bez crtica), N: = naziv primaoca
+    // I: = iznos, P: = svrha, SF: = šifra plaćanja, S: = tekst svrhe
+    // RO: = poziv na broj
+    const fields = [
+      'K:PR',                              // Vrsta IPS QR koda (Payment Request)
+      'V:01',                              // Verzija
+      'C:1',                               // Znak (1 = platilac inicira)
+      'R:325930070687137070',              // Broj računa (bez crtica)
+      'N:Goran Bilić',                     // Naziv primaoca (bez dijakritika bezbednije)
+      'I:' + amountStr,                    // Iznos
+      'SF:289',                            // Šifra plaćanja
+      'S:Lesnici',                         // Svrha (kratko)
+      'RO:' + pozivNaBroj                  // Poziv na broj
+    ];
+    
+    const ipsString = fields.join('|');
+    
+    // Očisti postojeći QR (u slučaju da korisnik više puta poruči)
+    const container = document.getElementById('dynamicQR');
+    container.innerHTML = '';
+    
+    // Generiši QR kod
+    new QRCode(container, {
+      text: ipsString,
+      width: 164,
+      height: 164,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
   }
 
   function closeSuccess() {
@@ -1623,7 +1676,7 @@
       });
 
       if (result.success) {
-        showSuccessScreen(name, total);
+        showSuccessScreen(name, total, result.id);
         
         // Reset
         products.forEach(p => cart[p.id] = 0);
