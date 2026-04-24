@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Lešnici</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf5eb;
+    --cream-2: #f5ecd9;
+    --shell: #c8a678;
+    --shell-dark: #8b6332;
+    --husk: #e8dcc0;
+    --leaf: #7a9150;
+    --leaf-dark: #4d6030;
+    --ink: #2a1f15;
+    --ink-2: #5c4a36;
+    --ink-3: #9a8b72;
+    --accent: #9c4a1b;
+    --accent-soft: #e8b88f;
+    --red: #b91c1c;
+    --yellow: #d97706;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .login-box {
+    background: white;
+    border: 2px solid var(--shell);
+    border-radius: 20px;
+    padding: 40px 32px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 0 rgba(139, 99, 50, 0.1);
+  }
+
+  .login-icon { width: 64px; height: 64px; margin: 0 auto 20px; }
+
+  .login-title {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .login-title em { font-style: italic; color: var(--accent); }
+
+  .login-subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--leaf-dark);
+    margin-bottom: 28px;
+  }
+
+  .login-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--husk);
+    border-radius: 10px;
+    background: var(--cream);
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 16px;
+    transition: all 0.15s;
+  }
+
+  .login-input:focus {
+    outline: none;
+    border-color: var(--leaf);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(122, 145, 80, 0.15);
+  }
+
+  .login-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--shell-dark);
+    transition: all 0.15s;
+  }
+
+  .login-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 var(--shell-dark); }
+  .login-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--shell-dark); }
+  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .login-error {
+    color: var(--red);
+    font-size: 13px;
+    margin-top: 10px;
+    min-height: 18px;
+  }
+
+  .admin-app { display: none; }
+  .admin-app.active { display: block; }
+  .login-screen.hidden { display: none; }
+
+  .topbar {
+    background: white;
+    border-bottom: 2px solid var(--husk);
+    padding: 14px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .topbar-logo em { font-style: italic; color: var(--accent); }
+  .topbar-logo-icon { width: 32px; height: 32px; }
+
+  .topbar-badge {
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .refresh-btn, .logout-btn {
+    background: transparent;
+    border: 1px solid var(--husk);
+    color: var(--ink-2);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .refresh-btn { margin-left: auto; }
+  .refresh-btn:hover, .logout-btn:hover { background: var(--cream-2); color: var(--ink); }
+  .refresh-btn .spinner-small { animation: spin 1s linear infinite; }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: white;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--husk);
+    overflow-x: auto;
+  }
+
+  .tab {
+    background: transparent;
+    border: none;
+    padding: 10px 16px;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-2);
+    cursor: pointer;
+    border-radius: 10px;
+    white-space: nowrap;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tab:hover { background: var(--cream-2); color: var(--ink); }
+  .tab.active { background: var(--ink); color: var(--cream); }
+
+  .tab-count {
+    background: rgba(255,255,255,0.15);
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .tab:not(.active) .tab-count { background: var(--husk); color: var(--ink-2); }
+
+  .main {
+    padding: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: white;
+    border: 1px solid var(--husk);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .stat-label {
+    font-family: 'Caveat', cursive;
+    font-size: 15px;
+    color: var(--leaf-dark);
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .stat-value.accent { color: var(--accent); }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 4px;
+  }
+
+  .filter-bar {
+    background: white;
+    border: 1px solid var(--husk);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    background: var(--cream);
+    border: 1px solid var(--husk);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    color: var(--ink-2);
+  }
+
+  .filter-chip:hover { background: var(--cream-2); }
+  .filter-chip.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid var(--husk);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    background: var(--cream);
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--leaf);
+    background: white;
+  }
+
+  .orders-table {
+    background: white;
+    border: 1px solid var(--husk);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .table-head {
+    display: grid;
+    grid-template-columns: 110px 1.5fr 80px 1.2fr 110px 140px 120px;
+    padding: 12px 16px;
+    background: var(--cream-2);
+    border-bottom: 1px solid var(--husk);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-2);
+  }
+
+  .order-row {
+    display: grid;
+    grid-template-columns: 110px 1.5fr 80px 1.2fr 110px 140px 120px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--husk);
+    align-items: center;
+    transition: background 0.15s;
+  }
+
+  .order-row:hover { background: var(--cream); }
+  .order-row:last-child { border-bottom: none; }
+  .order-row.done { opacity: 0.6; background: var(--cream); }
+
+  .col-date {
+    font-size: 12px;
+    color: var(--ink-2);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .col-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .col-name .phone-small {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+
+  .col-office {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 15px;
+  }
+
+  .col-items {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+
+  .col-amount {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 15px;
+    text-align: right;
+  }
+
+  .status-select {
+    background: var(--cream);
+    border: 1px solid var(--husk);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--ink);
+    width: 100%;
+  }
+
+  .status-select:disabled { opacity: 0.6; cursor: wait; }
+
+  .status-select.paid-ep {
+    background: #e8f5d8;
+    border-color: var(--leaf);
+    color: var(--leaf-dark);
+  }
+
+  .status-select.paid-p {
+    background: #fef3e2;
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
+
+  .status-select.unpaid {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: var(--red);
+  }
+
+  .pickup-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--husk);
+    background: var(--cream);
+    font-size: 12px;
+    color: var(--ink-2);
+    font-weight: 500;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .pickup-toggle:hover { background: var(--cream-2); }
+  .pickup-toggle.checked {
+    background: #e8f5d8;
+    border-color: var(--leaf);
+    color: var(--leaf-dark);
+  }
+  .pickup-toggle.saving { opacity: 0.6; cursor: wait; }
+
+  .pickup-check {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .pickup-toggle.checked .pickup-check {
+    background: var(--leaf);
+    border-color: var(--leaf);
+  }
+
+  .pickup-toggle.checked .pickup-check::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 800px) {
+    .table-head { display: none; }
+
+    .order-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .order-row.done { border-left: 3px solid var(--leaf); }
+
+    .mobile-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 10px;
+    }
+
+    .mobile-name-block { flex: 1; }
+    .mobile-date-amount { text-align: right; }
+
+    .col-office {
+      display: inline-block;
+      background: var(--cream-2);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .mobile-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .col-amount { text-align: right; }
+    .stats-bar { grid-template-columns: 1fr 1fr; }
+  }
+
+  .products-admin {
+    background: white;
+    border: 1px solid var(--husk);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .product-admin {
+    display: grid;
+    grid-template-columns: 48px 1fr auto auto;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px dashed var(--husk);
+    align-items: center;
+  }
+
+  .product-admin:last-child { border-bottom: none; }
+  .product-admin-icon { width: 48px; height: 48px; }
+
+  .product-admin-name {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .product-admin-price {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+
+  .avail-toggle {
+    position: relative;
+    width: 52px;
+    height: 30px;
+    background: var(--husk);
+    border-radius: 15px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+  }
+
+  .avail-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .avail-toggle.on { background: var(--leaf); }
+  .avail-toggle.on::after { transform: translateX(22px); }
+  .avail-toggle:disabled { opacity: 0.6; cursor: wait; }
+
+  .avail-label {
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .avail-label.on { color: var(--leaf-dark); }
+  .avail-label.off { color: var(--red); }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: white;
+    color: var(--ink);
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    box-shadow: 0 12px 30px rgba(139, 99, 50, 0.25);
+    border: 2px solid var(--leaf);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  .toast-icon {
+    width: 20px;
+    height: 20px;
+    background: var(--leaf);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .toast.error { border-color: var(--red); }
+  .toast.error .toast-icon { background: var(--red); }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--ink-3);
+  }
+
+  .loading-placeholder {
+    text-align: center;
+    padding: 40px 20px;
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--ink-3);
+  }
+
+  .loading-placeholder::after {
+    content: '...';
+    animation: dots 1.5s infinite;
+  }
+
+  @keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <svg class="login-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="32" cy="36" rx="20" ry="22" fill="#a87544" opacity="0.9"/>
+      <ellipse cx="32" cy="36" rx="20" ry="22" fill="none" stroke="#6b4520" stroke-width="1.5" opacity="0.7"/>
+      <path d="M 17 22 Q 18 16 24 16 L 40 16 Q 46 16 47 22 Q 40 20 32 21 Q 24 20 17 22 Z" fill="#7a9150" opacity="0.85"/>
+      <rect x="26" y="40" width="12" height="12" fill="#6b4520" opacity="0.8" rx="2"/>
+      <rect x="29" y="36" width="6" height="8" fill="none" stroke="#6b4520" stroke-width="1.5"/>
+    </svg>
+    <h1 class="login-title">Admin <em>panel</em></h1>
+    <p class="login-subtitle">samo za vlasnika</p>
+    <input type="password" class="login-input" id="passwordInput" placeholder="Unesite lozinku" onkeypress="if(event.key==='Enter') doLogin()">
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Uđi →</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<div class="admin-app" id="adminApp">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <svg class="topbar-logo-icon" viewBox="0 0 40 40">
+        <ellipse cx="20" cy="22" rx="12" ry="14" fill="#a87544" opacity="0.9"/>
+        <path d="M 11 12 Q 12 8 16 8 L 24 8 Q 28 8 29 12 Q 24 11 20 12 Q 15 11 11 12 Z" fill="#7a9150" opacity="0.85"/>
+      </svg>
+      <span>Lešnici <em>admin</em></span>
+    </div>
+    <span class="topbar-badge">Goran</span>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadData()">
+      <span id="refreshIcon">↻</span> Osveži
+    </button>
+    <button class="logout-btn" onclick="doLogout()">Odjava</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('orders', this)">📋 Porudžbine <span class="tab-count" id="countOrders">0</span></button>
+    <button class="tab" onclick="switchTab('products', this)">🌰 Proizvodi <span class="tab-count" id="countProducts">0</span></button>
+  </div>
+
+  <div class="main">
+    <div class="view active" id="viewOrders">
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-label">Ukupno aktivno</div>
+          <div class="stat-value" id="statActive">0</div>
+          <div class="stat-sub">porudžbina u obradi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Neplaćeno</div>
+          <div class="stat-value accent" id="statUnpaid">0 din</div>
+          <div class="stat-sub" id="statUnpaidCount">0 porudžbina</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Ukupno kg</div>
+          <div class="stat-value" id="statKg">0 kg</div>
+          <div class="stat-sub">za pripremu</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Završeno</div>
+          <div class="stat-value" id="statDone">0</div>
+          <div class="stat-sub">plaćeno i preuzeto</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">Sve</button>
+        <button class="filter-chip" data-filter="unpaid" onclick="setFilter('unpaid')">Neplaćeno</button>
+        <button class="filter-chip" data-filter="not-picked" onclick="setFilter('not-picked')">Nije preuzeto</button>
+        <button class="filter-chip" data-filter="done" onclick="setFilter('done')">Završeno</button>
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili sektoru..." oninput="renderOrdersTable()">
+      </div>
+
+      <div class="orders-table">
+        <div class="table-head">
+          <div>Datum</div>
+          <div>Ime</div>
+          <div>Sektor</div>
+          <div>Proizvodi</div>
+          <div style="text-align:right">Iznos</div>
+          <div>Plaćeno</div>
+          <div>Preuzeto</div>
+        </div>
+        <div id="ordersBody">
+          <div class="loading-placeholder">učitavanje</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view" id="viewProducts">
+      <div class="products-admin" id="productsAdmin">
+        <div class="loading-placeholder">učitavanje</div>
+      </div>
+      <p style="font-size:13px;color:var(--ink-3);text-align:center;margin-top:16px;font-style:italic">
+        Kad promeniš dostupnost, korisnici će na sajtu odmah videti promenu.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span class="toast-icon">✓</span>
+  <span id="toastText">Sačuvano</span>
+</div>
+
+<script>
+  // ============================================
+  // API URL
+  // ============================================
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyHOmZR1m4d2IlfdNVJCB-X0IPN-6Lbsp4vnIOYsq2_xZ7yCtA6bI7WfWovfJpV3YhxSw/exec';
+
+  const PRODUCT_ICONS = {
+    peceni: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><ellipse cx="30" cy="32" rx="17" ry="20" fill="#c9a47b" opacity="0.95"/><ellipse cx="30" cy="32" rx="17" ry="20" fill="none" stroke="#8b6332" stroke-width="1" opacity="0.6"/><ellipse cx="25" cy="24" rx="7" ry="5" fill="#e8cba1" opacity="0.6"/><path d="M 30 12 Q 33 15 30 18 Q 27 15 30 12 Z" fill="#6b4520" opacity="0.7"/><circle cx="36" cy="38" r="2" fill="#8b5a2b" opacity="0.4"/></svg>`,
+    sirovi: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><ellipse cx="30" cy="35" rx="18" ry="20" fill="#a87544" opacity="0.9"/><ellipse cx="30" cy="35" rx="18" ry="20" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/><path d="M 17 20 Q 18 14 24 14 L 36 14 Q 42 14 43 20 Q 36 18 30 19 Q 24 18 17 20 Z" fill="#8b6332" opacity="0.85"/></svg>`
+  };
+
+  let password = '';
+  let products = [];
+  let orders = [];
+  let currentFilter = 'all';
+
+  // ============================================
+  // AUTH
+  // ============================================
+  async function doLogin() {
+    const input = document.getElementById('passwordInput');
+    const error = document.getElementById('loginError');
+    const btn = document.getElementById('loginBtn');
+    
+    const attemptedPassword = input.value;
+    if (!attemptedPassword) {
+      error.textContent = 'Unesite lozinku';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Proveravam...';
+    error.textContent = '';
+
+    try {
+      const response = await fetch(API_URL + '?action=getAdminData&password=' + encodeURIComponent(attemptedPassword));
+      const data = await response.json();
+      
+      if (data.success) {
+        password = attemptedPassword;
+        products = data.products;
+        orders = data.orders;
+        
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('adminApp').classList.add('active');
+        renderAll();
+      } else {
+        error.textContent = data.error || 'Pogrešna lozinka';
+        input.value = '';
+        setTimeout(() => error.textContent = '', 3000);
+      }
+    } catch (err) {
+      error.textContent = 'Greška u vezi. Pokušajte ponovo.';
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Uđi →';
+    }
+  }
+
+  function doLogout() {
+    password = '';
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('adminApp').classList.remove('active');
+    document.getElementById('passwordInput').value = '';
+  }
+
+  // ============================================
+  // API CALLS
+  // ============================================
+  async function loadData() {
+    const refreshIcon = document.getElementById('refreshIcon');
+    refreshIcon.classList.add('spinner-small');
+
+    try {
+      const response = await fetch(API_URL + '?action=getAdminData&password=' + encodeURIComponent(password));
+      const data = await response.json();
+      
+      if (data.success) {
+        products = data.products;
+        orders = data.orders;
+        renderAll();
+      } else {
+        showToast('Greška: ' + (data.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Nije moguće učitati podatke', true);
+      console.error(err);
+    } finally {
+      refreshIcon.classList.remove('spinner-small');
+    }
+  }
+
+  async function apiCall(payload) {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ password }, payload))
+    });
+    return await response.json();
+  }
+
+  // ============================================
+  // UI
+  // ============================================
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view' + (tab === 'orders' ? 'Orders' : 'Products')).classList.add('active');
+  }
+
+  function setFilter(f) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.filter-chip[data-filter="${f}"]`).classList.add('active');
+    renderOrdersTable();
+  }
+
+  function getFilteredOrders() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    return orders.filter(o => {
+      if (currentFilter === 'unpaid' && o.paid !== '') return false;
+      if (currentFilter === 'not-picked' && o.picked) return false;
+      if (currentFilter === 'done' && !(o.paid !== '' && o.picked)) return false;
+      if (searchTerm) {
+        const match = String(o.name).toLowerCase().includes(searchTerm) || 
+                      String(o.office).toLowerCase().includes(searchTerm);
+        if (!match) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderStats() {
+    const active = orders.filter(o => !(o.paid !== '' && o.picked)).length;
+    const unpaidOrders = orders.filter(o => o.paid === '');
+    const unpaidAmount = unpaidOrders.reduce((s, o) => s + Number(o.total), 0);
+    
+    // Extract kg from items string (e.g. "Pečeni 2kg, Sirovi 1kg")
+    const notPickedKg = orders.filter(o => !o.picked).reduce((s, o) => {
+      const matches = String(o.items).match(/(\d+(?:\.\d+)?)kg/g) || [];
+      return s + matches.reduce((ss, m) => ss + parseFloat(m), 0);
+    }, 0);
+    
+    const done = orders.filter(o => o.paid !== '' && o.picked).length;
+
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statUnpaid').textContent = unpaidAmount.toLocaleString('sr') + ' din';
+    document.getElementById('statUnpaidCount').textContent = unpaidOrders.length + ' porudžbina';
+    document.getElementById('statKg').textContent = notPickedKg + ' kg';
+    document.getElementById('statDone').textContent = done;
+
+    document.getElementById('countOrders').textContent = orders.length;
+    document.getElementById('countProducts').textContent = products.length;
+  }
+
+  function formatShortDate(dateStr) {
+    if (!dateStr) return '';
+    const match = String(dateStr).match(/^(\d{1,2})\.(\d{1,2})/);
+    if (match) return match[1] + '.' + match[2] + '.';
+    return String(dateStr);
+  }
+
+  function renderOrdersTable() {
+    const container = document.getElementById('ordersBody');
+    const filtered = getFilteredOrders();
+    
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty-state">~ nema porudžbina po ovim kriterijumima ~</div>';
+      return;
+    }
+
+    const isMobile = window.innerWidth <= 800;
+
+    container.innerHTML = filtered.map(o => {
+      const isDone = o.paid !== '' && o.picked;
+      const doneClass = isDone ? 'done' : '';
+      
+      const paidClass = o.paid === 'eP' ? 'paid-ep' : (o.paid === 'P' ? 'paid-p' : 'unpaid');
+      const paidSelect = `
+        <select class="status-select ${paidClass}" onchange="updatePaid(${o.id}, this.value, this)">
+          <option value="" ${o.paid === '' ? 'selected' : ''}>— nije plaćeno</option>
+          <option value="eP" ${o.paid === 'eP' ? 'selected' : ''}>eP (e-račun)</option>
+          <option value="P" ${o.paid === 'P' ? 'selected' : ''}>P (gotovina)</option>
+        </select>
+      `;
+
+      const pickedToggle = `
+        <div class="pickup-toggle ${o.picked ? 'checked' : ''}" onclick="togglePicked(${o.id}, this)">
+          <span class="pickup-check"></span>
+          <span>${o.picked ? 'Preuzeto' : 'Nije preuzeto'}</span>
+        </div>
+      `;
+
+      if (isMobile) {
+        return `
+          <div class="order-row ${doneClass}">
+            <div class="mobile-row-top">
+              <div class="mobile-name-block">
+                <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
+                <div class="col-office">sektor ${o.office}</div>
+              </div>
+              <div class="mobile-date-amount">
+                <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
+                <div class="col-date" style="margin-top:4px">${formatShortDate(o.date)}</div>
+              </div>
+            </div>
+            <div class="col-items">${o.items}</div>
+            <div class="mobile-actions">
+              ${paidSelect}
+              ${pickedToggle}
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="order-row ${doneClass}">
+            <div class="col-date">${formatShortDate(o.date)}</div>
+            <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
+            <div class="col-office">${o.office}</div>
+            <div class="col-items">${o.items}</div>
+            <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
+            <div>${paidSelect}</div>
+            <div>${pickedToggle}</div>
+          </div>
+        `;
+      }
+    }).join('');
+  }
+
+  async function updatePaid(id, value, selectEl) {
+    selectEl.disabled = true;
+    try {
+      const result = await apiCall({ action: 'updatePaid', id, value });
+      if (result.success) {
+        const order = orders.find(o => o.id == id);
+        if (order) order.paid = value;
+        showToast('Status plaćanja ažuriran');
+        renderStats();
+        renderOrdersTable();
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Greška u snimanju', true);
+    } finally {
+      selectEl.disabled = false;
+    }
+  }
+
+  async function togglePicked(id, el) {
+    if (el.classList.contains('saving')) return;
+    el.classList.add('saving');
+    
+    const order = orders.find(o => o.id == id);
+    const newValue = !order.picked;
+    
+    try {
+      const result = await apiCall({ action: 'updatePicked', id, picked: newValue });
+      if (result.success) {
+        order.picked = newValue;
+        showToast(newValue ? 'Označeno kao preuzeto' : 'Označeno kao nepreuzeto');
+        renderStats();
+        renderOrdersTable();
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Greška u snimanju', true);
+    } finally {
+      el.classList.remove('saving');
+    }
+  }
+
+  function renderProductsAdmin() {
+    const container = document.getElementById('productsAdmin');
+    if (products.length === 0) {
+      container.innerHTML = '<div class="empty-state">Nema proizvoda</div>';
+      return;
+    }
+    container.innerHTML = products.map(p => `
+      <div class="product-admin">
+        <div class="product-admin-icon">${PRODUCT_ICONS[p.id] || PRODUCT_ICONS.peceni}</div>
+        <div>
+          <div class="product-admin-name">${p.name}</div>
+          <div class="product-admin-price">${Number(p.price).toLocaleString('sr')} din / kg · 1kg pakovanje</div>
+        </div>
+        <span class="avail-label ${p.available ? 'on' : 'off'}" id="avail-label-${p.id}">${p.available ? 'dostupno' : 'nedostupno'}</span>
+        <button class="avail-toggle ${p.available ? 'on' : ''}" id="avail-toggle-${p.id}" onclick="toggleAvailability('${p.id}')"></button>
+      </div>
+    `).join('');
+  }
+
+  async function toggleAvailability(id) {
+    const p = products.find(x => x.id === id);
+    const newValue = !p.available;
+    const toggleEl = document.getElementById('avail-toggle-' + id);
+    const labelEl = document.getElementById('avail-label-' + id);
+    
+    toggleEl.disabled = true;
+
+    try {
+      const result = await apiCall({ action: 'toggleProduct', id, available: newValue });
+      if (result.success) {
+        p.available = newValue;
+        toggleEl.classList.toggle('on', newValue);
+        labelEl.className = 'avail-label ' + (newValue ? 'on' : 'off');
+        labelEl.textContent = newValue ? 'dostupno' : 'nedostupno';
+        showToast(newValue ? p.name + ' je sada dostupan' : p.name + ' je sada nedostupan');
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Greška u snimanju', true);
+    } finally {
+      toggleEl.disabled = false;
+    }
+  }
+
+  function showToast(msg, isError = false) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastText').textContent = msg;
+    toast.classList.toggle('error', isError);
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  function renderAll() {
+    renderStats();
+    renderOrdersTable();
+    renderProductsAdmin();
+  }
+
+  window.addEventListener('resize', renderOrdersTable);
+</script>
+
+</body>
+</html>
