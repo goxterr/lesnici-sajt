@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lešnici — Porudžbine</title>
+
+<!-- Open Graph preview za Viber, WhatsApp, Teams, Facebook itd. -->
+<meta property="og:title" content="Goranovi lešnici 🌰">
+<meta property="og:description" content="Sveži domaći lešnici sa imanja. Poruči, skeniraj QR za uplatu — spremno za preuzimanje.">
+<meta property="og:image" content="https://lesnici-sajt.vercel.app/preview.jpg">
+<meta property="og:image:width" content="1408">
+<meta property="og:image:height" content="768">
+<meta property="og:url" content="https://lesnici-sajt.vercel.app">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="sr_RS">
+<meta property="og:site_name" content="Lešnici & co.">
+
+<!-- Twitter Card (koriste ga i neki drugi app-ovi) -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Goranovi lešnici 🌰">
+<meta name="twitter:description" content="Sveži domaći lešnici sa imanja. Poruči, skeniraj QR za uplatu — spremno za preuzimanje.">
+<meta name="twitter:image" content="https://lesnici-sajt.vercel.app/preview.jpg">
+
+<!-- Osnovni SEO i opis -->
+<meta name="description" content="Sveži domaći lešnici sa imanja. Poruči, skeniraj QR za uplatu — spremno za preuzimanje.">
+<meta name="theme-color" content="#9c4a1b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<style>
+  :root {
+    --cream: #faf5eb;
+    --cream-2: #f5ecd9;
+    --shell: #c8a678;
+    --shell-dark: #8b6332;
+    --husk: #e8dcc0;
+    --leaf: #7a9150;
+    --leaf-dark: #4d6030;
+    --ink: #2a1f15;
+    --ink-2: #5c4a36;
+    --ink-3: #9a8b72;
+    --accent: #9c4a1b;
+    --accent-soft: #e8b88f;
+    --red: #b91c1c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(156, 74, 27, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 60%, rgba(122, 145, 80, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 50% 90%, rgba(200, 166, 120, 0.04) 0%, transparent 50%);
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .botanical {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.85;
+    z-index: 0;
+  }
+
+  .botanical-1 { top: 20px; right: -20px; width: 180px; transform: rotate(15deg); }
+  .botanical-2 { top: 380px; left: -60px; width: 140px; transform: rotate(-20deg); opacity: 0.7; }
+  .botanical-3 { bottom: 400px; right: -40px; width: 160px; transform: rotate(25deg); opacity: 0.7; }
+
+  @media (max-width: 700px) {
+    .botanical-1 { width: 120px; top: 10px; right: -30px; }
+    .botanical-2 { width: 100px; left: -40px; }
+    .botanical-3 { width: 110px; right: -30px; }
+    .container { padding: 20px 16px 60px; }
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 0 48px;
+    position: relative;
+  }
+
+  .hero-illustration {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 8px;
+  }
+
+  .tagline {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--leaf-dark);
+    margin-bottom: 8px;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(42px, 7vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+    position: relative;
+  }
+
+  h1 em::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 2px;
+    right: 2px;
+    height: 3px;
+    background: var(--accent-soft);
+    border-radius: 2px;
+    z-index: -1;
+    opacity: 0.6;
+  }
+
+  .intro {
+    color: var(--ink-2);
+    font-size: 16px;
+    max-width: 440px;
+    margin: 0 auto;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+  }
+
+  section {
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .section-handwrite {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--leaf-dark);
+    margin-left: auto;
+    transform: rotate(-3deg);
+  }
+
+  .products-wrap {
+    background: var(--cream-2);
+    border-radius: 20px;
+    padding: 12px 24px;
+    position: relative;
+    box-shadow: 0 2px 0 rgba(139, 99, 50, 0.08);
+  }
+
+  .product {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px dashed var(--shell);
+    transition: opacity 0.2s;
+  }
+
+  .product:last-child { border-bottom: none; }
+
+  .product.unavailable { opacity: 0.55; }
+  .product.unavailable .product-icon { filter: grayscale(0.5); }
+
+  .product-icon {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  .product-body { min-width: 0; }
+
+  .product-name {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .product-meta {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+
+  .product-price {
+    color: var(--accent);
+    font-weight: 600;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+  }
+
+  .unavailable-badge {
+    display: inline-block;
+    background: var(--red);
+    color: white;
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    margin-top: 4px;
+    transform: rotate(-2deg);
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    background: var(--cream);
+    border: 2px solid var(--shell);
+    border-radius: 999px;
+    padding: 3px;
+  }
+
+  .stepper-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Fraunces', serif;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stepper-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: white;
+  }
+
+  .stepper-btn:disabled { color: var(--ink-3); cursor: not-allowed; opacity: 0.4; }
+
+  .stepper-value {
+    font-family: 'Fraunces', serif;
+    min-width: 36px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .form-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(139, 99, 50, 0.06);
+    border: 1px solid var(--husk);
+  }
+
+  @media (max-width: 500px) {
+    .form-card { padding: 22px 18px; }
+  }
+
+  .form-group { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--leaf-dark);
+    margin-bottom: 4px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--husk);
+    border-radius: 10px;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    transition: all 0.15s;
+  }
+
+  input::placeholder { color: var(--ink-3); }
+
+  input:focus {
+    outline: none;
+    border-color: var(--leaf);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(122, 145, 80, 0.15);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  .summary {
+    background: linear-gradient(170deg, #fffbee 0%, #fff4d9 100%);
+    border: 2px solid var(--shell);
+    border-radius: 14px;
+    padding: 20px;
+    margin: 24px 0 20px;
+    position: relative;
+    box-shadow: 0 3px 0 rgba(139, 99, 50, 0.12);
+  }
+
+  .summary::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 20px;
+    width: 24px;
+    height: 16px;
+    background: var(--accent);
+    opacity: 0.85;
+    clip-path: polygon(50% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    transform: rotate(-8deg);
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+
+  .summary-row .qty {
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+    color: var(--leaf-dark);
+    margin-left: 6px;
+  }
+
+  .summary-row .amount {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .summary-row.total {
+    margin-top: 10px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--shell);
+    font-size: 17px;
+    color: var(--ink);
+  }
+
+  .summary-row.total .label {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+  }
+
+  .summary-row.total .amount {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .empty-summary {
+    text-align: center;
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--ink-3);
+    padding: 8px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 4px 0 var(--shell-dark);
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 var(--shell-dark);
+  }
+
+  .submit-btn:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--shell-dark);
+  }
+
+  .submit-btn:disabled {
+    background: var(--ink-3);
+    cursor: not-allowed;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+  }
+
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .order-item {
+    background: white;
+    border-radius: 14px;
+    padding: 16px 20px;
+    border: 1px solid var(--husk);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .order-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 99, 50, 0.08);
+  }
+
+  .order-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--husk);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .order-body { min-width: 0; }
+
+  .order-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .order-name {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .order-meta {
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  .order-items {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 2px;
+  }
+
+  .order-amount {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* Status badges on order cards */
+  .order-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+  }
+
+  .status-badge svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+
+  .badge-delivered {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+  }
+
+  .badge-paid {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+
+  /* Sub-section divider for orders */
+  .orders-subsection {
+    margin-top: 32px;
+  }
+
+  .orders-subsection-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 0 4px;
+  }
+
+  .orders-subsection-title {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .orders-subsection-title.done-title {
+    color: var(--ink-3);
+  }
+
+  .orders-subsection-count {
+    background: var(--husk);
+    color: var(--ink-2);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+
+  .orders-subsection-title.done-title .orders-subsection-count {
+    background: var(--cream-2);
+    color: var(--ink-3);
+  }
+
+  /* Minimized (completed) order cards */
+  .order-item.minimized {
+    padding: 10px 16px;
+    background: var(--cream-2);
+    border: 1px solid var(--husk);
+    opacity: 0.75;
+    cursor: pointer;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 12px;
+    transition: all 0.2s;
+  }
+
+  .order-item.minimized:hover {
+    opacity: 1;
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(139, 99, 50, 0.08);
+  }
+
+  .order-item.minimized .order-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+    background: var(--cream);
+  }
+
+  .order-item.minimized .order-mini-info {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .order-item.minimized .order-mini-name {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  .order-item.minimized .order-mini-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  .order-item.minimized .order-mini-amount {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    color: var(--ink-3);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .expand-chevron {
+    width: 20px;
+    height: 20px;
+    color: var(--ink-3);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .order-item.minimized.expanded .expand-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* When expanded, minimized card looks like normal card */
+  .order-item.minimized.expanded {
+    grid-template-columns: auto 1fr auto;
+    padding: 16px 20px;
+    background: white;
+    opacity: 1;
+  }
+
+  .order-item.minimized.expanded .order-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+    background: var(--husk);
+  }
+
+  .order-item.minimized.expanded .order-mini-info {
+    display: block;
+  }
+
+  .order-item.minimized.expanded .order-mini-name {
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .order-item.minimized.expanded .order-mini-meta {
+    font-size: 12px;
+    display: block;
+    margin-top: 1px;
+  }
+
+  .order-item.minimized.expanded .expanded-details {
+    display: block;
+  }
+
+  .order-item.minimized.expanded .order-mini-amount {
+    font-size: 15px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .order-item.minimized.expanded .expand-chevron {
+    display: none;
+  }
+
+  .expanded-details {
+    display: none;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 4px;
+  }
+
+  /* Show more button */
+  .show-more-btn {
+    display: block;
+    margin: 12px auto 0;
+    background: transparent;
+    border: 1px dashed var(--shell);
+    color: var(--ink-2);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .show-more-btn:hover {
+    background: var(--cream-2);
+    color: var(--ink);
+    border-color: var(--shell-dark);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 32px;
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--ink-3);
+  }
+
+  .loading-placeholder {
+    text-align: center;
+    padding: 32px;
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--ink-3);
+  }
+
+  .loading-placeholder::after {
+    content: '...';
+    animation: dots 1.5s infinite;
+  }
+
+  @keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+  }
+
+  /* Success screen */
+  .success-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 200;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+  }
+
+  .success-screen.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .success-inner {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    text-align: center;
+    position: relative;
+  }
+
+  .success-confetti {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 120px;
+    pointer-events: none;
+  }
+
+  .success-icon-wrap {
+    width: 100px;
+    height: 100px;
+    margin: 40px auto 24px;
+    position: relative;
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .success-title {
+    font-family: 'Fraunces', serif;
+    font-size: 38px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+
+  .success-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .success-subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--leaf-dark);
+    margin-bottom: 32px;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+
+  .payment-card {
+    background: white;
+    border: 2px solid var(--shell);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 0 rgba(139, 99, 50, 0.15);
+    text-align: left;
+  }
+
+  .payment-total {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed var(--shell);
+    margin-bottom: 20px;
+  }
+
+  .payment-total-label {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    color: var(--ink-2);
+    margin-bottom: 4px;
+  }
+
+  .payment-total-amount {
+    font-family: 'Fraunces', serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  .payment-qr-section {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .payment-qr-label {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--leaf-dark);
+    margin-bottom: 12px;
+  }
+
+  .payment-qr-img {
+    width: 180px;
+    height: 180px;
+    border: 4px solid var(--cream-2);
+    border-radius: 12px;
+    background: white;
+    padding: 8px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  #dynamicQR img,
+  #dynamicQR canvas {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .payment-qr-hint {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-top: 10px;
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+  }
+
+  .payment-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--cream);
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  .payment-row-label {
+    color: var(--ink-2);
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  .payment-row-value {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--shell);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .copy-btn.copied {
+    background: var(--leaf);
+    color: white;
+    border-color: var(--leaf);
+  }
+
+  .pickup-note {
+    background: linear-gradient(170deg, #fffbee 0%, #fff4d9 100%);
+    border: 2px dashed var(--shell);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--ink-2);
+    font-size: 14px;
+  }
+
+  .pickup-note strong {
+    font-family: 'Caveat', cursive;
+    font-style: normal;
+    font-size: 18px;
+    color: var(--leaf-dark);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .success-close-btn {
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .success-close-btn:hover {
+    background: var(--accent);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: white;
+    color: var(--ink);
+    padding: 14px 20px 14px 16px;
+    border-radius: 14px;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 12px 30px rgba(139, 99, 50, 0.25);
+    border: 2px solid var(--leaf);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  .toast-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--leaf);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .toast.error { border-color: var(--red); }
+  .toast.error .toast-icon { background: var(--red); }
+
+  /* Pay QR button na kartici */
+  .pay-qr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 6px;
+  }
+
+  .pay-qr-btn:hover {
+    background: var(--accent);
+    color: white;
+  }
+
+  .pay-qr-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Payment modal (za već poslate porudžbine) */
+  .payment-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42, 31, 21, 0.6);
+    z-index: 250;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .payment-modal-overlay.show {
+    display: flex;
+    opacity: 1;
+  }
+
+  .payment-modal {
+    background: var(--cream);
+    border-radius: 20px;
+    max-width: 440px;
+    width: 100%;
+    padding: 28px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .payment-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--ink-3);
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background 0.15s;
+  }
+
+  .payment-modal-close:hover {
+    background: var(--cream-2);
+    color: var(--ink);
+  }
+
+  .payment-modal-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-right: 30px;
+  }
+
+  .payment-modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .payment-modal-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .payment-modal-sub {
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: var(--leaf-dark);
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+    50% { transform: translateY(-6px) rotate(var(--r, 0deg)); }
+  }
+
+  .botanical-1 { --r: 15deg; animation: float 8s ease-in-out infinite; }
+  .botanical-2 { --r: -20deg; animation: float 10s ease-in-out infinite 1s; }
+  .botanical-3 { --r: 25deg; animation: float 9s ease-in-out infinite 2s; }
+</style>
+</head>
+<body>
+
+<!-- Decorative botanicals -->
+<svg class="botanical botanical-1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <path d="M 60 40 Q 40 60 45 95 Q 55 115 85 110 Q 105 95 95 65 Q 85 40 60 40 Z" fill="#a8c077" opacity="0.75"/>
+    <path d="M 60 40 Q 40 60 45 95 Q 55 115 85 110 Q 105 95 95 65 Q 85 40 60 40 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.6"/>
+    <path d="M 55 50 Q 65 75 80 105" stroke="#5a7535" stroke-width="1.2" fill="none" opacity="0.7"/>
+    <path d="M 58 65 L 75 70 M 65 80 L 78 85 M 70 95 L 82 98" stroke="#5a7535" stroke-width="0.8" opacity="0.5"/>
+    <path d="M 120 50 Q 105 85 120 120 Q 145 135 160 115 Q 170 85 155 55 Q 135 45 120 50 Z" fill="#8fb055" opacity="0.8"/>
+    <path d="M 120 50 Q 105 85 120 120 Q 145 135 160 115 Q 170 85 155 55 Q 135 45 120 50 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.6"/>
+    <path d="M 135 55 Q 140 85 145 125" stroke="#4d6030" stroke-width="1.2" fill="none" opacity="0.7"/>
+    <path d="M 130 70 L 148 72 M 132 90 L 155 92 M 135 108 L 152 115" stroke="#4d6030" stroke-width="0.8" opacity="0.5"/>
+    <ellipse cx="85" cy="140" rx="14" ry="17" fill="#a87544" opacity="0.85"/>
+    <ellipse cx="85" cy="140" rx="14" ry="17" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.7"/>
+    <path d="M 75 125 Q 82 130 95 128" fill="#c8a678" opacity="0.9"/>
+    <ellipse cx="85" cy="130" rx="12" ry="4" fill="#d4b88a" opacity="0.7"/>
+    <ellipse cx="108" cy="155" rx="12" ry="15" fill="#9c6838" opacity="0.8"/>
+    <ellipse cx="108" cy="155" rx="12" ry="15" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.6"/>
+    <path d="M 90 120 Q 95 130 100 145" stroke="#6b4520" stroke-width="2" fill="none" opacity="0.7"/>
+  </g>
+</svg>
+
+<svg class="botanical botanical-2" viewBox="0 0 150 200" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 30 20 Q 50 60 55 100 Q 60 140 45 180" stroke="#6b4520" stroke-width="2.5" fill="none" opacity="0.7"/>
+  <path d="M 55 40 Q 35 60 40 95 Q 60 110 85 90 Q 95 65 75 42 Q 60 35 55 40 Z" fill="#7a9150" opacity="0.8"/>
+  <path d="M 55 40 Q 35 60 40 95 Q 60 110 85 90 Q 95 65 75 42 Q 60 35 55 40 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.7"/>
+  <path d="M 60 45 Q 65 70 70 100" stroke="#4d6030" stroke-width="1" fill="none" opacity="0.7"/>
+  <ellipse cx="70" cy="130" rx="13" ry="16" fill="#a87544" opacity="0.85"/>
+  <ellipse cx="70" cy="130" rx="13" ry="16" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.6"/>
+  <ellipse cx="45" cy="155" rx="11" ry="14" fill="#9c6838" opacity="0.8"/>
+</svg>
+
+<svg class="botanical botanical-3" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 90 30 Q 65 50 70 95 Q 90 115 120 95 Q 135 65 115 35 Q 100 25 90 30 Z" fill="#a8c077" opacity="0.8"/>
+  <path d="M 90 30 Q 65 50 70 95 Q 90 115 120 95 Q 135 65 115 35 Q 100 25 90 30 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.7"/>
+  <path d="M 95 35 Q 100 65 105 110" stroke="#5a7535" stroke-width="1.2" fill="none" opacity="0.7"/>
+  <path d="M 45 110 Q 40 130 50 150 Q 75 165 95 150 Q 105 130 95 110 Q 70 100 45 110 Z" fill="#d4b88a" opacity="0.85"/>
+  <path d="M 45 110 L 42 105 L 50 108 L 55 102 L 62 107 L 70 100 L 78 106 L 85 101 L 92 107 L 98 105 L 95 110" fill="#d4b88a" stroke="#8b6332" stroke-width="1" opacity="0.85"/>
+  <ellipse cx="70" cy="135" rx="14" ry="15" fill="#8b5a2b" opacity="0.85"/>
+</svg>
+
+<div class="container">
+  <header>
+    <svg class="hero-illustration" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 75 20 Q 55 35 55 60 Q 70 75 90 62 Q 100 40 88 22 Q 80 18 75 20 Z" fill="#8fb055" opacity="0.75"/>
+      <path d="M 75 20 Q 55 35 55 60 Q 70 75 90 62 Q 100 40 88 22 Q 80 18 75 20 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.7"/>
+      <path d="M 78 25 Q 80 45 82 68" stroke="#4d6030" stroke-width="0.8" fill="none" opacity="0.7"/>
+      <path d="M 30 25 Q 15 45 22 70 Q 40 82 58 68 Q 65 45 50 28 Q 38 20 30 25 Z" fill="#a8c077" opacity="0.85"/>
+      <path d="M 30 25 Q 15 45 22 70 Q 40 82 58 68 Q 65 45 50 28 Q 38 20 30 25 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.7"/>
+      <path d="M 36 30 Q 40 50 45 72" stroke="#5a7535" stroke-width="1" fill="none" opacity="0.7"/>
+      <ellipse cx="62" cy="82" rx="20" ry="24" fill="#a87544" opacity="0.9"/>
+      <ellipse cx="62" cy="82" rx="20" ry="24" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.8"/>
+      <ellipse cx="56" cy="74" rx="10" ry="8" fill="#d4b88a" opacity="0.5"/>
+      <path d="M 45 68 Q 45 62 50 60 L 75 60 Q 80 62 80 70 Q 72 68 62 70 Q 50 68 45 68 Z" fill="#8b6332" opacity="0.8"/>
+      <path d="M 58 102 Q 62 108 66 102" fill="#6b4520" opacity="0.7"/>
+    </svg>
+
+    <div class="tagline">~ domaći, sveži ~</div>
+    <h1>Lešnici <em>&amp;</em> co.</h1>
+    <p class="intro">Poručivanje za kolege iz firme — jednostavno, svako sa svog stola.</p>
+  </header>
+
+  <!-- Proizvodi -->
+  <section>
+    <div class="section-head">
+      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="20" cy="22" rx="12" ry="14" fill="#a87544" opacity="0.9"/>
+        <ellipse cx="20" cy="22" rx="12" ry="14" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/>
+        <path d="M 11 12 Q 12 8 16 8 L 24 8 Q 28 8 29 12 Q 24 11 20 12 Q 15 11 11 12 Z" fill="#7a9150" opacity="0.85"/>
+      </svg>
+      <h2 class="section-title">Naši <em>proizvodi</em></h2>
+      <span class="section-handwrite">1kg pakovanja</span>
+    </div>
+    <div class="products-wrap">
+      <div id="products">
+        <div class="loading-placeholder">učitavanje proizvoda</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Podaci -->
+  <section>
+    <div class="section-head">
+      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 8 12 L 32 12 L 32 32 L 8 32 Z" fill="#faf5eb" stroke="#8b6332" stroke-width="1.5" opacity="0.9"/>
+        <path d="M 12 18 L 28 18 M 12 23 L 24 23 M 12 28 L 26 28" stroke="#8b6332" stroke-width="1.2" opacity="0.7"/>
+        <path d="M 22 6 L 30 14 L 26 16 L 18 8 Z" fill="#9c4a1b" opacity="0.85"/>
+      </svg>
+      <h2 class="section-title">Vaši <em>podaci</em></h2>
+    </div>
+
+    <div class="form-card">
+      <div class="form-group">
+        <label for="name">Ime i prezime</label>
+        <input type="text" id="name" placeholder="npr. Marko Petrović">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="office">Sektor</label>
+          <input type="text" id="office" placeholder="npr. Marketing, IT, Finansije">
+        </div>
+        <div class="form-group">
+          <label for="phone">Telefon (opciono)</label>
+          <input type="tel" id="phone" placeholder="npr. 064 123 4567">
+        </div>
+      </div>
+
+      <div class="summary" id="summary">
+        <div class="empty-summary">~ niste još ništa izabrali ~</div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" disabled>
+        <span id="submitText">Pošalji porudžbinu →</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Lista porudžbina -->
+  <section>
+    <div class="section-head">
+      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="8" width="24" height="26" rx="2" fill="#fff" stroke="#8b6332" stroke-width="1.5" opacity="0.9"/>
+        <path d="M 12 14 L 28 14 M 12 19 L 28 19 M 12 24 L 26 24 M 12 29 L 24 29" stroke="#c8a678" stroke-width="0.8"/>
+        <path d="M 28 6 Q 32 8 34 12 Q 30 14 26 12 Q 25 8 28 6 Z" fill="#7a9150" opacity="0.85"/>
+      </svg>
+      <h2 class="section-title">Sve <em>porudžbine</em></h2>
+      <span class="section-handwrite" id="orderCount">učitavam...</span>
+    </div>
+
+    <div id="ordersContainer">
+      <div class="loading-placeholder">učitavanje porudžbina</div>
+    </div>
+  </section>
+</div>
+
+<!-- Success screen -->
+<div class="success-screen" id="successScreen">
+  <div class="success-inner">
+    <svg class="success-confetti" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="40" r="3" fill="#9c4a1b"/>
+      <circle cx="170" cy="30" r="3" fill="#7a9150"/>
+      <circle cx="50" cy="80" r="2" fill="#c8a678"/>
+      <circle cx="150" cy="70" r="2.5" fill="#b8732a"/>
+      <path d="M 80 20 L 85 25 M 120 50 L 125 55 M 60 60 L 65 65 M 140 90 L 145 95" stroke="#9c4a1b" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 100 15 L 103 10 L 106 15 L 103 20 Z" fill="#7a9150"/>
+    </svg>
+
+    <div class="success-icon-wrap">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="45" fill="#7a9150" opacity="0.9"/>
+        <path d="M 32 52 L 45 65 L 70 38" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <h2 class="success-title">Porudžbina <em>primljena!</em></h2>
+    <div class="success-subtitle">Hvala <span id="successName">vam</span> 🌰</div>
+
+    <div class="payment-card">
+      <div class="payment-total">
+        <div class="payment-total-label">Iznos za uplatu</div>
+        <div class="payment-total-amount" id="successAmount">0 din</div>
+      </div>
+
+      <div class="payment-qr-section">
+        <div class="payment-qr-label">📱 Skeniraj QR za uplatu</div>
+        <div id="dynamicQR" class="payment-qr-img" style="display:flex;align-items:center;justify-content:center"></div>
+        <div class="payment-qr-hint">Otvori m-banking, skeniraj — iznos je već unet ✓</div>
+      </div>
+
+      <div class="payment-details">
+        <div class="payment-row">
+          <div>
+            <div class="payment-row-label">Broj računa</div>
+            <div class="payment-row-value">325-9300706871370-70</div>
+          </div>
+          <button class="copy-btn" onclick="copyToClipboard('325-9300706871370-70', this)">Kopiraj</button>
+        </div>
+        <div class="payment-row">
+          <div>
+            <div class="payment-row-label">Telefon za pitanja</div>
+            <div class="payment-row-value">063/869-0881</div>
+          </div>
+          <a href="tel:+381638690881" class="copy-btn" style="text-decoration:none">Pozovi</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="pickup-note">
+      <strong>Preuzimanje</strong>
+      Javiću vam kad porudžbina bude spremna za preuzimanje.
+    </div>
+
+    <button class="success-close-btn" onclick="closeSuccess()">U redu, zatvori</button>
+  </div>
+</div>
+
+<!-- Payment modal za već poslate porudžbine -->
+<div class="payment-modal-overlay" id="paymentModal">
+  <div class="payment-modal">
+    <button class="payment-modal-close" onclick="closePaymentModal()">×</button>
+    <div class="payment-modal-header">
+      <div class="payment-modal-title">Uplata za <em id="payModalName">porudžbinu</em></div>
+      <div class="payment-modal-sub">skeniraj QR ili koristi podatke ispod</div>
+    </div>
+
+    <div class="payment-card">
+      <div class="payment-total">
+        <div class="payment-total-label">Iznos za uplatu</div>
+        <div class="payment-total-amount" id="payModalAmount">0 din</div>
+      </div>
+
+      <div class="payment-qr-section">
+        <div class="payment-qr-label">📱 Skeniraj QR</div>
+        <div id="payModalQR" class="payment-qr-img" style="display:flex;align-items:center;justify-content:center"></div>
+        <div class="payment-qr-hint">Iznos je već unet ✓</div>
+      </div>
+
+      <div class="payment-details">
+        <div class="payment-row">
+          <div>
+            <div class="payment-row-label">Broj računa</div>
+            <div class="payment-row-value">325-9300706871370-70</div>
+          </div>
+          <button class="copy-btn" onclick="copyToClipboard('325-9300706871370-70', this)">Kopiraj</button>
+        </div>
+        <div class="payment-row">
+          <div>
+            <div class="payment-row-label">Poziv na broj</div>
+            <div class="payment-row-value" id="payModalReference">00000</div>
+          </div>
+          <button class="copy-btn" id="payModalRefCopyBtn" onclick="copyPayRef(this)">Kopiraj</button>
+        </div>
+        <div class="payment-row">
+          <div>
+            <div class="payment-row-label">Telefon za pitanja</div>
+            <div class="payment-row-value">063/869-0881</div>
+          </div>
+          <a href="tel:+381638690881" class="copy-btn" style="text-decoration:none">Pozovi</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span class="toast-icon">✓</span>
+  <span id="toastText">Porudžbina primljena</span>
+</div>
+
+<script>
+  // ============================================
+  // API URL - tvoj Google Apps Script endpoint
+  // ============================================
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyHOmZR1m4d2IlfdNVJCB-X0IPN-6Lbsp4vnIOYsq2_xZ7yCtA6bI7WfWovfJpV3YhxSw/exec';
+
+  // Ikone za proizvode
+  const PRODUCT_ICONS = {
+    peceni: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="30" cy="32" rx="17" ry="20" fill="#c9a47b" opacity="0.95"/>
+      <ellipse cx="30" cy="32" rx="17" ry="20" fill="none" stroke="#8b6332" stroke-width="1" opacity="0.6"/>
+      <ellipse cx="25" cy="24" rx="7" ry="5" fill="#e8cba1" opacity="0.6"/>
+      <path d="M 30 12 Q 33 15 30 18 Q 27 15 30 12 Z" fill="#6b4520" opacity="0.7"/>
+      <circle cx="36" cy="38" r="2" fill="#8b5a2b" opacity="0.4"/>
+      <circle cx="22" cy="42" r="1.5" fill="#8b5a2b" opacity="0.4"/>
+    </svg>`,
+    sirovi: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="30" cy="35" rx="18" ry="20" fill="#a87544" opacity="0.9"/>
+      <ellipse cx="30" cy="35" rx="18" ry="20" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/>
+      <ellipse cx="25" cy="28" rx="6" ry="4" fill="#d4b88a" opacity="0.5"/>
+      <path d="M 17 20 Q 18 14 24 14 L 36 14 Q 42 14 43 20 Q 36 18 30 19 Q 24 18 17 20 Z" fill="#8b6332" opacity="0.85"/>
+    </svg>`
+  };
+
+  // State
+  let products = [];
+  let orders = [];
+  const cart = {};
+
+  // Helpers
+  function getInitials(name) {
+    return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  }
+
+  function formatDate(dateStr) {
+    // Ulazni format: "23.04.2026 14:30" ili sl.
+    if (!dateStr) return '';
+    // Skratimo na dan.mesec
+    const match = String(dateStr).match(/^(\d{1,2})\.(\d{1,2})/);
+    if (match) return match[1] + '.' + match[2] + '.';
+    return String(dateStr);
+  }
+
+  // ============================================
+  // API CALLS
+  // ============================================
+  async function loadData() {
+    try {
+      const response = await fetch(API_URL + '?action=getData');
+      const data = await response.json();
+      
+      if (data.success) {
+        products = data.products;
+        orders = data.orders;
+        
+        // Inicijalizuj cart
+        products.forEach(p => { cart[p.id] = 0; });
+        
+        renderProducts();
+        renderOrders();
+      } else {
+        showError('Greška pri učitavanju: ' + (data.error || 'nepoznato'));
+      }
+    } catch (err) {
+      showError('Nije moguće povezati se. Proverite internet vezu.');
+      console.error(err);
+    }
+  }
+
+  async function sendOrder(orderData) {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      // Mode 'no-cors' nije potreban - Apps Script dozvoljava CORS
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'  // Apps Script trik
+      },
+      body: JSON.stringify(orderData)
+    });
+    return await response.json();
+  }
+
+  // ============================================
+  // RENDERING
+  // ============================================
+  function renderProducts() {
+    const container = document.getElementById('products');
+    
+    if (products.length === 0) {
+      container.innerHTML = '<div class="empty">~ nema proizvoda ~</div>';
+      return;
+    }
+
+    container.innerHTML = products.map(p => {
+      const unavailableClass = p.available ? '' : 'unavailable';
+      const unavailableBadge = p.available ? '' : '<div class="unavailable-badge">trenutno nemam</div>';
+      const stepperDisabled = p.available ? '' : 'disabled';
+      const icon = PRODUCT_ICONS[p.id] || PRODUCT_ICONS.peceni;
+      const meta = p.id === 'sirovi' ? 'U ljusci · 1kg' : 'Očišćeni · 1kg';
+      
+      return `
+        <div class="product ${unavailableClass}">
+          <div class="product-icon">${icon}</div>
+          <div class="product-body">
+            <div class="product-name">${p.name}</div>
+            <div class="product-meta">${meta} · <span class="product-price">${p.price.toLocaleString('sr')} din</span></div>
+            ${unavailableBadge}
+          </div>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="changeQty('${p.id}', -1)" ${stepperDisabled}>−</button>
+            <span class="stepper-value" id="qty-${p.id}">0</span>
+            <button class="stepper-btn" onclick="changeQty('${p.id}', 1)" ${stepperDisabled}>+</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function changeQty(id, delta) {
+    const product = products.find(p => p.id === id);
+    if (!product || !product.available) return;
+    cart[id] = Math.max(0, cart[id] + delta);
+    document.getElementById('qty-' + id).textContent = cart[id];
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const container = document.getElementById('summary');
+    const items = products.filter(p => cart[p.id] > 0);
+    
+    if (items.length === 0) {
+      container.innerHTML = '<div class="empty-summary">~ niste još ništa izabrali ~</div>';
+      document.getElementById('submitBtn').disabled = true;
+      return;
+    }
+
+    let total = 0;
+    const rowsHtml = items.map(p => {
+      const subtotal = cart[p.id] * p.price;
+      total += subtotal;
+      return `
+        <div class="summary-row">
+          <span>${p.name} <span class="qty">× ${cart[p.id]}kg</span></span>
+          <span class="amount">${subtotal.toLocaleString('sr')} din</span>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = rowsHtml + `
+      <div class="summary-row total">
+        <span class="label">Ukupno</span>
+        <span class="amount">${total.toLocaleString('sr')} din</span>
+      </div>
+    `;
+
+    document.getElementById('submitBtn').disabled = false;
+  }
+
+  let showAllDone = false; // state: prikazati sve završene ili samo prvih 5
+
+  function toggleOrderCard(id) {
+    const card = document.getElementById('order-' + id);
+    if (card) card.classList.toggle('expanded');
+  }
+
+  function toggleShowAllDone() {
+    showAllDone = !showAllDone;
+    renderOrders();
+  }
+
+  function renderOrders() {
+    const container = document.getElementById('ordersContainer');
+    document.getElementById('orderCount').textContent = orders.length + ' do sad';
+    
+    if (orders.length === 0) {
+      container.innerHTML = '<div class="empty">~ još nema porudžbina, budite prvi ~</div>';
+      return;
+    }
+
+    // SVG ikone za bedževe
+    const checkIcon = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+    const dollarIcon = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>';
+    const chevronIcon = '<svg class="expand-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+    // Razvrstavanje: aktuelne vs završene
+    // Završeno = isporučeno DA i plaćeno (eP ili P)
+    const isDone = (o) => o.picked && (o.paid === 'eP' || o.paid === 'P');
+    const active = orders.filter(o => !isDone(o));
+    const done = orders.filter(o => isDone(o));
+
+    // Render aktivnih (pune kartice)
+    const qrIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 14h3v3M17 17h4M14 20h7M21 14v3"></path></svg>';
+    
+    const renderFullCard = (o) => {
+      const dateShort = formatDate(o.date);
+      let badgesHtml = '';
+      if (o.picked) badgesHtml += `<span class="status-badge badge-delivered">${checkIcon} Isporučeno</span>`;
+      if (o.paid === 'eP' || o.paid === 'P') badgesHtml += `<span class="status-badge badge-paid">${dollarIcon} Plaćeno</span>`;
+      const badgesDiv = badgesHtml ? `<div class="order-badges">${badgesHtml}</div>` : '';
+      
+      // QR dugme samo ako NIJE plaćeno
+      const isPaid = o.paid === 'eP' || o.paid === 'P';
+      const qrBtn = !isPaid 
+        ? `<button class="pay-qr-btn" onclick="openPaymentModal(${o.id})">${qrIcon} QR za uplatu</button>`
+        : '';
+      
+      return `
+        <div class="order-item">
+          <div class="order-avatar">${getInitials(o.name)}</div>
+          <div class="order-body">
+            <div class="order-head">
+              <span class="order-name">${o.name}</span>
+              <span class="order-meta">sektor ${o.office} · ${dateShort}</span>
+            </div>
+            <div class="order-items">${o.items}</div>
+            ${badgesDiv}
+            ${qrBtn}
+          </div>
+          <div class="order-amount">${Number(o.total).toLocaleString('sr')} din</div>
+        </div>
+      `;
+    };
+
+    // Render minimiziranih (završenih) - klikom se proširuju
+    const renderMiniCard = (o) => {
+      const dateShort = formatDate(o.date);
+      const badgesInline = `
+        <span class="status-badge badge-delivered">${checkIcon} Isporučeno</span>
+        <span class="status-badge badge-paid">${dollarIcon} Plaćeno</span>
+      `;
+      
+      return `
+        <div class="order-item minimized" id="order-${o.id}" onclick="toggleOrderCard(${o.id})">
+          <div class="order-avatar">${getInitials(o.name)}</div>
+          <div class="order-mini-info">
+            <span class="order-mini-name">${o.name}</span>
+            <span class="order-mini-meta">sektor ${o.office} · ${dateShort}</span>
+            <div class="expanded-details">
+              <div class="order-items" style="margin-top:4px">${o.items}</div>
+              <div class="order-badges">${badgesInline}</div>
+            </div>
+          </div>
+          <div class="order-mini-amount">${Number(o.total).toLocaleString('sr')} din</div>
+          ${chevronIcon}
+        </div>
+      `;
+    };
+
+    let html = '';
+
+    // SEKCIJA 1: Aktuelne
+    if (active.length > 0) {
+      html += `
+        <div class="orders-subsection-head">
+          <span class="orders-subsection-title">🟢 Aktuelne 
+            <span class="orders-subsection-count">${active.length}</span>
+          </span>
+        </div>
+        <div class="orders-list">
+          ${active.map(renderFullCard).join('')}
+        </div>
+      `;
+    }
+
+    // SEKCIJA 2: Završene (minimizirane)
+    if (done.length > 0) {
+      const DONE_LIMIT = 5;
+      const shownDone = showAllDone ? done : done.slice(0, DONE_LIMIT);
+      const hasHidden = !showAllDone && done.length > DONE_LIMIT;
+      
+      const sectionClass = active.length > 0 ? 'orders-subsection' : '';
+      html += `
+        <div class="${sectionClass}">
+          <div class="orders-subsection-head">
+            <span class="orders-subsection-title done-title">✓ Završene 
+              <span class="orders-subsection-count">${done.length}</span>
+            </span>
+          </div>
+          <div class="orders-list">
+            ${shownDone.map(renderMiniCard).join('')}
+          </div>
+          ${hasHidden ? `<button class="show-more-btn" onclick="toggleShowAllDone()">Prikaži još ${done.length - DONE_LIMIT} ↓</button>` : ''}
+          ${showAllDone && done.length > DONE_LIMIT ? `<button class="show-more-btn" onclick="toggleShowAllDone()">Sakrij ↑</button>` : ''}
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
+  }
+
+  function showToast(msg, isError = false) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastText').textContent = msg;
+    toast.classList.toggle('error', isError);
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function showError(msg) {
+    showToast(msg, true);
+  }
+
+  function showSuccessScreen(name, total, orderId) {
+    document.getElementById('successName').textContent = name.split(' ')[0];
+    document.getElementById('successAmount').textContent = total.toLocaleString('sr') + ' din';
+    
+    // Generiši dinamički QR kod sa tačnim iznosom i ID-jem porudžbine
+    generateIpsQR(total, orderId);
+    
+    document.getElementById('successScreen').classList.add('show');
+    window.scrollTo(0, 0);
+  }
+
+  // Generiše NBS IPS QR string prema zvaničnoj specifikaciji
+  function generateIpsQR(amount, orderId) {
+    generateIpsQRInto('dynamicQR', amount, orderId);
+  }
+
+  function generateIpsQRInto(containerId, amount, orderId) {
+    // Formatiraj iznos: RSD123,45 (zarez kao decimalni separator)
+    const amountStr = 'RSD' + Number(amount).toFixed(2).replace('.', ',');
+    
+    // Poziv na broj - automatski po ID porudžbine, npr. "00123"
+    const pozivNaBroj = orderId ? '00' + orderId : '';
+    
+    // Polja po IPS QR standardu, razdvojena sa | (pipe)
+    const fields = [
+      'K:PR',
+      'V:01',
+      'C:1',
+      'R:325930070687137070',
+      'N:Goran Bilic',
+      'I:' + amountStr,
+      'SF:289',
+      'S:Lesnici',
+      'RO:' + pozivNaBroj
+    ];
+    
+    const ipsString = fields.join('|');
+    
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    
+    try {
+      const qr = qrcode(0, 'M');
+      qr.addData(ipsString);
+      qr.make();
+      container.innerHTML = qr.createImgTag(5, 4);
+      const img = container.querySelector('img');
+      if (img) {
+        img.style.width = '100%';
+        img.style.height = '100%';
+      }
+    } catch (err) {
+      console.error('QR greška:', err);
+      container.innerHTML = '<div style="text-align:center;color:#9a8b72;font-size:13px;padding:20px;font-family:Fraunces,serif;font-style:italic">QR trenutno nedostupan.<br>Koristi podatke za uplatu ispod ↓</div>';
+    }
+  }
+
+  function closeSuccess() {
+    document.getElementById('successScreen').classList.remove('show');
+  }
+
+  function copyToClipboard(text, btn) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      btn.textContent = 'Kopirano ✓';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Kopiraj';
+        btn.classList.remove('copied');
+      }, 2000);
+    } catch (err) {
+      showToast('Nije moguće kopirati', true);
+    }
+    document.body.removeChild(textarea);
+  }
+
+  // Otvori payment modal za postojeću porudžbinu
+  function openPaymentModal(orderId) {
+    const order = orders.find(o => o.id == orderId);
+    if (!order) return;
+    
+    const poziv = '00' + orderId;
+    
+    document.getElementById('payModalName').textContent = order.name.split(' ')[0];
+    document.getElementById('payModalAmount').textContent = Number(order.total).toLocaleString('sr') + ' din';
+    document.getElementById('payModalReference').textContent = poziv;
+    
+    // Generiši QR za ovu porudžbinu
+    generateIpsQRInto('payModalQR', order.total, orderId);
+    
+    document.getElementById('paymentModal').classList.add('show');
+    document.body.style.overflow = 'hidden'; // sprečava skrol iza modal-a
+  }
+
+  function closePaymentModal() {
+    document.getElementById('paymentModal').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function copyPayRef(btn) {
+    const ref = document.getElementById('payModalReference').textContent;
+    copyToClipboard(ref, btn);
+  }
+
+  // Submit handler
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const name = document.getElementById('name').value.trim();
+    const office = document.getElementById('office').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name || !office) {
+      showToast('Unesite ime i kancelariju', true);
+      return;
+    }
+
+    const items = products
+      .filter(p => cart[p.id] > 0)
+      .map(p => ({ name: p.name.split(' ')[0], qty: cart[p.id] }));
+
+    if (items.length === 0) {
+      showToast('Izaberite bar jedan proizvod', true);
+      return;
+    }
+
+    let total = 0;
+    products.forEach(p => total += cart[p.id] * p.price);
+
+    // Disable button & show loading
+    const btn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('submitText');
+    btn.disabled = true;
+    btnText.innerHTML = '<span class="spinner"></span> Šaljem...';
+
+    try {
+      const result = await sendOrder({
+        action: 'createOrder',
+        name,
+        office,
+        phone,
+        items,
+        total
+      });
+
+      if (result.success) {
+        showSuccessScreen(name, total, result.id);
+        
+        // Reset
+        products.forEach(p => cart[p.id] = 0);
+        document.getElementById('name').value = '';
+        document.getElementById('office').value = '';
+        document.getElementById('phone').value = '';
+        
+        // Reload podatke
+        await loadData();
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Nije moguće poslati porudžbinu. Proverite internet.', true);
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = 'Pošalji porudžbinu →';
+      updateSummary();
+    }
+  });
+
+  // Init
+  loadData();
+
+  // Payment modal controls - Escape i klik van
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const paymentModal = document.getElementById('paymentModal');
+      if (paymentModal && paymentModal.classList.contains('show')) {
+        closePaymentModal();
+      }
+    }
+  });
+  
+  const paymentModalEl = document.getElementById('paymentModal');
+  if (paymentModalEl) {
+    paymentModalEl.addEventListener('click', (e) => {
+      if (e.target.id === 'paymentModal') closePaymentModal();
+    });
+  }
+</script>
+
+</body>
+</html>
