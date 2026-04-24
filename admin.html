@@ -324,7 +324,7 @@
 
   .table-head {
     display: grid;
-    grid-template-columns: 110px 1.5fr 80px 1.2fr 110px 140px 120px;
+    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px;
     padding: 12px 16px;
     background: var(--cream-2);
     border-bottom: 1px solid var(--husk);
@@ -334,15 +334,25 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--ink-2);
+    align-items: center;
   }
 
   .order-row {
     display: grid;
-    grid-template-columns: 110px 1.5fr 80px 1.2fr 110px 140px 120px;
+    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px;
     padding: 14px 16px;
     border-bottom: 1px solid var(--husk);
     align-items: center;
     transition: background 0.15s;
+    gap: 6px;
+  }
+
+  .order-row.selected {
+    background: #fef3e2;
+  }
+
+  .order-row.selected:hover {
+    background: #fce8c7;
   }
 
   .order-row:hover { background: var(--cream); }
@@ -651,6 +661,232 @@
 
   .view { display: none; }
   .view.active { display: block; }
+
+  /* Checkbox za selektovanje */
+  .order-select {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* Delete dugme po kartici */
+  .delete-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--husk);
+    background: white;
+    color: var(--ink-3);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .delete-btn:hover {
+    background: #fef2f2;
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .delete-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Bulk toolbar na vrhu kad imaš selektovano */
+  .bulk-toolbar {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 14px rgba(42, 31, 21, 0.2);
+    animation: slideDown 0.2s ease-out;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .bulk-count {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .bulk-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+
+  .bulk-btn {
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .bulk-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.4);
+  }
+
+  .bulk-btn.danger {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  .bulk-btn.danger:hover {
+    background: #991b1b;
+  }
+
+  /* "Selektuj sve" checkbox u filter bar-u */
+  .select-all-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--husk);
+    border-radius: 20px;
+    background: var(--cream);
+    font-size: 12px;
+    color: var(--ink-2);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .select-all-wrapper:hover { background: var(--cream-2); }
+
+  .select-all-wrapper input {
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+
+  /* Modal za potvrdu brisanja */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42, 31, 21, 0.5);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.15s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 16px;
+    max-width: 420px;
+    width: 100%;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 16px;
+    background: #fef2f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--red);
+    font-size: 28px;
+  }
+
+  .modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .modal-message {
+    color: var(--ink-2);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .modal-highlight {
+    background: var(--cream-2);
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin: 12px 0 16px;
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    color: var(--ink);
+    text-align: left;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .modal-btn.cancel {
+    background: var(--cream);
+    color: var(--ink-2);
+    border: 1px solid var(--husk);
+  }
+
+  .modal-btn.cancel:hover { background: var(--cream-2); }
+
+  .modal-btn.confirm {
+    background: var(--red);
+    color: white;
+  }
+
+  .modal-btn.confirm:hover { background: #991b1b; }
 </style>
 </head>
 <body>
@@ -719,6 +955,10 @@
       </div>
 
       <div class="filter-bar">
+        <label class="select-all-wrapper">
+          <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+          <span>Selektuj sve</span>
+        </label>
         <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">Sve</button>
         <button class="filter-chip" data-filter="unpaid" onclick="setFilter('unpaid')">Neplaćeno</button>
         <button class="filter-chip" data-filter="not-picked" onclick="setFilter('not-picked')">Nije preuzeto</button>
@@ -726,8 +966,17 @@
         <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili sektoru..." oninput="renderOrdersTable()">
       </div>
 
+      <div class="bulk-toolbar" id="bulkToolbar" style="display:none">
+        <span class="bulk-count" id="bulkCount">0 izabrano</span>
+        <div class="bulk-actions">
+          <button class="bulk-btn" onclick="clearSelection()">Poništi</button>
+          <button class="bulk-btn danger" onclick="confirmBulkDelete()">🗑️ Obriši izabrane</button>
+        </div>
+      </div>
+
       <div class="orders-table">
         <div class="table-head">
+          <div></div>
           <div>Datum</div>
           <div>Ime</div>
           <div>Sektor</div>
@@ -735,6 +984,7 @@
           <div style="text-align:right">Iznos</div>
           <div>Plaćeno</div>
           <div>Preuzeto</div>
+          <div></div>
         </div>
         <div id="ordersBody">
           <div class="loading-placeholder">učitavanje</div>
@@ -749,6 +999,19 @@
       <p style="font-size:13px;color:var(--ink-3);text-align:center;margin-top:16px;font-style:italic">
         Kad promeniš dostupnost, korisnici će na sajtu odmah videti promenu.
       </p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title" id="modalTitle">Obriši porudžbinu?</div>
+    <div class="modal-message" id="modalMessage">Ova akcija je trajna i ne može se poništiti.</div>
+    <div class="modal-highlight" id="modalDetails" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal()">Otkaži</button>
+      <button class="modal-btn confirm" id="modalConfirmBtn">Obriši</button>
     </div>
   </div>
 </div>
@@ -773,6 +1036,8 @@
   let products = [];
   let orders = [];
   let currentFilter = 'all';
+  let selectedIds = new Set();  // IDs porudžbina koje su čekirane
+  let pendingDelete = null;     // { type: 'single' | 'bulk', ids: [...] }
 
   // ============================================
   // AUTH
@@ -928,18 +1193,23 @@
     
     if (filtered.length === 0) {
       container.innerHTML = '<div class="empty-state">~ nema porudžbina po ovim kriterijumima ~</div>';
+      updateBulkToolbar();
       return;
     }
 
     const isMobile = window.innerWidth <= 800;
 
+    const trashIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>';
+
     container.innerHTML = filtered.map(o => {
       const isDone = o.paid !== '' && o.picked;
       const doneClass = isDone ? 'done' : '';
+      const selectedClass = selectedIds.has(o.id) ? 'selected' : '';
+      const checked = selectedIds.has(o.id) ? 'checked' : '';
       
       const paidClass = o.paid === 'eP' ? 'paid-ep' : (o.paid === 'P' ? 'paid-p' : 'unpaid');
       const paidSelect = `
-        <select class="status-select ${paidClass}" onchange="updatePaid(${o.id}, this.value, this)">
+        <select class="status-select ${paidClass}" onchange="updatePaid(${o.id}, this.value, this)" onclick="event.stopPropagation()">
           <option value="" ${o.paid === '' ? 'selected' : ''}>— nije plaćeno</option>
           <option value="eP" ${o.paid === 'eP' ? 'selected' : ''}>eP (e-račun)</option>
           <option value="P" ${o.paid === 'P' ? 'selected' : ''}>P (gotovina)</option>
@@ -947,19 +1217,25 @@
       `;
 
       const pickedToggle = `
-        <div class="pickup-toggle ${o.picked ? 'checked' : ''}" onclick="togglePicked(${o.id}, this)">
+        <div class="pickup-toggle ${o.picked ? 'checked' : ''}" onclick="event.stopPropagation(); togglePicked(${o.id}, this)">
           <span class="pickup-check"></span>
           <span>${o.picked ? 'Preuzeto' : 'Nije preuzeto'}</span>
         </div>
       `;
 
+      const checkbox = `<input type="checkbox" class="order-select" ${checked} onchange="toggleSelection(${o.id})" onclick="event.stopPropagation()">`;
+      const deleteBtn = `<button class="delete-btn" onclick="event.stopPropagation(); confirmSingleDelete(${o.id})" title="Obriši porudžbinu">${trashIcon}</button>`;
+
       if (isMobile) {
         return `
-          <div class="order-row ${doneClass}">
+          <div class="order-row ${doneClass} ${selectedClass}">
             <div class="mobile-row-top">
-              <div class="mobile-name-block">
-                <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
-                <div class="col-office">sektor ${o.office}</div>
+              <div style="display:flex;align-items:start;gap:10px;flex:1">
+                ${checkbox}
+                <div class="mobile-name-block">
+                  <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
+                  <div class="col-office">sektor ${o.office}</div>
+                </div>
               </div>
               <div class="mobile-date-amount">
                 <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
@@ -971,11 +1247,15 @@
               ${paidSelect}
               ${pickedToggle}
             </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:4px">
+              ${deleteBtn}
+            </div>
           </div>
         `;
       } else {
         return `
-          <div class="order-row ${doneClass}">
+          <div class="order-row ${doneClass} ${selectedClass}">
+            <div>${checkbox}</div>
             <div class="col-date">${formatShortDate(o.date)}</div>
             <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
             <div class="col-office">${o.office}</div>
@@ -983,11 +1263,148 @@
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
             <div>${paidSelect}</div>
             <div>${pickedToggle}</div>
+            <div>${deleteBtn}</div>
           </div>
         `;
       }
     }).join('');
+
+    updateBulkToolbar();
   }
+
+  // --- SELEKCIJA I BRISANJE ---
+  
+  function toggleSelection(id) {
+    if (selectedIds.has(id)) {
+      selectedIds.delete(id);
+    } else {
+      selectedIds.add(id);
+    }
+    renderOrdersTable();
+  }
+
+  function toggleSelectAll() {
+    const checkbox = document.getElementById('selectAllCheckbox');
+    const filtered = getFilteredOrders();
+    
+    if (checkbox.checked) {
+      filtered.forEach(o => selectedIds.add(o.id));
+    } else {
+      filtered.forEach(o => selectedIds.delete(o.id));
+    }
+    renderOrdersTable();
+  }
+
+  function clearSelection() {
+    selectedIds.clear();
+    document.getElementById('selectAllCheckbox').checked = false;
+    renderOrdersTable();
+  }
+
+  function updateBulkToolbar() {
+    const toolbar = document.getElementById('bulkToolbar');
+    const count = selectedIds.size;
+    
+    if (count > 0) {
+      toolbar.style.display = 'flex';
+      document.getElementById('bulkCount').textContent = count + ' izabrano';
+    } else {
+      toolbar.style.display = 'none';
+    }
+
+    // Sinhronizuj "Selektuj sve"
+    const filtered = getFilteredOrders();
+    const selectAll = document.getElementById('selectAllCheckbox');
+    if (filtered.length > 0 && filtered.every(o => selectedIds.has(o.id))) {
+      selectAll.checked = true;
+    } else {
+      selectAll.checked = false;
+    }
+  }
+
+  function confirmSingleDelete(id) {
+    const order = orders.find(o => o.id == id);
+    if (!order) return;
+    
+    pendingDelete = { type: 'single', ids: [id] };
+    
+    document.getElementById('modalTitle').textContent = 'Obriši porudžbinu?';
+    document.getElementById('modalMessage').textContent = 'Ova akcija je trajna i ne može se poništiti. Red će biti obrisan iz Google Sheet-a.';
+    const details = document.getElementById('modalDetails');
+    details.style.display = 'block';
+    details.innerHTML = `<strong>${order.name}</strong> · sektor ${order.office}<br><span style="color:var(--ink-2);font-size:13px">${order.items} — ${Number(order.total).toLocaleString('sr')} din</span>`;
+    document.getElementById('modalConfirmBtn').textContent = 'Obriši';
+    document.getElementById('confirmModal').classList.add('show');
+  }
+
+  function confirmBulkDelete() {
+    if (selectedIds.size === 0) return;
+    
+    pendingDelete = { type: 'bulk', ids: Array.from(selectedIds) };
+    
+    document.getElementById('modalTitle').textContent = `Obriši ${selectedIds.size} porudžbina?`;
+    document.getElementById('modalMessage').textContent = 'Ova akcija je trajna i ne može se poništiti. Sve selektovane porudžbine biće obrisane iz Google Sheet-a.';
+    document.getElementById('modalDetails').style.display = 'none';
+    document.getElementById('modalConfirmBtn').textContent = 'Obriši ' + selectedIds.size;
+    document.getElementById('confirmModal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('confirmModal').classList.remove('show');
+    pendingDelete = null;
+  }
+
+  async function executeDelete() {
+    if (!pendingDelete) return;
+    
+    const btn = document.getElementById('modalConfirmBtn');
+    btn.disabled = true;
+    btn.textContent = 'Brišem...';
+    
+    try {
+      let result;
+      if (pendingDelete.type === 'single') {
+        result = await apiCall({ action: 'deleteOrder', id: pendingDelete.ids[0] });
+      } else {
+        result = await apiCall({ action: 'deleteOrders', ids: pendingDelete.ids });
+      }
+      
+      if (result.success) {
+        const count = pendingDelete.ids.length;
+        // Ukloni iz lokalnog state-a
+        orders = orders.filter(o => !pendingDelete.ids.includes(o.id));
+        pendingDelete.ids.forEach(id => selectedIds.delete(id));
+        
+        closeModal();
+        showToast(count === 1 ? 'Porudžbina obrisana' : `Obrisano: ${count} porudžbina`);
+        
+        renderStats();
+        renderOrdersTable();
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+        btn.disabled = false;
+        btn.textContent = pendingDelete.type === 'single' ? 'Obriši' : 'Obriši ' + pendingDelete.ids.length;
+      }
+    } catch (err) {
+      showToast('Greška u brisanju', true);
+      btn.disabled = false;
+      btn.textContent = pendingDelete.type === 'single' ? 'Obriši' : 'Obriši ' + pendingDelete.ids.length;
+      console.error(err);
+    }
+  }
+
+  // Bind modal confirm button
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('modalConfirmBtn').addEventListener('click', executeDelete);
+    // Escape za zatvaranje modal-a
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+    // Klik van modala zatvara
+    document.getElementById('confirmModal').addEventListener('click', (e) => {
+      if (e.target.id === 'confirmModal') closeModal();
+    });
+  });
 
   async function updatePaid(id, value, selectEl) {
     selectEl.disabled = true;
