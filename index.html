@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Goranovi lešnici — porudžbine</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <!-- Open Graph preview za Viber, WhatsApp, Teams, Facebook itd. -->
 <meta property="og:title" content="Goranovi lešnici 🌰">
@@ -1295,28 +1299,42 @@
 
   /* Lešnik ispada preko ruba kese, zakotrlja se i legne na gomilu */
   .bag-nut.spill {
-    animation: nutSpill 0.75s cubic-bezier(0.35, 0.1, 0.5, 1) 0.3s both;
+    animation: nutSpill var(--dur, 0.8s) linear 0.3s both;
   }
 
+  /* preko ruba -> mali skok napolje -> pad na gomilu -> kotrljanje do mesta */
   @keyframes nutSpill {
-    0%   { opacity: 0; transform: translate(calc(var(--fx) * 1%), calc(var(--fy) * 1%)) rotate(var(--rot, 0deg)); }
-    15%  { opacity: 1; }
-    45%  { transform: translate(calc(var(--fx) * 0.6%), calc(var(--fy) * 1% - 45%)) rotate(calc(var(--rot, 0deg) - 160deg)); }
-    85%  { transform: translate(0, 6%) rotate(calc(var(--rot, 0deg) - 340deg)); }
-    100% { opacity: 1; transform: translate(0, 0) rotate(calc(var(--rot, 0deg) - 360deg)); }
+    0% {
+      opacity: 0;
+      transform: translate(calc(var(--fx) * 1%), calc(var(--fy) * 1%)) rotate(var(--rot, 0deg));
+      animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+    }
+    6% { opacity: 1; }
+    16% {
+      transform: translate(calc(var(--hx) * 1%), calc(var(--hy) * 1%)) rotate(calc(var(--rot, 0deg) - 60deg));
+      animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5);
+    }
+    42% {
+      transform: translate(calc(var(--lx) * 1%), calc(var(--ly) * 1%)) rotate(calc(var(--rot, 0deg) - 170deg));
+      animation-timing-function: cubic-bezier(0.25, 0.55, 0.35, 1);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(0, 0) rotate(var(--rot-end, var(--rot, 0deg)));
+    }
   }
 
   /* Senka na "podu" ispod gomile */
   .bag-pile-shadow {
     position: absolute;
-    left: -92%;
-    width: 98%;
+    left: -30%;
+    width: 40%;
     bottom: 1%;
     height: 9%;
     border-radius: 50%;
     background: radial-gradient(ellipse at center, rgba(107, 69, 32, 0.28), transparent 70%);
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.5s, left 0.6s ease, width 0.6s ease;
   }
   .floating-bag.has-pile .bag-pile-shadow { opacity: 1; }
 
@@ -1846,8 +1864,8 @@
 
   // ---------- Kesa koja se puni ----------
   // Koordinate su u crtežu kese (100x120). Prvih 16 lešnika ide u kesu
-  // (od dna nagore, poslednja tri vire preko ruba), sledećih 14 ispada
-  // i slaže se u gomilu levo od kese. Preko 30 kg samo raste broj u bedžu.
+  // (od dna nagore, poslednja tri vire preko ruba), sledećih 39 ispada
+  // i pravi gomilu levo od kese. Preko 55 kg samo raste broj u bedžu.
   const BAG_SLOTS = (() => {
     const slots = [];
     [100, 86, 72, 58, 44].forEach((y, row) => {
@@ -1858,15 +1876,28 @@
     return slots;
   })();
 
-  const PILE_SLOTS = [
-    [-6, 103], [-25, 104], [-44, 102.5], [-63, 104], [-83, 103.5], // dno gomile
-    [-15, 90.5], [-35, 89], [-54, 91], [-73, 92],                   // blago neravno,
-    [-26, 77.5], [-45, 76], [-63, 78.5],                            // kao da su stvarno
-    [-36, 64.5], [-53, 63]                                          // popadali
+  // Gomila pored kese, 39 mesta. Redosled je bitan: prvo pod uz kesu,
+  // pa gomila raste uz kesu (odatle se preliva), a kad stigne do visine
+  // malo ispod ruba, lešnici se kotrljaju niz padinu na suprotnu stranu.
+  const PILE_ROWS = [103, 90.5, 78, 65.5, 53]; // visine redova; najviši je ispod ruba kese
+  const PILE_ORDER = [
+    [0,-2], [0,-21], [1,-11.5], [0,-40], [1,-30.5],          // pod uz kesu
+    [2,-2], [2,-21], [0,-59], [1,-49.5], [3,-11.5],          // raste uz kesu
+    [2,-40], [3,-30.5], [4,-2],                              // dostigla visinu
+    [0,-78], [1,-68.5], [2,-59], [4,-21], [0,-97],           // rasipa se na drugu stranu
+    [1,-87.5], [3,-49.5], [2,-78], [0,-116], [1,-106.5],
+    [4,-40], [3,-68.5], [2,-97], [0,-135], [1,-125.5],
+    [3,-87.5], [4,-59], [2,-116], [0,-154], [1,-144.5],
+    [3,-106.5], [2,-135], [4,-78], [0,-173], [1,-163.5], [3,-125.5]
   ];
+  // malo neravnine, da ne liči na složenu piramidu
+  const PILE_SLOTS = PILE_ORDER.map(([row, x], i) => [
+    x + (((i * 37) % 7) - 3) * 0.5,
+    PILE_ROWS[row] + (((i * 53) % 5) - 2) * 0.6
+  ]);
 
   const ALL_SLOTS = BAG_SLOTS.concat(PILE_SLOTS);
-  const MAX_VISIBLE_NUTS = ALL_SLOTS.length; // 30
+  const MAX_VISIBLE_NUTS = ALL_SLOTS.length; // 16 u kesi + 39 na gomili = 55
   const NUT_SIZE = 23;                       // širina lešnika u jedinicama crteža
   const BAG_RIM = [28, 24];                  // odakle lešnik ispada iz kese
 
@@ -1877,6 +1908,7 @@
   }
 
   function layoutBagNuts() {
+    let leftmost = 0;
     bagNuts.forEach((nut, i) => {
       const slot = ALL_SLOTS[i];
       if (!slot) { nut.el.style.display = 'none'; return; }
@@ -1884,8 +1916,24 @@
       nut.el.style.left = (slot[0] - NUT_SIZE / 2) + '%';
       nut.el.style.top = ((slot[1] - NUT_SIZE / 2) / 120 * 100) + '%';
       nut.el.style.zIndex = i + 1;
+      if (i >= BAG_SLOTS.length) leftmost = Math.min(leftmost, slot[0]);
     });
-    document.getElementById('floatingBag').classList.toggle('has-pile', bagNuts.length > BAG_SLOTS.length);
+    const bag = document.getElementById('floatingBag');
+    bag.classList.toggle('has-pile', bagNuts.length > BAG_SLOTS.length);
+    // senka na podu prati širinu gomile
+    const shadow = bag.querySelector('.bag-pile-shadow');
+    shadow.style.left = (leftmost - 18) + '%';
+    shadow.style.width = (30 - leftmost) + '%';
+  }
+
+  // Gde lešnik prvo udari: vrh gomile tik uz kesu
+  function landingPoint(index) {
+    let top = 103 + 6; // prazan pod
+    for (let i = BAG_SLOTS.length; i < index; i++) {
+      const sl = ALL_SLOTS[i];
+      if (sl[0] > -26) top = Math.min(top, sl[1]);
+    }
+    return [-8, top - 13];
   }
 
   function createBagNut(productId, animate) {
@@ -1894,14 +1942,25 @@
     el.src = nutImageFor(productId);
     el.alt = '';
     el.className = 'bag-nut';
-    el.style.setProperty('--rot', (((index * 47) % 60) - 30) + 'deg');
+    const rot = ((index * 47) % 60) - 30;
+    el.style.setProperty('--rot', rot + 'deg');
 
     if (animate && index < BAG_SLOTS.length) {
       el.classList.add('drop');                       // upada u kesu
     } else if (animate && index < MAX_VISIBLE_NUTS) {
-      const slot = ALL_SLOTS[index];                  // ispada iz kese na gomilu
-      el.style.setProperty('--fx', ((BAG_RIM[0] - slot[0]) / NUT_SIZE * 100).toFixed(1));
-      el.style.setProperty('--fy', ((BAG_RIM[1] - slot[1]) / NUT_SIZE * 100).toFixed(1));
+      // ispada preko ruba -> udari u gomilu uz kesu -> kotrlja se do svog mesta
+      const slot = ALL_SLOTS[index];
+      const land = landingPoint(index);
+      const pct = (from, to) => ((from - to) / NUT_SIZE * 100).toFixed(1);
+      el.style.setProperty('--fx', pct(BAG_RIM[0], slot[0]));
+      el.style.setProperty('--fy', pct(BAG_RIM[1], slot[1]));
+      el.style.setProperty('--hx', pct(BAG_RIM[0] - 14, slot[0]));
+      el.style.setProperty('--hy', pct(BAG_RIM[1] - 9, slot[1]));
+      el.style.setProperty('--lx', pct(land[0], slot[0]));
+      el.style.setProperty('--ly', pct(land[1], slot[1]));
+      const roll = Math.hypot(land[0] - slot[0], land[1] - slot[1]); // koliko se kotrlja
+      el.style.setProperty('--rot-end', (rot - 220 - roll * 4.5).toFixed(0) + 'deg');
+      el.style.setProperty('--dur', (0.65 + roll / 220).toFixed(2) + 's');
       el.classList.add('spill');
     }
     return el;
