@@ -1554,6 +1554,33 @@
     }
     .tab .tab-count { display: none; }
   }
+
+  /* "Zapamti me" i istaknute nove porudžbine */
+  .remember-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin: -4px 0 14px;
+    cursor: pointer;
+  }
+  .remember-row input { width: 16px; height: 16px; accent-color: var(--accent); }
+
+  .refresh-btn {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+  .refresh-btn:hover { background: var(--shell-dark); color: white; }
+
+  .order-row.fresh { animation: freshGlow 2.4s ease-in-out 3; }
+  @keyframes freshGlow {
+    0%, 100% { box-shadow: inset 4px 0 0 transparent; background-color: inherit; }
+    50%      { box-shadow: inset 4px 0 0 var(--accent); background-color: #fff4e0; }
+  }
 </style>
 </head>
 <body>
@@ -1564,6 +1591,7 @@
     <h1 class="login-title">Admin <em>panel</em></h1>
     <p class="login-subtitle">samo za vlasnika</p>
     <input type="password" class="login-input" id="passwordInput" placeholder="Unesite lozinku" onkeypress="if(event.key==='Enter') doLogin()">
+    <label class="remember-row"><input type="checkbox" id="rememberMe" checked> Zapamti me na ovom uređaju</label>
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Uđi →</button>
     <div class="login-error" id="loginError"></div>
   </div>
@@ -1576,7 +1604,7 @@
       <span>Goranovi <em>lešnici</em></span>
     </div>
     <span class="topbar-badge">Goran</span>
-    <button class="refresh-btn" id="refreshBtn" onclick="loadData()">
+    <button class="refresh-btn" id="refreshBtn" onclick="loadData({ manual: true })" title="Učitaj nove porudžbine">
       <span id="refreshIcon">↻</span> Osveži
     </button>
     <button class="logout-btn" onclick="doLogout()">Odjava</button>
@@ -1831,12 +1859,13 @@
   // ============================================
   // AUTH
   // ============================================
-  async function doLogin() {
+  async function doLogin(savedPassword) {
     const input = document.getElementById('passwordInput');
     const error = document.getElementById('loginError');
     const btn = document.getElementById('loginBtn');
+    const fromMemory = typeof savedPassword === 'string';
     
-    const attemptedPassword = input.value;
+    const attemptedPassword = fromMemory ? savedPassword : input.value;
     if (!attemptedPassword) {
       error.textContent = 'Unesite lozinku';
       return;
@@ -1855,11 +1884,16 @@
         products = data.products;
         orders = data.orders;
         receiveSettings(data.settings);
+        if (fromMemory || document.getElementById('rememberMe').checked) rememberLogin(password);
+        else forgetLogin();
+        lastLoadAt = Date.now();
         
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('adminApp').classList.add('active');
         renderAll();
+        updateRefreshTitle();
       } else {
+        if (fromMemory) forgetLogin();      // lozinka je u međuvremenu promenjena
         error.textContent = data.error || 'Pogrešna lozinka';
         input.value = '';
         setTimeout(() => error.textContent = '', 3000);
@@ -1875,6 +1909,7 @@
 
   function doLogout() {
     password = '';
+    forgetLogin();
     document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('adminApp').classList.remove('active');
     document.getElementById('passwordInput').value = '';
@@ -1883,7 +1918,11 @@
   // ============================================
   // API CALLS
   // ============================================
-  async function loadData() {
+  // manual: klik na "Osveži" (uvek javi rezultat); inače samo ako ima nečeg novog
+  async function loadData(opts = {}) {
+    const manual = !!opts.manual;
+    if (!password || loadingNow) return;
+    loadingNow = true;
     const refreshIcon = document.getElementById('refreshIcon');
     refreshIcon.classList.add('spinner-small');
 
@@ -1892,10 +1931,24 @@
       const data = await response.json();
       
       if (data.success) {
+        const known = new Set(orders.map(o => o.id));
+        const fresh = known.size ? data.orders.filter(o => !known.has(o.id)) : [];
         products = data.products;
         orders = data.orders;
         receiveSettings(data.settings);
+        fresh.forEach(o => freshIds.add(o.id));
         renderAll();
+        lastLoadAt = Date.now();
+        updateRefreshTitle();
+
+        if (fresh.length) {
+          const names = fresh.slice(0, 3).map(o => String(o.name).split(' ')[0]).join(', ');
+          showToast(fresh.length === 1 ? `🌰 Nova porudžbina: ${names}` : `🌰 Nove porudžbine (${fresh.length}): ${names}${fresh.length > 3 ? '…' : ''}`);
+          if (document.hidden) { unseenCount += fresh.length; updateDocTitle(); }
+          setTimeout(() => { fresh.forEach(o => freshIds.delete(o.id)); renderAll(); }, 8000);
+        } else if (manual) {
+          showToast('Nema novih porudžbina ✓');
+        }
       } else {
         showToast('Greška: ' + (data.error || 'nepoznato'), true);
       }
@@ -1904,6 +1957,7 @@
       console.error(err);
     } finally {
       refreshIcon.classList.remove('spinner-small');
+      loadingNow = false;
     }
   }
 
@@ -2028,7 +2082,7 @@
 
       if (isMobile) {
         return `
-          <div class="order-row ${doneClass} ${selectedClass}">
+          <div class="order-row ${doneClass} ${selectedClass} ${freshIds.has(o.id) ? 'fresh' : ''}">
             <div class="mobile-row-top">
               <div style="display:flex;align-items:start;gap:10px;flex:1">
                 ${checkbox}
@@ -2055,7 +2109,7 @@
         `;
       } else {
         return `
-          <div class="order-row ${doneClass} ${selectedClass}">
+          <div class="order-row ${doneClass} ${selectedClass} ${freshIds.has(o.id) ? 'fresh' : ''}">
             <div>${checkbox}</div>
             <div class="col-date">${formatShortDate(o.date)}</div>
             <div class="col-name">${o.name}${contactLine(o)}</div>
@@ -2899,6 +2953,72 @@ function vocative(rawName) {
   if (/c$/.test(low)) return n.slice(0, -1) + 'če';
   return n + 'e';                                                // Goran → Gorane, Milan → Milane
 }
+
+  // ============================================
+  // PAMĆENJE PRIJAVE + AUTOMATSKA PROVERA NOVIH PORUDŽBINA
+  // ============================================
+  const LOGIN_KEY = 'lesnici_admin_login';
+  const LOGIN_DAYS = 30;
+  const AUTO_REFRESH_MS = 60 * 1000;
+  let lastLoadAt = 0;
+  let loadingNow = false;
+  let unseenCount = 0;
+  const freshIds = new Set();
+  const baseTitle = document.title;
+
+  function rememberLogin(pw) {
+    try {
+      localStorage.setItem(LOGIN_KEY, JSON.stringify({
+        p: btoa(unescape(encodeURIComponent(pw))),
+        until: Date.now() + LOGIN_DAYS * 24 * 3600 * 1000
+      }));
+    } catch (e) { /* pregledač ne dozvoljava pamćenje — samo se ponovo uloguješ */ }
+  }
+
+  function forgetLogin() {
+    try { localStorage.removeItem(LOGIN_KEY); } catch (e) {}
+  }
+
+  function savedLogin() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LOGIN_KEY) || 'null');
+      if (!saved || !saved.p || Date.now() > saved.until) { forgetLogin(); return null; }
+      return decodeURIComponent(escape(atob(saved.p)));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function updateRefreshTitle() {
+    const t = new Date(lastLoadAt || Date.now());
+    const hh = String(t.getHours()).padStart(2, '0'), mm = String(t.getMinutes()).padStart(2, '0');
+    document.getElementById('refreshBtn').title = `Učitaj nove porudžbine (poslednji put u ${hh}:${mm}; proverava se i samo, svakog minuta)`;
+  }
+
+  function updateDocTitle() {
+    document.title = unseenCount ? `(${unseenCount}) ${baseTitle}` : baseTitle;
+  }
+
+  // Sam proverava nove porudžbine dok je admin otvoren i vidljiv
+  setInterval(() => {
+    if (password && !document.hidden) loadData();
+  }, AUTO_REFRESH_MS);
+
+  // Kad se vratiš na tab: odmah proveri (ako je prošlo bar 20 sekundi)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    unseenCount = 0;
+    updateDocTitle();
+    if (password && Date.now() - lastLoadAt > 20 * 1000) loadData();
+  });
+
+  // Pri otvaranju stranice: ako si zapamćen, uđi bez lozinke
+  (function autoLogin() {
+    const pw = savedLogin();
+    if (!pw) return;
+    document.getElementById('loginBtn').textContent = 'Prijavljujem...';
+    doLogin(pw);
+  })();
 </script>
 
 </body>
