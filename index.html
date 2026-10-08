@@ -82,18 +82,33 @@
   .botanical {
     position: absolute;
     pointer-events: none;
-    opacity: 0.85;
     z-index: 0;
+    object-fit: contain;
   }
 
-  .botanical-1 { top: 20px; right: -20px; width: 180px; transform: rotate(15deg); }
-  .botanical-2 { top: 380px; left: -60px; width: 140px; transform: rotate(-20deg); opacity: 0.7; }
-  .botanical-3 { bottom: 400px; right: -40px; width: 160px; transform: rotate(25deg); opacity: 0.7; }
+  .botanical-1 {
+    top: 20px; right: -40px; width: 180px;
+    opacity: 0.75;
+    --r: 15deg;
+    transform: rotate(var(--r));
+  }
+  .botanical-2 {
+    top: 420px; left: -50px; width: 140px;
+    opacity: 0.6;
+    --r: -20deg;
+    transform: rotate(var(--r));
+  }
+  .botanical-3 {
+    bottom: 400px; right: -60px; width: 150px;
+    opacity: 0.65;
+    --r: 25deg;
+    transform: rotate(var(--r));
+  }
 
   @media (max-width: 700px) {
-    .botanical-1 { width: 120px; top: 10px; right: -30px; }
-    .botanical-2 { width: 100px; left: -40px; }
-    .botanical-3 { width: 110px; right: -30px; }
+    .botanical-1 { width: 120px; top: 10px; right: -40px; opacity: 0.5; }
+    .botanical-2 { width: 100px; left: -40px; opacity: 0.45; }
+    .botanical-3 { width: 110px; right: -40px; opacity: 0.5; }
     .container { padding: 20px 16px 60px; }
   }
 
@@ -104,9 +119,27 @@
   }
 
   .hero-illustration {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 8px;
+    display: block;
+    width: 220px;
+    height: 220px;
+    max-width: 60vw;
+    max-height: 60vw;
+    object-fit: contain;
+    margin: 0 auto 12px;
+    animation: heroFloat 6s ease-in-out infinite;
+    filter: drop-shadow(0 10px 20px rgba(107, 69, 32, 0.15));
+  }
+
+  @keyframes heroFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @media (max-width: 700px) {
+    .hero-illustration {
+      width: 180px;
+      height: 180px;
+    }
   }
 
   .tagline {
@@ -216,13 +249,32 @@
 
   .product:last-child { border-bottom: none; }
 
-  .product.unavailable { opacity: 0.55; }
-  .product.unavailable .product-icon { filter: grayscale(0.5); }
+  .product.unavailable { opacity: 0.65; }
 
   .product-icon {
-    width: 56px;
-    height: 56px;
+    width: 72px;
+    height: 72px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 4px 8px rgba(107, 69, 32, 0.12));
+  }
+
+  .product:hover .product-img {
+    transform: scale(1.1) rotate(-3deg);
+  }
+
+  .product.unavailable .product-img {
+    filter: grayscale(0.6) drop-shadow(0 4px 8px rgba(107, 69, 32, 0.08));
   }
 
   .product-body { min-width: 0; }
@@ -1188,6 +1240,113 @@
     50% { transform: translateY(-6px) rotate(var(--r, 0deg)); }
   }
 
+  /* ============================
+     PLIVAJUĆA KESA (floating cart)
+     ============================ */
+  .floating-bag {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 80px;
+    height: 92px;
+    z-index: 150;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 8px 20px rgba(107, 69, 32, 0.25));
+  }
+
+  .floating-bag.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .floating-bag.pulse {
+    animation: bagPulse 0.5s ease-out;
+  }
+
+  @keyframes bagPulse {
+    0% { transform: translateY(0) scale(1); }
+    30% { transform: translateY(-4px) scale(1.08); }
+    100% { transform: translateY(0) scale(1); }
+  }
+
+  .floating-bag svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .bag-count {
+    position: absolute;
+    top: 44%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #4a2f16;
+    text-align: center;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .bag-count .num {
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .bag-count .unit {
+    display: block;
+    font-size: 10px;
+    font-family: 'Caveat', cursive;
+    color: #6b4520;
+    margin-top: 2px;
+  }
+
+  /* Animirani lešnik koji pada u kesu */
+  .flying-nut {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    z-index: 200;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .flying-nut.animate-in {
+    animation: flyToBag 0.7s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  }
+
+  .flying-nut.animate-out {
+    animation: flyFromBag 0.5s ease-out forwards;
+  }
+
+  @keyframes flyToBag {
+    0% { opacity: 1; transform: scale(1) rotate(0deg); }
+    70% { opacity: 1; transform: scale(0.6) rotate(180deg); }
+    100% { opacity: 0; transform: scale(0.3) rotate(360deg); }
+  }
+
+  @keyframes flyFromBag {
+    0% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1) rotate(-180deg) translateY(-80px); }
+  }
+
+  @media (max-width: 700px) {
+    .floating-bag {
+      bottom: 16px;
+      right: 16px;
+      width: 68px;
+      height: 78px;
+    }
+    .bag-count .num { font-size: 18px; }
+    .bag-count .unit { font-size: 9px; }
+  }
+
   .botanical-1 { --r: 15deg; animation: float 8s ease-in-out infinite; }
   .botanical-2 { --r: -20deg; animation: float 10s ease-in-out infinite 1s; }
   .botanical-3 { --r: 25deg; animation: float 9s ease-in-out infinite 2s; }
@@ -1195,61 +1354,14 @@
 </head>
 <body>
 
-<!-- Decorative botanicals -->
-<svg class="botanical botanical-1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <g>
-    <path d="M 60 40 Q 40 60 45 95 Q 55 115 85 110 Q 105 95 95 65 Q 85 40 60 40 Z" fill="#a8c077" opacity="0.75"/>
-    <path d="M 60 40 Q 40 60 45 95 Q 55 115 85 110 Q 105 95 95 65 Q 85 40 60 40 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.6"/>
-    <path d="M 55 50 Q 65 75 80 105" stroke="#5a7535" stroke-width="1.2" fill="none" opacity="0.7"/>
-    <path d="M 58 65 L 75 70 M 65 80 L 78 85 M 70 95 L 82 98" stroke="#5a7535" stroke-width="0.8" opacity="0.5"/>
-    <path d="M 120 50 Q 105 85 120 120 Q 145 135 160 115 Q 170 85 155 55 Q 135 45 120 50 Z" fill="#8fb055" opacity="0.8"/>
-    <path d="M 120 50 Q 105 85 120 120 Q 145 135 160 115 Q 170 85 155 55 Q 135 45 120 50 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.6"/>
-    <path d="M 135 55 Q 140 85 145 125" stroke="#4d6030" stroke-width="1.2" fill="none" opacity="0.7"/>
-    <path d="M 130 70 L 148 72 M 132 90 L 155 92 M 135 108 L 152 115" stroke="#4d6030" stroke-width="0.8" opacity="0.5"/>
-    <ellipse cx="85" cy="140" rx="14" ry="17" fill="#a87544" opacity="0.85"/>
-    <ellipse cx="85" cy="140" rx="14" ry="17" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.7"/>
-    <path d="M 75 125 Q 82 130 95 128" fill="#c8a678" opacity="0.9"/>
-    <ellipse cx="85" cy="130" rx="12" ry="4" fill="#d4b88a" opacity="0.7"/>
-    <ellipse cx="108" cy="155" rx="12" ry="15" fill="#9c6838" opacity="0.8"/>
-    <ellipse cx="108" cy="155" rx="12" ry="15" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.6"/>
-    <path d="M 90 120 Q 95 130 100 145" stroke="#6b4520" stroke-width="2" fill="none" opacity="0.7"/>
-  </g>
-</svg>
-
-<svg class="botanical botanical-2" viewBox="0 0 150 200" xmlns="http://www.w3.org/2000/svg">
-  <path d="M 30 20 Q 50 60 55 100 Q 60 140 45 180" stroke="#6b4520" stroke-width="2.5" fill="none" opacity="0.7"/>
-  <path d="M 55 40 Q 35 60 40 95 Q 60 110 85 90 Q 95 65 75 42 Q 60 35 55 40 Z" fill="#7a9150" opacity="0.8"/>
-  <path d="M 55 40 Q 35 60 40 95 Q 60 110 85 90 Q 95 65 75 42 Q 60 35 55 40 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.7"/>
-  <path d="M 60 45 Q 65 70 70 100" stroke="#4d6030" stroke-width="1" fill="none" opacity="0.7"/>
-  <ellipse cx="70" cy="130" rx="13" ry="16" fill="#a87544" opacity="0.85"/>
-  <ellipse cx="70" cy="130" rx="13" ry="16" fill="none" stroke="#6b4520" stroke-width="1" opacity="0.6"/>
-  <ellipse cx="45" cy="155" rx="11" ry="14" fill="#9c6838" opacity="0.8"/>
-</svg>
-
-<svg class="botanical botanical-3" viewBox="0 0 160 180" xmlns="http://www.w3.org/2000/svg">
-  <path d="M 90 30 Q 65 50 70 95 Q 90 115 120 95 Q 135 65 115 35 Q 100 25 90 30 Z" fill="#a8c077" opacity="0.8"/>
-  <path d="M 90 30 Q 65 50 70 95 Q 90 115 120 95 Q 135 65 115 35 Q 100 25 90 30 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.7"/>
-  <path d="M 95 35 Q 100 65 105 110" stroke="#5a7535" stroke-width="1.2" fill="none" opacity="0.7"/>
-  <path d="M 45 110 Q 40 130 50 150 Q 75 165 95 150 Q 105 130 95 110 Q 70 100 45 110 Z" fill="#d4b88a" opacity="0.85"/>
-  <path d="M 45 110 L 42 105 L 50 108 L 55 102 L 62 107 L 70 100 L 78 106 L 85 101 L 92 107 L 98 105 L 95 110" fill="#d4b88a" stroke="#8b6332" stroke-width="1" opacity="0.85"/>
-  <ellipse cx="70" cy="135" rx="14" ry="15" fill="#8b5a2b" opacity="0.85"/>
-</svg>
+<!-- Decorative botanicals (akvarel ilustracije) -->
+<img src="hazel-leaves.png" alt="" class="botanical botanical-1" aria-hidden="true">
+<img src="hazelnut-kernels.png" alt="" class="botanical botanical-2" aria-hidden="true">
+<img src="hazel-leaves.png" alt="" class="botanical botanical-3" aria-hidden="true">
 
 <div class="container">
   <header>
-    <svg class="hero-illustration" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <path d="M 75 20 Q 55 35 55 60 Q 70 75 90 62 Q 100 40 88 22 Q 80 18 75 20 Z" fill="#8fb055" opacity="0.75"/>
-      <path d="M 75 20 Q 55 35 55 60 Q 70 75 90 62 Q 100 40 88 22 Q 80 18 75 20 Z" fill="none" stroke="#4d6030" stroke-width="1" opacity="0.7"/>
-      <path d="M 78 25 Q 80 45 82 68" stroke="#4d6030" stroke-width="0.8" fill="none" opacity="0.7"/>
-      <path d="M 30 25 Q 15 45 22 70 Q 40 82 58 68 Q 65 45 50 28 Q 38 20 30 25 Z" fill="#a8c077" opacity="0.85"/>
-      <path d="M 30 25 Q 15 45 22 70 Q 40 82 58 68 Q 65 45 50 28 Q 38 20 30 25 Z" fill="none" stroke="#5a7535" stroke-width="1" opacity="0.7"/>
-      <path d="M 36 30 Q 40 50 45 72" stroke="#5a7535" stroke-width="1" fill="none" opacity="0.7"/>
-      <ellipse cx="62" cy="82" rx="20" ry="24" fill="#a87544" opacity="0.9"/>
-      <ellipse cx="62" cy="82" rx="20" ry="24" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.8"/>
-      <ellipse cx="56" cy="74" rx="10" ry="8" fill="#d4b88a" opacity="0.5"/>
-      <path d="M 45 68 Q 45 62 50 60 L 75 60 Q 80 62 80 70 Q 72 68 62 70 Q 50 68 45 68 Z" fill="#8b6332" opacity="0.8"/>
-      <path d="M 58 102 Q 62 108 66 102" fill="#6b4520" opacity="0.7"/>
-    </svg>
+    <img src="hero-hazelnuts.png" alt="Lešnici" class="hero-illustration">
 
     <div class="tagline">~ domaći, sveži ~</div>
     <h1>Lešnici <em>&amp;</em> co.</h1>
@@ -1439,6 +1551,38 @@
   </div>
 </div>
 
+<!-- Plivajuća kesa (prikazuje količinu u korpi) -->
+<div class="floating-bag" id="floatingBag" aria-live="polite" aria-label="Količina u korpi">
+  <svg viewBox="0 0 80 92" xmlns="http://www.w3.org/2000/svg">
+    <!-- Drške kese -->
+    <path d="M 24 20 Q 24 8 32 6 Q 40 5 40 18"
+          fill="none" stroke="#8b6332" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 40 18 Q 40 5 48 6 Q 56 8 56 20"
+          fill="none" stroke="#8b6332" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Telo kese (platneno smeđe) -->
+    <path d="M 14 22 L 66 22 L 70 86 Q 70 90 66 90 L 14 90 Q 10 90 10 86 Z"
+          fill="#d4b88a" stroke="#8b6332" stroke-width="1.5" stroke-linejoin="round"/>
+    
+    <!-- Teksture / "nabor" kese -->
+    <path d="M 22 22 L 24 86" stroke="#b89968" stroke-width="0.8" opacity="0.6" fill="none"/>
+    <path d="M 36 22 L 36 86" stroke="#b89968" stroke-width="0.8" opacity="0.5" fill="none"/>
+    <path d="M 50 22 L 50 86" stroke="#b89968" stroke-width="0.8" opacity="0.5" fill="none"/>
+    <path d="M 58 22 L 60 86" stroke="#b89968" stroke-width="0.8" opacity="0.6" fill="none"/>
+    
+    <!-- Gornji rub kese -->
+    <path d="M 14 22 L 66 22" stroke="#8b6332" stroke-width="2" fill="none"/>
+    
+    <!-- "Highlight" senka -->
+    <ellipse cx="22" cy="40" rx="4" ry="18" fill="#e8d4a8" opacity="0.5"/>
+  </svg>
+  
+  <div class="bag-count">
+    <span class="num" id="bagCountNum">0</span>
+    <span class="unit">kg</span>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <span class="toast-icon">✓</span>
   <span id="toastText">Porudžbina primljena</span>
@@ -1450,22 +1594,10 @@
   // ============================================
   const API_URL = 'https://script.google.com/macros/s/AKfycbyHOmZR1m4d2IlfdNVJCB-X0IPN-6Lbsp4vnIOYsq2_xZ7yCtA6bI7WfWovfJpV3YhxSw/exec';
 
-  // Ikone za proizvode
+  // Ikone za proizvode - akvarel slike
   const PRODUCT_ICONS = {
-    peceni: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="30" cy="32" rx="17" ry="20" fill="#c9a47b" opacity="0.95"/>
-      <ellipse cx="30" cy="32" rx="17" ry="20" fill="none" stroke="#8b6332" stroke-width="1" opacity="0.6"/>
-      <ellipse cx="25" cy="24" rx="7" ry="5" fill="#e8cba1" opacity="0.6"/>
-      <path d="M 30 12 Q 33 15 30 18 Q 27 15 30 12 Z" fill="#6b4520" opacity="0.7"/>
-      <circle cx="36" cy="38" r="2" fill="#8b5a2b" opacity="0.4"/>
-      <circle cx="22" cy="42" r="1.5" fill="#8b5a2b" opacity="0.4"/>
-    </svg>`,
-    sirovi: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="30" cy="35" rx="18" ry="20" fill="#a87544" opacity="0.9"/>
-      <ellipse cx="30" cy="35" rx="18" ry="20" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/>
-      <ellipse cx="25" cy="28" rx="6" ry="4" fill="#d4b88a" opacity="0.5"/>
-      <path d="M 17 20 Q 18 14 24 14 L 36 14 Q 42 14 43 20 Q 36 18 30 19 Q 24 18 17 20 Z" fill="#8b6332" opacity="0.85"/>
-    </svg>`
+    peceni: `<img src="product-peceni.png" alt="" class="product-img" loading="lazy">`,
+    sirovi: `<img src="product-sirovi.png" alt="" class="product-img" loading="lazy">`
   };
 
   // State
@@ -1569,9 +1701,103 @@
   function changeQty(id, delta) {
     const product = products.find(p => p.id === id);
     if (!product || !product.available) return;
+    const oldQty = cart[id];
     cart[id] = Math.max(0, cart[id] + delta);
+    const newQty = cart[id];
+    
+    // Animiraj samo ako se količina stvarno promenila
+    if (newQty !== oldQty) {
+      const addedKg = newQty - oldQty; // pozitivno = dodato, negativno = oduzeto
+      animateBag(id, addedKg);
+    }
+    
     document.getElementById('qty-' + id).textContent = cart[id];
     updateSummary();
+    updateBag();
+  }
+
+  // Ukupno kg u korpi
+  function totalKg() {
+    return Object.values(cart).reduce((sum, qty) => sum + (Number(qty) || 0), 0);
+  }
+
+  // Ažuriraj prikaz kese (broj + vidljivost)
+  function updateBag() {
+    const bag = document.getElementById('floatingBag');
+    const total = totalKg();
+    document.getElementById('bagCountNum').textContent = total;
+    
+    if (total > 0) {
+      bag.classList.add('show');
+    } else {
+      bag.classList.remove('show');
+    }
+  }
+
+  // Animacija lešnika koji "leti" u/iz kese
+  function animateBag(productId, delta) {
+    // Pulse na samoj kesi
+    const bag = document.getElementById('floatingBag');
+    bag.classList.remove('pulse');
+    void bag.offsetWidth; // trigger reflow da restarta animaciju
+    bag.classList.add('pulse');
+    
+    // Pronađi poziciju proizvoda i kese
+    const productIcon = document.querySelector(`#qty-${productId}`)?.closest('.product')?.querySelector('.product-icon');
+    if (!productIcon) return;
+    
+    const productRect = productIcon.getBoundingClientRect();
+    const bagRect = bag.getBoundingClientRect();
+    
+    // Kreiraj flying nut element
+    const flyNut = document.createElement('img');
+    flyNut.src = productId === 'sirovi' ? 'product-sirovi.png' : 'product-peceni.png';
+    flyNut.className = 'flying-nut';
+    flyNut.alt = '';
+    
+    const isAdding = delta > 0;
+    
+    if (isAdding) {
+      // Krene od proizvoda, završi u kesi
+      flyNut.style.left = (productRect.left + productRect.width / 2 - 20) + 'px';
+      flyNut.style.top = (productRect.top + productRect.height / 2 - 20) + 'px';
+      
+      // Postavi CSS varijable za end poziciju (centar kese)
+      const endX = bagRect.left + bagRect.width / 2 - 20;
+      const endY = bagRect.top + bagRect.height / 2 - 20;
+      const deltaX = endX - (productRect.left + productRect.width / 2 - 20);
+      const deltaY = endY - (productRect.top + productRect.height / 2 - 20);
+      
+      flyNut.style.setProperty('--dx', deltaX + 'px');
+      flyNut.style.setProperty('--dy', deltaY + 'px');
+      
+      document.body.appendChild(flyNut);
+      
+      // Pokreni animaciju - lešnik ide do kese
+      requestAnimationFrame(() => {
+        flyNut.style.transition = 'transform 0.6s cubic-bezier(0.5, -0.3, 0.7, 0.5), opacity 0.6s ease-in';
+        flyNut.style.opacity = '1';
+        flyNut.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.3) rotate(360deg)`;
+      });
+      
+      setTimeout(() => flyNut.remove(), 700);
+    } else {
+      // Lešnik "izleće" iz kese nagore
+      flyNut.style.left = (bagRect.left + bagRect.width / 2 - 20) + 'px';
+      flyNut.style.top = (bagRect.top + bagRect.height / 2 - 20) + 'px';
+      flyNut.style.opacity = '1';
+      flyNut.style.transform = 'scale(0.3)';
+      
+      document.body.appendChild(flyNut);
+      
+      requestAnimationFrame(() => {
+        flyNut.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
+        flyNut.style.transform = 'translateY(-80px) scale(1) rotate(-180deg)';
+        flyNut.style.opacity = '0';
+      });
+      
+      setTimeout(() => flyNut.remove(), 500);
+    }
   }
 
   function updateSummary() {
@@ -1908,6 +2134,9 @@
         document.getElementById('name').value = '';
         document.getElementById('office').value = '';
         document.getElementById('phone').value = '';
+        
+        // Sakri kesu i resetuj broj
+        updateBag();
         
         // Reload podatke
         await loadData();
