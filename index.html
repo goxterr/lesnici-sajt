@@ -1671,8 +1671,25 @@
   }
   .mp-figure .mp-count.done { color: #1f7a4d; }
 
+  /* u prozoru za uplatu: ispred kartice, desno, ispod dugmeta za zatvaranje */
+  .payment-modal { overflow-x: hidden; }
+  .payment-modal-close { z-index: 6; }
+  .money-peek-modal {
+    top: 46px;
+    height: 320px;
+    --fig-h: 290px;
+    z-index: 5;
+  }
+  /* u prozoru se iznos već vidi krupno, a brojač bi ga zaklanjao */
+  .money-peek-modal .mp-count { display: none; }
+  /* iznos malo ulevo, da mu majstor sa novčanicama ne smeta */
+  .payment-modal .payment-total { padding-right: 64px; }
+  .payment-total-amount { white-space: nowrap; font-size: min(42px, 11vw); }
+
   @media (max-width: 700px) {
     .money-peek { top: 8px; height: 250px; --fig-h: 250px; }
+    .money-peek-modal { top: 44px; height: 266px; --fig-h: 240px; }
+    .payment-modal .payment-total { padding-right: 0; }   /* na telefonu su novčanice iznad iznosa */
     /* naslov levo, da ima mesta za majstora desno */
     .success-inner { padding-top: 28px; }
     .success-title, .success-subtitle { text-align: left; padding-right: 128px; }
@@ -1849,6 +1866,8 @@
 <div class="payment-modal-overlay" id="paymentModal">
   <div class="payment-modal">
     <button class="payment-modal-close" onclick="closePaymentModal()">×</button>
+    <!-- majstor viri sa desne ivice prozora i broji pare -->
+    <div class="money-peek money-peek-modal" id="payPeek" aria-hidden="true"></div>
     <div class="payment-modal-header">
       <div class="payment-modal-title">Hej, <em id="payModalName">tu si</em>!</div>
       <div class="payment-modal-sub">skeniraj QR ili koristi podatke ispod</div>
@@ -1861,9 +1880,8 @@
       </div>
 
       <div class="payment-qr-section">
-        <div class="payment-qr-label">📱 Skeniraj QR</div>
         <div id="payModalQR" class="payment-qr-img" style="display:flex;align-items:center;justify-content:center"></div>
-        <div class="payment-qr-hint">Iznos je već unet ✓</div>
+        <div class="payment-qr-hint">📱 Skeniraj QR — iznos je već unet ✓</div>
       </div>
 
       <div class="payment-details">
@@ -2486,7 +2504,7 @@
     
     document.getElementById('successScreen').classList.add('show');
     window.scrollTo(0, 0);
-    playMoneyScene('moneyPeek', total);
+    playMoneyScene('moneyPeek', total, 'auto');
   }
 
   // Generiše NBS IPS QR string prema zvaničnoj specifikaciji
@@ -2578,9 +2596,12 @@
     
     document.getElementById('paymentModal').classList.add('show');
     document.body.style.overflow = 'hidden'; // sprečava skrol iza modal-a
+    document.querySelector('#paymentModal .payment-modal').scrollTop = 0;
+    playMoneyScene('payPeek', order.total, 'peek');
   }
 
   function closePaymentModal() {
+    stopMoneyScene('payPeek');
     document.getElementById('paymentModal').classList.remove('show');
     document.body.style.overflow = '';
   }
@@ -3060,7 +3081,9 @@
   // Poza sa otvorenim dlanom: širina slike, centar glave i tačka na dlanu (udeo širine/visine)
   const PALM_POSE = {"w": 299, "h": 640, "headX": 0.5209, "palmX": 0.1008, "palmY": 0.3393, "palmL": 0.0, "palmR": 0.2241};
 
-  function playMoneyScene(id, amount) {
+  // mode: 'peek' = viri sa desne ivice (pola tela), 'full' = ceo, sa strane sadržaja,
+  //       'auto' = ceo ako sa strane ima dovoljno mesta, inače viri
+  function playMoneyScene(id, amount, mode = 'peek') {
     stopMoneyScene(id);
     const root = document.getElementById(id);
     if (!root) return;
@@ -3068,12 +3091,29 @@
     const later = (fn, ms) => moneyTimers[id].push(setTimeout(fn, ms));
     const fmt = n => Number(n).toLocaleString('sr');
 
-    const H = parseFloat(getComputedStyle(root).getPropertyValue('--fig-h')) || root.clientHeight;
+    root.style.top = '';
+    root.style.height = '';
+    let H = parseFloat(getComputedStyle(root).getPropertyValue('--fig-h')) || root.clientHeight;
     const P = PALM_POSE;
+
+    // ceo majstor: samo ako pored sadržaja ima mesta za njega
+    let full = false, fullLeft = 0;
+    if (mode !== 'peek') {
+      const inner = root.parentElement.querySelector('.success-inner');
+      const fullH = 360, fullW = fullH * P.w / P.h;
+      const gutter = inner ? root.clientWidth - inner.getBoundingClientRect().right : 0;
+      if (inner && window.innerWidth > 700 && gutter > fullW + 60) {
+        full = true;
+        H = fullH;
+        root.style.top = '130px';                               // niže, uz karticu sa iznosom
+        root.style.height = (H + 30) + 'px';
+        // u sredinu slobodnog prostora, malo bliže sadržaju (dlan je okrenut ka njemu)
+        fullLeft = root.clientWidth - gutter + Math.max(50, (gutter - fullW) * 0.45);
+      }
+    }
     // na telefonu kartica sa uplatom prelazi preko njega: okvir se završi na vrhu kartice,
     // pa izgleda kao da stoji iza nje i vidi se do pola
-    root.style.height = '';
-    if (window.innerWidth <= 700) {
+    if (!full && mode !== 'peek' && window.innerWidth <= 700) {
       const card = root.parentElement.querySelector('.payment-card');
       if (card) {
         const cut = card.getBoundingClientRect().top - root.getBoundingClientRect().top + 2;
@@ -3087,7 +3127,8 @@
     fig.className = 'mp-figure';
     fig.style.width = W + 'px';
     fig.style.height = H + 'px';
-    fig.style.left = (root.clientWidth - P.headX * W + H * 0.02) + 'px';
+    const inModal = id === 'payPeek';
+    fig.style.left = (full ? fullLeft : root.clientWidth - P.headX * W + H * (inModal ? 0.09 : 0.02)) + 'px';
     root.appendChild(fig);
 
     const char = document.createElement('img');
@@ -3096,15 +3137,19 @@
     char.alt = '';
     fig.appendChild(char);
 
-    const LEAN = -12;
-    fig.animate([
+    const LEAN = full ? -4 : (id === 'payPeek' ? -15 : -12);
+    fig.animate(full ? [
+      { transform: 'translateX(60px) rotate(0deg)', opacity: 0 },
+      { transform: `translateX(0) rotate(${LEAN - 2}deg)`, opacity: 1, offset: 0.8 },
+      { transform: `rotate(${LEAN}deg)`, opacity: 1 }
+    ] : [
       { transform: `translateX(${W * 0.55}px) rotate(0deg)` },
       { transform: `translateX(0) rotate(${LEAN - 2}deg)`, offset: 0.8 },
       { transform: `rotate(${LEAN}deg)` }
     ], { duration: reduceMotion ? 0 : 700, easing: 'cubic-bezier(0.3, 0.7, 0.4, 1)', fill: 'both' });
 
     // novčanice u dlanu: od najveće ka najmanjoj, svaka malo pomerena u stranu
-    const nw = H * 0.26, nh = nw * 0.475;
+    const nw = H * (inModal ? 0.22 : 0.26), nh = nw * 0.475;
     const palmX = P.palmX * W, palmY = P.palmY * H;
     const notes = [];
     splitIntoNotes(amount).forEach(g => { for (let i = 0; i < g.count; i++) notes.push(g.value); });
