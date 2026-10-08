@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — Lešnici</title>
+<title>Admin — Goranovi lešnici</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -56,7 +56,7 @@
     box-shadow: 0 8px 0 rgba(139, 99, 50, 0.1);
   }
 
-  .login-icon { width: 64px; height: 64px; margin: 0 auto 20px; }
+  .login-icon { width: 110px; height: 110px; margin: 0 auto 16px; display: block; object-fit: contain; }
 
   .login-title {
     font-family: 'Fraunces', serif;
@@ -145,7 +145,7 @@
   }
 
   .topbar-logo em { font-style: italic; color: var(--accent); }
-  .topbar-logo-icon { width: 32px; height: 32px; }
+  .topbar-logo-icon { width: 32px; height: 32px; object-fit: contain; }
 
   .topbar-badge {
     background: var(--accent);
@@ -1370,19 +1370,83 @@
     background: var(--ink-3);
     cursor: not-allowed;
   }
+
+  /* ============================
+     STIGLO — obaveštavanje kupaca
+     ============================ */
+  .bulk-btn.arrived {
+    background: #1f7a4d;
+    border-color: #1f7a4d;
+    font-weight: 600;
+  }
+  .bulk-btn.arrived:hover { background: #17603c; }
+
+  /* veća specifičnost od opšteg .modal stila */
+  .modal.product-modal { padding: 0; text-align: left; }
+  .modal.arrived-modal { max-width: 520px; }
+
+  .arrived-list {
+    border: 1px solid var(--husk);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .arrived-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px dashed var(--husk);
+    background: white;
+  }
+  .arrived-row:last-child { border-bottom: none; }
+  .arrived-row.sent { background: #f1f8f3; }
+
+  .arrived-person { flex: 1; min-width: 0; }
+  .arrived-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .arrived-phone { font-size: 12px; color: var(--ink-3); }
+  .arrived-phone.missing { color: var(--red); font-style: italic; }
+
+  .wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #25d366;
+    color: #0b3d22;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .wa-btn:hover { background: #1fbd5a; }
+  .wa-btn:focus-visible { outline: 3px solid var(--leaf-dark); outline-offset: 2px; }
+  .arrived-row.sent .wa-btn { background: #dcefe3; color: #1f7a4d; }
+
+  .arrived-note {
+    font-size: 12px;
+    color: var(--ink-3);
+    font-style: italic;
+    margin-top: 12px;
+    line-height: 1.5;
+  }
 </style>
 </head>
 <body>
 
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-    <svg class="login-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="32" cy="36" rx="20" ry="22" fill="#a87544" opacity="0.9"/>
-      <ellipse cx="32" cy="36" rx="20" ry="22" fill="none" stroke="#6b4520" stroke-width="1.5" opacity="0.7"/>
-      <path d="M 17 22 Q 18 16 24 16 L 40 16 Q 46 16 47 22 Q 40 20 32 21 Q 24 20 17 22 Z" fill="#7a9150" opacity="0.85"/>
-      <rect x="26" y="40" width="12" height="12" fill="#6b4520" opacity="0.8" rx="2"/>
-      <rect x="29" y="36" width="6" height="8" fill="none" stroke="#6b4520" stroke-width="1.5"/>
-    </svg>
+    <img class="login-icon" src="hero-hazelnuts.png" alt="">
     <h1 class="login-title">Admin <em>panel</em></h1>
     <p class="login-subtitle">samo za vlasnika</p>
     <input type="password" class="login-input" id="passwordInput" placeholder="Unesite lozinku" onkeypress="if(event.key==='Enter') doLogin()">
@@ -1394,11 +1458,8 @@
 <div class="admin-app" id="adminApp">
   <div class="topbar">
     <div class="topbar-logo">
-      <svg class="topbar-logo-icon" viewBox="0 0 40 40">
-        <ellipse cx="20" cy="22" rx="12" ry="14" fill="#a87544" opacity="0.9"/>
-        <path d="M 11 12 Q 12 8 16 8 L 24 8 Q 28 8 29 12 Q 24 11 20 12 Q 15 11 11 12 Z" fill="#7a9150" opacity="0.85"/>
-      </svg>
-      <span>Lešnici <em>admin</em></span>
+      <img class="topbar-logo-icon" src="product-sirovi.png" alt="">
+      <span>Goranovi <em>lešnici</em></span>
     </div>
     <span class="topbar-badge">Goran</span>
     <button class="refresh-btn" id="refreshBtn" onclick="loadData()">
@@ -1446,13 +1507,14 @@
         <button class="filter-chip" data-filter="unpaid" onclick="setFilter('unpaid')">Neplaćeno</button>
         <button class="filter-chip" data-filter="not-picked" onclick="setFilter('not-picked')">Nije preuzeto</button>
         <button class="filter-chip" data-filter="done" onclick="setFilter('done')">Završeno</button>
-        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili sektoru..." oninput="renderOrdersTable()">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili biznisu..." oninput="renderOrdersTable()">
       </div>
 
       <div class="bulk-toolbar" id="bulkToolbar" style="display:none">
         <span class="bulk-count" id="bulkCount">0 izabrano</span>
         <div class="bulk-actions">
           <button class="bulk-btn" onclick="clearSelection()">Poništi</button>
+          <button class="bulk-btn arrived" onclick="openArrivedModal()">🌰 Stiglo — javi im</button>
           <button class="bulk-btn danger" onclick="confirmBulkDelete()">🗑️ Obriši izabrane</button>
         </div>
       </div>
@@ -1462,7 +1524,7 @@
           <div></div>
           <div>Datum</div>
           <div>Ime</div>
-          <div>Sektor</div>
+          <div>Biznis</div>
           <div>Proizvodi</div>
           <div style="text-align:right">Iznos</div>
           <div>Plaćeno</div>
@@ -1550,6 +1612,28 @@
   </div>
 </div>
 
+<!-- Stiglo: obaveštavanje preko WhatsApp-a -->
+<div class="modal-overlay" id="arrivedModal">
+  <div class="modal product-modal arrived-modal">
+    <div class="product-modal-header">
+      <h3>Stigli su <em>lešnici</em></h3>
+      <button class="close-modal-btn" onclick="closeArrivedModal()">×</button>
+    </div>
+    <div class="product-modal-body">
+      <div class="product-form-group">
+        <label for="arrivedMessage">Poruka</label>
+        <textarea id="arrivedMessage" rows="4" maxlength="600" oninput="saveArrivedTemplate()"></textarea>
+        <div class="form-hint">{ime} se menja imenom kupca, {porudzbina} onim što je poručio. Tekst se pamti za sledeći put.</div>
+      </div>
+      <div class="arrived-list" id="arrivedList"></div>
+      <p class="arrived-note">Klik na „Pošalji" otvara WhatsApp sa već napisanom porukom — samo pritisneš strelicu za slanje i vratiš se ovde za sledećeg.</p>
+    </div>
+    <div class="product-modal-footer">
+      <button class="product-modal-btn cancel" onclick="closeArrivedModal()">Zatvori</button>
+    </div>
+  </div>
+</div>
+
 <!-- Comments modal -->
 <div class="modal-overlay" id="commentsModal">
   <div class="modal comments-modal">
@@ -1583,8 +1667,8 @@
   const API_URL = 'https://script.google.com/macros/s/AKfycbyHOmZR1m4d2IlfdNVJCB-X0IPN-6Lbsp4vnIOYsq2_xZ7yCtA6bI7WfWovfJpV3YhxSw/exec';
 
   const PRODUCT_ICONS = {
-    peceni: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><ellipse cx="30" cy="32" rx="17" ry="20" fill="#c9a47b" opacity="0.95"/><ellipse cx="30" cy="32" rx="17" ry="20" fill="none" stroke="#8b6332" stroke-width="1" opacity="0.6"/><ellipse cx="25" cy="24" rx="7" ry="5" fill="#e8cba1" opacity="0.6"/><path d="M 30 12 Q 33 15 30 18 Q 27 15 30 12 Z" fill="#6b4520" opacity="0.7"/><circle cx="36" cy="38" r="2" fill="#8b5a2b" opacity="0.4"/></svg>`,
-    sirovi: `<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><ellipse cx="30" cy="35" rx="18" ry="20" fill="#a87544" opacity="0.9"/><ellipse cx="30" cy="35" rx="18" ry="20" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/><path d="M 17 20 Q 18 14 24 14 L 36 14 Q 42 14 43 20 Q 36 18 30 19 Q 24 18 17 20 Z" fill="#8b6332" opacity="0.85"/></svg>`
+    peceni: `<img src="product-peceni.png" alt="" style="width:100%;height:100%;object-fit:contain">`,
+    sirovi: `<img src="product-sirovi.png" alt="" style="width:100%;height:100%;object-fit:contain">`
   };
 
   let password = '';
@@ -1797,7 +1881,7 @@
                 ${checkbox}
                 <div class="mobile-name-block">
                   <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
-                  <div class="col-office">sektor ${o.office}</div>
+                  <div class="col-office">${o.office}</div>
                 </div>
               </div>
               <div class="mobile-date-amount">
@@ -1897,7 +1981,7 @@
     document.getElementById('modalMessage').textContent = 'Ova akcija je trajna i ne može se poništiti. Red će biti obrisan iz Google Sheet-a.';
     const details = document.getElementById('modalDetails');
     details.style.display = 'block';
-    details.innerHTML = `<strong>${order.name}</strong> · sektor ${order.office}<br><span style="color:var(--ink-2);font-size:13px">${order.items} — ${Number(order.total).toLocaleString('sr')} din</span>`;
+    details.innerHTML = `<strong>${order.name}</strong> · ${order.office}<br><span style="color:var(--ink-2);font-size:13px">${order.items} — ${Number(order.total).toLocaleString('sr')} din</span>`;
     document.getElementById('modalConfirmBtn').textContent = 'Obriši';
     document.getElementById('confirmModal').classList.add('show');
   }
@@ -1980,7 +2064,7 @@
     // Setuj header
     const count = (order.comments || []).length;
     document.getElementById('commentsCount').textContent = count > 0 ? `· ${count}` : '';
-    document.getElementById('commentsSubject').textContent = `${order.name} · sektor ${order.office}`;
+    document.getElementById('commentsSubject').textContent = `${order.name} · ${order.office}`;
     
     // Renderuj komentare
     renderCommentsList(order.comments || []);
@@ -2415,6 +2499,106 @@
   }
 
   window.addEventListener('resize', renderOrdersTable);
+
+  // ============================================
+  // STIGLO — WhatsApp obaveštenje izabranim kupcima
+  // ============================================
+  const ARRIVED_DEFAULT = 'Ćao {ime}! 🌰 Stigli su lešnici — tvoja porudžbina ({porudzbina}) te čeka. Javi kad ti odgovara da preuzmeš. Pozdrav, Goran';
+  const ARRIVED_KEY = 'lesnici_stiglo_poruka';
+
+  // Pretvara broj iz forme (063/869-0881, +381 63..., 638690881) u format za WhatsApp (381638690881)
+  function toWhatsAppNumber(raw) {
+    let d = String(raw || '').replace(/\D/g, '');
+    if (!d) return null;
+    if (d.startsWith('00')) d = d.slice(2);
+    if (d.startsWith('381')) {
+      // već u međunarodnom formatu
+    } else if (d.startsWith('0')) {
+      d = '381' + d.slice(1);
+    } else if (d.startsWith('6') && d.length >= 8 && d.length <= 9) {
+      // Sheet ponekad "pojede" početnu nulu
+      d = '381' + d;
+    }
+    if (d.length < 10 || d.length > 13) return null;
+    return d;
+  }
+
+  function getArrivedTemplate() {
+    try {
+      return localStorage.getItem(ARRIVED_KEY) || ARRIVED_DEFAULT;
+    } catch (e) {
+      return ARRIVED_DEFAULT;
+    }
+  }
+
+  function saveArrivedTemplate() {
+    try {
+      localStorage.setItem(ARRIVED_KEY, document.getElementById('arrivedMessage').value);
+    } catch (e) { /* bez pamćenja, nije bitno */ }
+  }
+
+  function buildArrivedMessage(order) {
+    const template = document.getElementById('arrivedMessage').value || ARRIVED_DEFAULT;
+    const firstName = String(order.name || '').trim().split(/\s+/)[0] || '';
+    return template
+      .replace(/\{ime\}/g, firstName)
+      .replace(/\{porudzbina\}/g, order.items || '');
+  }
+
+  function openArrivedModal() {
+    if (selectedIds.size === 0) {
+      showToast('Prvo čekiraj kupce kojima javljaš', true);
+      return;
+    }
+    document.getElementById('arrivedMessage').value = getArrivedTemplate();
+    renderArrivedList();
+    document.getElementById('arrivedModal').classList.add('show');
+  }
+
+  function closeArrivedModal() {
+    document.getElementById('arrivedModal').classList.remove('show');
+  }
+
+  function renderArrivedList() {
+    const chosen = orders.filter(o => selectedIds.has(o.id));
+    const list = document.getElementById('arrivedList');
+    list.innerHTML = chosen.map(o => {
+      const wa = toWhatsAppNumber(o.phone);
+      const phoneLine = wa
+        ? `<div class="arrived-phone">${escapeHtml(String(o.phone))}</div>`
+        : `<div class="arrived-phone missing">${o.phone ? 'broj nije ispravan: ' + escapeHtml(String(o.phone)) : 'nije ostavio broj'}</div>`;
+      const action = wa
+        ? `<button class="wa-btn" onclick="sendArrived(${o.id}, this)">Pošalji</button>`
+        : '';
+      return `
+        <div class="arrived-row" id="arrived-row-${o.id}">
+          <div class="arrived-person">
+            <div class="arrived-name">${escapeHtml(o.name)}</div>
+            ${phoneLine}
+          </div>
+          ${action}
+        </div>`;
+    }).join('');
+  }
+
+  function sendArrived(orderId, btn) {
+    const order = orders.find(o => o.id == orderId);
+    if (!order) return;
+    const wa = toWhatsAppNumber(order.phone);
+    if (!wa) return;
+    const url = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(buildArrivedMessage(order));
+    window.open(url, '_blank');
+    const row = document.getElementById('arrived-row-' + orderId);
+    if (row) row.classList.add('sent');
+    btn.textContent = '✓ Poslato';
+  }
+
+  document.getElementById('arrivedModal').addEventListener('click', (e) => {
+    if (e.target.id === 'arrivedModal') closeArrivedModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeArrivedModal();
+  });
 </script>
 
 </body>

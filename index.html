@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lešnici — Porudžbine</title>
+<title>Goranovi lešnici — porudžbine</title>
 
 <!-- Open Graph preview za Viber, WhatsApp, Teams, Facebook itd. -->
 <meta property="og:title" content="Goranovi lešnici 🌰">
@@ -14,7 +14,7 @@
 <meta property="og:url" content="https://lesnici-sajt.vercel.app">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="sr_RS">
-<meta property="og:site_name" content="Lešnici & co.">
+<meta property="og:site_name" content="Goranovi lešnici">
 
 <!-- Twitter Card (koriste ga i neki drugi app-ovi) -->
 <meta name="twitter:card" content="summary_large_image">
@@ -79,42 +79,51 @@
     z-index: 2;
   }
 
-  .botanical {
+  body { position: relative; }
+
+  /* Omotač je visok koliko i cela stranica, pa procenti rasporede elemente
+     duž stranice, a overflow:hidden sprečava da prave dodatni skrol */
+  .botanicals {
     position: absolute;
+    inset: 0;
+    overflow: hidden;
     pointer-events: none;
     z-index: 0;
-    object-fit: contain;
   }
 
-  .botanical-1 {
-    top: 20px; right: -40px; width: 180px;
-    opacity: 0.75;
-    --r: 15deg;
-    transform: rotate(var(--r));
+  .botanical {
+    position: absolute;
+    object-fit: contain;
+    transform: rotate(var(--r, 0deg));
+    animation: float var(--d, 9s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
   }
-  .botanical-2 {
-    top: 420px; left: -50px; width: 140px;
-    opacity: 0.6;
-    --r: -20deg;
-    transform: rotate(var(--r));
-  }
-  .botanical-3 {
-    bottom: 400px; right: -60px; width: 150px;
-    opacity: 0.65;
-    --r: 25deg;
-    transform: rotate(var(--r));
-  }
+
+  .b1 { top: 10px;  right: -50px; width: 190px; opacity: 0.7;  --r: 15deg;  --d: 8s; }
+  .b2 { top: 14%;   left: -40px;  width: 130px; opacity: 0.55; --r: -20deg; --d: 10s; --delay: 1s; }
+  .b3 { top: 27%;   right: 4%;    width: 74px;  opacity: 0.5;  --r: 25deg;  --d: 9s;  --delay: 2s; }
+  .b4 { top: 38%;   left: -70px;  width: 175px; opacity: 0.5;  --r: -35deg; --d: 11s; --delay: .5s; }
+  .b5 { top: 52%;   right: 6%;    width: 64px;  opacity: 0.5;  --r: -15deg; --d: 8s;  --delay: 1.5s; }
+  .b6 { top: 64%;   left: 4%;     width: 120px; opacity: 0.42; --r: 10deg;  --d: 12s; --delay: 2.5s; }
+  .b7 { top: 76%;   right: -60px; width: 165px; opacity: 0.5;  --r: 40deg;  --d: 10s; --delay: 1s; }
+  .b8 { top: 89%;   left: -30px;  width: 110px; opacity: 0.45; --r: 15deg;  --d: 9s;  --delay: 3s; }
 
   @media (max-width: 700px) {
-    .botanical-1 { width: 120px; top: 10px; right: -40px; opacity: 0.5; }
-    .botanical-2 { width: 100px; left: -40px; opacity: 0.45; }
-    .botanical-3 { width: 110px; right: -40px; opacity: 0.5; }
-    .container { padding: 20px 16px 60px; }
+    /* Na telefonu sadržaj zauzima celu širinu, pa su elementi manji,
+       bleđi i guraju se ka ivicama; dva sitna se skrivaju */
+    .b1 { top: 140px; right: -55px; width: 120px; opacity: 0.4; }
+    .b2 { left: -45px; width: 95px;  opacity: 0.35; }
+    .b4 { left: -70px; width: 125px; opacity: 0.35; }
+    .b6 { left: -30px; width: 90px;  opacity: 0.3; }
+    .b7 { right: -55px; width: 115px; opacity: 0.35; }
+    .b8 { left: -35px; width: 85px;  opacity: 0.3; }
+    .b3, .b5 { display: none; }
+    .container { padding: 16px 16px 60px; }
   }
 
-  header {
+  header.hero {
     text-align: center;
-    padding: 40px 0 48px;
+    padding: 32px 0 44px;
     position: relative;
   }
 
@@ -135,12 +144,7 @@
     50% { transform: translateY(-8px); }
   }
 
-  @media (max-width: 700px) {
-    .hero-illustration {
-      width: 180px;
-      height: 180px;
-    }
-  }
+
 
   .tagline {
     font-family: 'Caveat', cursive;
@@ -181,14 +185,6 @@
     opacity: 0.6;
   }
 
-  .intro {
-    color: var(--ink-2);
-    font-size: 16px;
-    max-width: 440px;
-    margin: 0 auto;
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-  }
 
   section {
     margin-bottom: 48px;
@@ -203,9 +199,11 @@
   }
 
   .section-icon {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(107, 69, 32, 0.15));
   }
 
   .section-title {
@@ -871,19 +869,10 @@
     position: relative;
   }
 
-  .success-confetti {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    height: 120px;
-    pointer-events: none;
-  }
 
   .success-icon-wrap {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
     margin: 40px auto 24px;
     position: relative;
     animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1347,35 +1336,82 @@
     .bag-count .unit { font-size: 9px; }
   }
 
-  .botanical-1 { --r: 15deg; animation: float 8s ease-in-out infinite; }
-  .botanical-2 { --r: -20deg; animation: float 10s ease-in-out infinite 1s; }
-  .botanical-3 { --r: 25deg; animation: float 9s ease-in-out infinite 2s; }
+
+  .success-icon-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(107, 69, 32, 0.18));
+  }
+
+  /* ============================
+     TELEFON: proizvodi vidljivi odmah na prvom ekranu
+     ============================ */
+  @media (max-width: 700px) {
+    header.hero {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+      padding: 0 0 18px;
+    }
+    .hero-illustration {
+      width: 92px;
+      height: 92px;
+      max-width: none;
+      max-height: none;
+      margin: 0;
+      flex-shrink: 0;
+    }
+    .tagline { font-size: 17px; margin-bottom: 2px; }
+    h1 { font-size: clamp(30px, 9vw, 38px); margin-bottom: 0; }
+
+    section { margin-bottom: 32px; }
+    .section-head { margin-bottom: 10px; gap: 10px; }
+    .section-icon { width: 30px; height: 30px; }
+    .section-title { font-size: 22px; }
+    .section-handwrite { font-size: 16px; }
+
+    .products-wrap { padding: 4px 16px; }
+    .product { padding: 12px 0; gap: 12px; }
+    .product-icon { width: 56px; height: 56px; }
+    .product-name { font-size: 19px; }
+  }
+
+  .product-price { white-space: nowrap; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .botanical, .hero-illustration { animation: none; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Decorative botanicals (akvarel ilustracije) -->
-<img src="hazel-leaves.png" alt="" class="botanical botanical-1" aria-hidden="true">
-<img src="hazelnut-kernels.png" alt="" class="botanical botanical-2" aria-hidden="true">
-<img src="hazel-leaves.png" alt="" class="botanical botanical-3" aria-hidden="true">
+<!-- Dekorativni akvarel elementi u pozadini -->
+<div class="botanicals" aria-hidden="true">
+  <img src="hazel-leaves.png" alt="" class="botanical b1">
+  <img src="hazelnut-kernels.png" alt="" class="botanical b2">
+  <img src="product-sirovi.png" alt="" class="botanical b3">
+  <img src="hazel-leaves.png" alt="" class="botanical b4">
+  <img src="product-peceni.png" alt="" class="botanical b5">
+  <img src="hero-hazelnuts.png" alt="" class="botanical b6">
+  <img src="hazel-leaves.png" alt="" class="botanical b7">
+  <img src="hazelnut-kernels.png" alt="" class="botanical b8">
+</div>
 
 <div class="container">
-  <header>
-    <img src="hero-hazelnuts.png" alt="Lešnici" class="hero-illustration">
-
-    <div class="tagline">~ domaći, sveži ~</div>
-    <h1>Lešnici <em>&amp;</em> co.</h1>
-    <p class="intro">Poručivanje za kolege iz firme — jednostavno, svako sa svog stola.</p>
+  <header class="hero">
+    <img src="hero-hazelnuts.png" alt="" class="hero-illustration">
+    <div class="hero-text">
+      <div class="tagline">~ domaći, sveži ~</div>
+      <h1>Goranovi <em>lešnici</em></h1>
+    </div>
   </header>
 
   <!-- Proizvodi -->
   <section>
     <div class="section-head">
-      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="20" cy="22" rx="12" ry="14" fill="#a87544" opacity="0.9"/>
-        <ellipse cx="20" cy="22" rx="12" ry="14" fill="none" stroke="#6b4520" stroke-width="1.2" opacity="0.7"/>
-        <path d="M 11 12 Q 12 8 16 8 L 24 8 Q 28 8 29 12 Q 24 11 20 12 Q 15 11 11 12 Z" fill="#7a9150" opacity="0.85"/>
-      </svg>
+      <img class="section-icon" src="product-sirovi.png" alt="" aria-hidden="true">
       <h2 class="section-title">Naši <em>proizvodi</em></h2>
       <span class="section-handwrite">1kg pakovanja</span>
     </div>
@@ -1389,11 +1425,7 @@
   <!-- Podaci -->
   <section>
     <div class="section-head">
-      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 8 12 L 32 12 L 32 32 L 8 32 Z" fill="#faf5eb" stroke="#8b6332" stroke-width="1.5" opacity="0.9"/>
-        <path d="M 12 18 L 28 18 M 12 23 L 24 23 M 12 28 L 26 28" stroke="#8b6332" stroke-width="1.2" opacity="0.7"/>
-        <path d="M 22 6 L 30 14 L 26 16 L 18 8 Z" fill="#9c4a1b" opacity="0.85"/>
-      </svg>
+      <img class="section-icon" src="product-peceni.png" alt="" aria-hidden="true">
       <h2 class="section-title">Vaši <em>podaci</em></h2>
     </div>
 
@@ -1405,8 +1437,8 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="office">Sektor</label>
-          <input type="text" id="office" placeholder="npr. Marketing, IT, Finansije">
+          <label for="office">Biznis</label>
+          <input type="text" id="office" placeholder="npr. Infostud, Polovnjaci, 4zida">
         </div>
         <div class="form-group">
           <label for="phone">Telefon (opciono)</label>
@@ -1427,11 +1459,7 @@
   <!-- Lista porudžbina -->
   <section>
     <div class="section-head">
-      <svg class="section-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-        <rect x="8" y="8" width="24" height="26" rx="2" fill="#fff" stroke="#8b6332" stroke-width="1.5" opacity="0.9"/>
-        <path d="M 12 14 L 28 14 M 12 19 L 28 19 M 12 24 L 26 24 M 12 29 L 24 29" stroke="#c8a678" stroke-width="0.8"/>
-        <path d="M 28 6 Q 32 8 34 12 Q 30 14 26 12 Q 25 8 28 6 Z" fill="#7a9150" opacity="0.85"/>
-      </svg>
+      <img class="section-icon" src="hazelnut-kernels.png" alt="" aria-hidden="true">
       <h2 class="section-title">Sve <em>porudžbine</em></h2>
       <span class="section-handwrite" id="orderCount">učitavam...</span>
     </div>
@@ -1445,21 +1473,8 @@
 <!-- Success screen -->
 <div class="success-screen" id="successScreen">
   <div class="success-inner">
-    <svg class="success-confetti" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="30" cy="40" r="3" fill="#9c4a1b"/>
-      <circle cx="170" cy="30" r="3" fill="#7a9150"/>
-      <circle cx="50" cy="80" r="2" fill="#c8a678"/>
-      <circle cx="150" cy="70" r="2.5" fill="#b8732a"/>
-      <path d="M 80 20 L 85 25 M 120 50 L 125 55 M 60 60 L 65 65 M 140 90 L 145 95" stroke="#9c4a1b" stroke-width="2" stroke-linecap="round"/>
-      <path d="M 100 15 L 103 10 L 106 15 L 103 20 Z" fill="#7a9150"/>
-    </svg>
 
-    <div class="success-icon-wrap">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="45" fill="#7a9150" opacity="0.9"/>
-        <path d="M 32 52 L 45 65 L 70 38" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
+    <div class="success-icon-wrap"><img src="hero-hazelnuts.png" alt=""></div>
 
     <h2 class="success-title">Porudžbina <em>primljena!</em></h2>
     <div class="success-subtitle">Hvala <span id="successName">vam</span> 🌰</div>
@@ -1676,9 +1691,9 @@
       
       // Sada koristimo packaging i description iz Sheet-a (umesto fiksnih vrednosti)
       // Fallback na stare vrednosti ako neka polja nisu popunjena
-      const desc = p.description || (p.id === 'sirovi' ? 'U ljusci' : 'Očišćeni');
+      const desc = p.description || '';
       const pack = p.packaging || '1kg';
-      const meta = `${desc} · ${pack}`;
+      const meta = [desc, pack].filter(Boolean).join(' · ');
       
       return `
         <div class="product ${unavailableClass}">
@@ -1886,7 +1901,7 @@
           <div class="order-body">
             <div class="order-head">
               <span class="order-name">${o.name}</span>
-              <span class="order-meta">sektor ${o.office} · ${dateShort}</span>
+              <span class="order-meta">${o.office} · ${dateShort}</span>
             </div>
             <div class="order-items">${o.items}</div>
             ${badgesDiv}
@@ -1910,7 +1925,7 @@
           <div class="order-avatar">${getInitials(o.name)}</div>
           <div class="order-mini-info">
             <span class="order-mini-name">${o.name}</span>
-            <span class="order-mini-meta">sektor ${o.office} · ${dateShort}</span>
+            <span class="order-mini-meta">${o.office} · ${dateShort}</span>
             <div class="expanded-details">
               <div class="order-items" style="margin-top:4px">${o.items}</div>
               <div class="order-badges">${badgesInline}</div>
@@ -2094,7 +2109,7 @@
     const phone = document.getElementById('phone').value.trim();
 
     if (!name || !office) {
-      showToast('Unesite ime i kancelariju', true);
+      showToast('Unesite ime i biznis', true);
       return;
     }
 
