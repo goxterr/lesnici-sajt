@@ -1619,6 +1619,91 @@
   @media (prefers-reduced-motion: reduce) {
     .majstor.walking .majstor-body, .floating-bag.held { animation: none; }
   }
+
+  /* ============================
+     STRANICA ZA PLAĆANJE: pozadina + majstor broji pare
+     ============================ */
+  .success-botanicals { position: fixed; }      /* stoji u mestu dok se sadržaj skroluje */
+  .success-inner { z-index: 1; }
+
+  .money-scene {
+    position: relative;
+    height: 220px;
+    max-width: 460px;
+    margin: 0 auto 18px;
+    text-align: left;
+  }
+  .money-scene-sm { height: 175px; margin-bottom: 10px; }
+
+  .money-scene .ms-floor {
+    position: absolute;
+    left: 2%;
+    right: 2%;
+    bottom: -6px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(107, 69, 32, 0.2), transparent 70%);
+  }
+  .money-scene .ms-char,
+  .money-scene .ms-glove {
+    position: absolute;
+    bottom: 0;
+    transform-origin: 50% 100%;
+    filter: drop-shadow(0 4px 4px rgba(42, 31, 21, 0.2));
+  }
+  .money-scene .ms-glove {
+    clip-path: inset(15.5% 81.3% 75.5% 0);
+    filter: none;
+  }
+  .money-scene .ms-note {
+    position: absolute;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(42, 31, 21, 0.3);
+  }
+  .money-scene .ms-hand-note {
+    transform-origin: 88% 50%;
+    transition: opacity 0.12s;
+  }
+  .money-scene .ms-badge {
+    position: absolute;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Fraunces', serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 999px;
+    box-shadow: 0 2px 5px rgba(42, 31, 21, 0.3);
+    z-index: 60;
+    transform: scale(0);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .money-scene .ms-badge.show { transform: scale(1); }
+
+  .money-scene .ms-bubble {
+    position: absolute;
+    z-index: 70;
+    background: #fffaf0;
+    border: 2px solid #6b4520;
+    border-radius: 18px 14px 18px 12px;
+    padding: 4px 12px 6px;
+    font-family: 'Caveat', cursive;
+    font-size: 21px;
+    line-height: 1.1;
+    color: #2a1f15;
+    white-space: nowrap;
+    box-shadow: 2px 3px 0 rgba(107, 69, 32, 0.15);
+  }
+  .money-scene .ms-bubble .bubble-tail { right: -18px; bottom: 6px; }
+  .money-scene .ms-bubble.done { border-color: #1f7a4d; color: #17603c; }
+  .money-scene .ms-bubble.done .bubble-tail path { stroke: #1f7a4d; }
+
+  @media (max-width: 700px) {
+    .money-scene { height: 190px; }
+    .money-scene-sm { height: 160px; }
+    .money-scene .ms-bubble { font-size: 18px; }
+  }
 </style>
 </head>
 <body>
@@ -1727,9 +1812,21 @@
 
 <!-- Success screen -->
 <div class="success-screen" id="successScreen">
+  <!-- ista akvarel pozadina kao na naslovnoj -->
+  <div class="botanicals success-botanicals" aria-hidden="true">
+    <img src="hazel-leaves.png" alt="" class="botanical b1">
+    <img src="hazelnut-kernels.png" alt="" class="botanical b2">
+    <img src="product-sirovi.png" alt="" class="botanical b3">
+    <img src="hazel-leaves.png" alt="" class="botanical b4">
+    <img src="product-peceni.png" alt="" class="botanical b5">
+    <img src="hero-hazelnuts.png" alt="" class="botanical b6">
+    <img src="hazel-leaves.png" alt="" class="botanical b7">
+    <img src="hazelnut-kernels.png" alt="" class="botanical b8">
+  </div>
   <div class="success-inner">
 
-    <div class="success-icon-wrap"><img src="hero-hazelnuts.png" alt=""></div>
+    <!-- majstor broji novčanice do tačnog iznosa -->
+    <div class="money-scene" id="successMoney" aria-hidden="true"></div>
 
     <h2 class="success-title">Porudžbina <em>primljena!</em></h2>
     <div class="success-subtitle">Hvala <span id="successName">vam</span> 🌰</div>
@@ -1781,6 +1878,8 @@
       <div class="payment-modal-title">Uplata za <em id="payModalName">porudžbinu</em></div>
       <div class="payment-modal-sub">skeniraj QR ili koristi podatke ispod</div>
     </div>
+
+    <div class="money-scene money-scene-sm" id="payModalMoney" aria-hidden="true"></div>
 
     <div class="payment-card">
       <div class="payment-total">
@@ -2414,6 +2513,7 @@
     
     document.getElementById('successScreen').classList.add('show');
     window.scrollTo(0, 0);
+    playMoneyScene('successMoney', total);
   }
 
   // Generiše NBS IPS QR string prema zvaničnoj specifikaciji
@@ -2464,6 +2564,7 @@
   }
 
   function closeSuccess() {
+    stopMoneyScene('successMoney');
     document.getElementById('successScreen').classList.remove('show');
   }
 
@@ -2504,9 +2605,11 @@
     
     document.getElementById('paymentModal').classList.add('show');
     document.body.style.overflow = 'hidden'; // sprečava skrol iza modal-a
+    playMoneyScene('payModalMoney', order.total);
   }
 
   function closePaymentModal() {
+    stopMoneyScene('payModalMoney');
     document.getElementById('paymentModal').classList.remove('show');
     document.body.style.overflow = '';
   }
@@ -2958,6 +3061,166 @@
         out.cancel();
       };
     }, T(450));
+  }
+
+
+  // ============================================
+  // MAJSTOR BROJI PARE (stranica za plaćanje)
+  // ============================================
+  const NOTE_VALUES = [5000, 2000, 1000, 500, 200, 100];
+  const moneyTimers = {};
+
+  // Iznos u najmanje novčanica, od najveće ka najmanjoj
+  function splitIntoNotes(amount) {
+    let rest = Math.round(Number(amount) || 0);
+    const groups = [];
+    NOTE_VALUES.forEach(value => {
+      const count = Math.floor(rest / value);
+      if (count > 0) { groups.push({ value, count }); rest -= count * value; }
+    });
+    return groups;
+  }
+
+  function stopMoneyScene(id) {
+    (moneyTimers[id] || []).forEach(clearTimeout);
+    moneyTimers[id] = [];
+  }
+
+  function playMoneyScene(id, amount) {
+    stopMoneyScene(id);
+    const root = document.getElementById(id);
+    if (!root) return;
+    root.innerHTML = '';
+    const later = (fn, ms) => moneyTimers[id].push(setTimeout(fn, ms));
+    const fmt = n => Number(n).toLocaleString('sr');
+
+    const W = root.clientWidth, SH = root.clientHeight;
+    const add = (tag, cls, css) => {
+      const el = document.createElement(tag);
+      el.className = cls;
+      Object.assign(el.style, css || {});
+      root.appendChild(el);
+      return el;
+    };
+    add('div', 'ms-floor');
+
+    // majstor sa pesnicom, desno
+    const m = MAJSTOR.fist;
+    const charH = SH * 0.94;
+    const charW = charH * m.w / m.h;
+    const charLeft = W - charW - W * 0.01;
+    const headX = charLeft + m.headX * charW;
+    const grip = { x: charLeft + m.gripX * charW, y: SH - charH * (1 - m.gripY) };
+
+    // gomilice novčanica: levo od majstora, najviše 3 u redu (zadnji red malo više)
+    const groups = splitIntoNotes(amount);
+    const area = Math.max(140, grip.x - 26);
+    const perRow = Math.min(3, groups.length || 1);
+    const nw = Math.min(100, (area - (perRow - 1) * 8) / perRow);
+    const nh = nw * 0.475;
+    const twoRows = groups.length > 3;
+    groups.forEach((g, k) => {
+      const back = twoRows && k < 3;                           // prva tri apoena u zadnji red
+      const rowItems = !twoRows ? groups.length : (back ? 3 : groups.length - 3);
+      const col = twoRows && !back ? k - 3 : k;
+      const rowW = rowItems * nw + (rowItems - 1) * 8;
+      g.x = (area - rowW) / 2 + col * (nw + 8);
+      g.bottom = 4 + (back ? nh * 0.72 : 0);
+      g.z = back ? 10 : 30;
+      g.tilt = [-5, 3, -2, 4, -4, 2][k % 6];
+      g.placed = 0;
+    });
+
+    const char = add('img', 'ms-char', { left: charLeft + 'px', height: charH + 'px', width: charW + 'px', zIndex: 40 });
+    char.src = 'majstor-fist.webp';
+    char.alt = '';
+    const handNote = add('img', 'ms-note ms-hand-note', {
+      width: nw * 0.7 + 'px', height: nh * 0.7 + 'px',
+      left: (grip.x - nw * 0.7 * 0.88) + 'px', top: (grip.y - nh * 0.35) + 'px',
+      transform: 'rotate(-28deg)', opacity: 0, zIndex: 45
+    });
+    handNote.alt = '';
+    const glove = add('img', 'ms-glove', { left: charLeft + 'px', height: charH + 'px', width: charW + 'px', zIndex: 50 });
+    glove.src = 'majstor-fist.webp';
+    glove.alt = '';
+
+    // oblačić sa brojanjem, levo od glave
+    const bubble = add('div', 'ms-bubble', {
+      right: (W - headX + charH * 0.13) + 'px',
+      top: Math.max(0, SH - charH + charH * 0.02) + 'px'
+    });
+    bubble.innerHTML = '<span class="ms-count">Da izbrojim…</span><svg class="bubble-tail" viewBox="0 0 20 18"><rect x="-3" y="2" width="5" height="12" fill="#fffaf0"/><path d="M1 1.5 Q 10 7 19 11 Q 9 12.5 1 14.5" fill="#fffaf0" stroke="#6b4520" stroke-width="2" stroke-linejoin="round"/></svg>';
+    const countEl = bubble.querySelector('.ms-count');
+
+    // redosled brojanja: novčanica po novčanica
+    const notes = [];
+    groups.forEach(g => { for (let i = 0; i < g.count; i++) notes.push(g); });
+    const step = notes.length <= 8 ? 640 : Math.max(200, 5200 / notes.length);
+    let counted = 0;
+
+    function placeNote(g, animate) {
+      const i = g.placed++;
+      const depth = Math.min(i, 7);                            // visina gomilice ima granicu
+      const x = g.x + depth * 1.6, b = g.bottom + depth * 2.6;
+      const top = SH - b - nh;
+      const note = add('img', 'ms-note', {
+        left: x + 'px', top: top + 'px', width: nw + 'px', height: nh + 'px',
+        zIndex: g.z + depth, transform: `rotate(${g.tilt + (i % 2 ? 1.5 : -1)}deg)`
+      });
+      note.src = `novcanica-${g.value}.jpg`;
+      note.alt = '';
+      if (animate) {
+        const fx = (grip.x - nw * 0.6) - x, fy = (grip.y - nh * 0.5) - top;
+        note.animate([
+          { transform: `translate(${fx}px, ${fy}px) rotate(-28deg) scale(0.7)` },
+          { transform: `translate(${fx * 0.5}px, ${fy * 0.5 - 34}px) rotate(${g.tilt - 160}deg) scale(0.85)`, offset: 0.5 },
+          { transform: `translate(0, -4px) rotate(${g.tilt - 350}deg) scale(1)`, offset: 0.88 },
+          { transform: `rotate(${g.tilt + (i % 2 ? 1.5 : -1)}deg)` }
+        ], { duration: 460, easing: 'cubic-bezier(0.3, 0.6, 0.4, 1)' });
+      }
+      if (g.placed > 1) {
+        if (!g.badge) {
+          g.badge = add('div', 'ms-badge', { left: (g.x + nw - 14) + 'px', top: (top - 8) + 'px' });
+        }
+        g.badge.style.top = (top - 8) + 'px';
+        g.badge.textContent = '×' + g.placed;
+        g.badge.classList.add('show');
+      }
+    }
+
+    function finish() {
+      handNote.style.opacity = 0;
+      countEl.textContent = `Tačno ${fmt(amount)} din!`;
+      bubble.classList.add('done');
+    }
+
+    if (reduceMotion || !notes.length) {
+      notes.forEach(g => placeNote(g, false));
+      finish();
+      return;
+    }
+
+    notes.forEach((g, j) => {
+      const t0 = 500 + j * step;
+      later(() => {                                           // novčanica se pojavi u šaci
+        handNote.src = `novcanica-${g.value}.jpg`;
+        handNote.style.opacity = 1;
+      }, t0);
+      later(() => {                                           // baci je na gomilicu
+        handNote.style.opacity = 0;
+        [char, glove].forEach(el => el.animate([
+          { transform: 'translateY(0)' },
+          { transform: 'translateY(-3px) rotate(-1deg)' },
+          { transform: 'translateY(0)' }
+        ], { duration: 260, easing: 'ease-out' }));
+        placeNote(g, true);
+      }, t0 + Math.min(160, step * 0.3));
+      later(() => {                                           // i doda na zbir
+        counted += g.value;
+        countEl.textContent = `${fmt(counted)}…`;
+        if (j === notes.length - 1) later(finish, 450);
+      }, t0 + Math.min(160, step * 0.3) + 420);
+    });
   }
 
   // Init

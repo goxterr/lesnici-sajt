@@ -1521,6 +1521,28 @@
   }
   .anim-empty { font-size: 13px; color: var(--ink-3); font-style: italic; }
   .anim-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+  /* ============================
+     TELEFON: tabovi i gornja traka moraju da stanu u ekran
+     ============================ */
+  @media (max-width: 560px) {
+    .topbar { padding: 10px 14px; gap: 8px; }
+    .topbar-logo { font-size: 17px; gap: 8px; white-space: nowrap; margin-right: auto; }
+    .topbar-logo-icon { width: 26px; height: 26px; }
+    .topbar-badge { display: none; }
+    .refresh-btn, .logout-btn { padding: 6px 10px; font-size: 12px; }
+
+    .tabs { padding: 8px 10px; gap: 4px; }
+    .tab {
+      flex: 1 1 0;
+      justify-content: center;
+      padding: 9px 6px;
+      font-size: 13px;
+      gap: 5px;
+      min-width: 0;
+    }
+    .tab .tab-count { display: none; }
+  }
 </style>
 </head>
 <body>
