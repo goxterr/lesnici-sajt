@@ -1581,6 +1581,19 @@
     0%, 100% { box-shadow: inset 4px 0 0 transparent; background-color: inherit; }
     50%      { box-shadow: inset 4px 0 0 var(--accent); background-color: #fff4e0; }
   }
+
+  /* poslednji odgovor kupca ispod imena */
+  .col-name .reply-small {
+    display: block;
+    font-family: 'Caveat', cursive;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: #1f7a4d;
+    margin-top: 3px;
+    max-width: 260px;
+  }
+  .col-name .reply-small em { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 400; color: var(--ink-3); font-style: normal; }
 </style>
 </head>
 <body>
@@ -1886,6 +1899,7 @@
         receiveSettings(data.settings);
         if (fromMemory || document.getElementById('rememberMe').checked) rememberLogin(password);
         else forgetLogin();
+        setTimeout(() => announceReplies(data.newReplies), 400);
         lastLoadAt = Date.now();
         
         document.getElementById('loginScreen').classList.add('hidden');
@@ -1941,12 +1955,18 @@
         lastLoadAt = Date.now();
         updateRefreshTitle();
 
+        const hasReplies = data.newReplies && data.newReplies.length;
+        if (hasReplies) {
+          announceReplies(data.newReplies);
+          renderAll();
+        }
         if (fresh.length) {
           const names = fresh.slice(0, 3).map(o => String(o.name).split(' ')[0]).join(', ');
-          showToast(fresh.length === 1 ? `🌰 Nova porudžbina: ${names}` : `🌰 Nove porudžbine (${fresh.length}): ${names}${fresh.length > 3 ? '…' : ''}`);
+          const msg = fresh.length === 1 ? `🌰 Nova porudžbina: ${names}` : `🌰 Nove porudžbine (${fresh.length}): ${names}${fresh.length > 3 ? '…' : ''}`;
+          hasReplies ? setTimeout(() => showToast(msg), 3200) : showToast(msg);
           if (document.hidden) { unseenCount += fresh.length; updateDocTitle(); }
           setTimeout(() => { fresh.forEach(o => freshIds.delete(o.id)); renderAll(); }, 8000);
-        } else if (manual) {
+        } else if (manual && !hasReplies) {
           showToast('Nema novih porudžbina ✓');
         }
       } else {
@@ -2087,7 +2107,7 @@
               <div style="display:flex;align-items:start;gap:10px;flex:1">
                 ${checkbox}
                 <div class="mobile-name-block">
-                  <div class="col-name">${o.name}${contactLine(o)}</div>
+                  <div class="col-name">${o.name}${contactLine(o)}${replyLine(o)}</div>
                   <div class="col-office">${o.office}</div>
                 </div>
               </div>
@@ -2112,7 +2132,7 @@
           <div class="order-row ${doneClass} ${selectedClass} ${freshIds.has(o.id) ? 'fresh' : ''}">
             <div>${checkbox}</div>
             <div class="col-date">${formatShortDate(o.date)}</div>
-            <div class="col-name">${o.name}${contactLine(o)}</div>
+            <div class="col-name">${o.name}${contactLine(o)}${replyLine(o)}</div>
             <div class="col-office">${o.office}</div>
             <div class="col-items">${o.items}</div>
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
@@ -2766,6 +2786,28 @@
   }
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // poslednji odgovor kupca na mejl (upisuje ga Apps Script kao komentar "✉️ Odgovor: ...")
+  function replyLine(o) {
+    const replies = (o.comments || []).filter(c => String(c.text).startsWith('✉️ Odgovor:'));
+    if (!replies.length) return '';
+    const last = replies[replies.length - 1];
+    const text = String(last.text).replace(/^✉️ Odgovor:\s*/, '');
+    const short = text.length > 90 ? text.slice(0, 88) + '…' : text;
+    const day = String(last.date || '').slice(0, 6);
+    return `<span class="reply-small" title="${escapeHtml(text)}">💬 „${escapeHtml(short)}"${day ? ` <em>· ${escapeHtml(day)}</em>` : ''}</span>`;
+  }
+
+  function announceReplies(list) {
+    if (!list || !list.length) return;
+    const r = list[0];
+    const who = vocativeless(r.name);
+    showToast(list.length === 1 ? `✉️ ${who}: „${r.text.slice(0, 60)}${r.text.length > 60 ? '…' : ''}"`
+                                 : `✉️ Novi odgovori kupaca: ${list.length}`);
+    list.forEach(x => freshIds.add(x.id));
+    setTimeout(() => { list.forEach(x => freshIds.delete(x.id)); renderAll(); }, 8000);
+  }
+  function vocativeless(name) { return String(name || '').trim().split(/\s+/)[0] || 'Kupac'; }
 
   // kontakt ispod imena u tabeli: mejl, a kod starih porudžbina telefon
   function contactLine(o) {
