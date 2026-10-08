@@ -1485,6 +1485,122 @@
   @media (prefers-reduced-motion: reduce) {
     .botanical, .hero-illustration { animation: none; }
   }
+
+  /* ============================
+     MAJSTOR (55 kg)
+     ============================ */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .ground-nuts {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 148;
+  }
+  .ground-nuts img {
+    position: absolute;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 1px rgba(74, 47, 22, 0.35));
+  }
+
+  .majstor {
+    position: fixed;
+    bottom: 18px;
+    height: 300px;
+    z-index: 149;
+    pointer-events: none;
+    display: none;
+  }
+  .majstor.on { display: block; }
+  .majstor img {
+    height: 100%;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 6px 6px rgba(42, 31, 21, 0.25));
+  }
+  .majstor-glove { z-index: 151; }
+  .majstor-glove img {
+    clip-path: inset(15.5% 81.3% 75.5% 0);
+    filter: none;
+  }
+  .floating-bag.held .bag-pile-shadow { opacity: 0; }
+  .floating-bag.held .bag-badge { top: auto; bottom: -8px; right: -10px; }
+
+  .majstor.walking img {
+    animation: waddle 0.3s ease-in-out infinite alternate;
+    transform-origin: 50% 100%;
+  }
+  @keyframes waddle {
+    from { transform: translateY(0) rotate(-1.5deg); }
+    to   { transform: translateY(-4px) rotate(1.5deg); }
+  }
+
+  /* kesa u majstorovoj pesnici: klati se oko ručke */
+  .floating-bag { transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), translate 0.6s cubic-bezier(0.3, 0.8, 0.4, 1); }
+  .floating-bag.held {
+    transform-origin: 50% 4%;
+    animation: bagSway 2.6s ease-in-out 0.6s infinite;
+  }
+  @keyframes bagSway {
+    0%, 100% { rotate: -5deg; }
+    50%      { rotate: 4deg; }
+  }
+
+  .majstor-bubble {
+    position: fixed;
+    z-index: 152;
+    max-width: 260px;
+    background: #fffaf0;
+    border: 2px solid #6b4520;
+    border-radius: 22px 18px 24px 16px / 18px 24px 16px 22px;
+    padding: 10px 16px 12px;
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    line-height: 1.15;
+    color: #2a1f15;
+    box-shadow: 3px 4px 0 rgba(107, 69, 32, 0.18);
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.6) translateY(10px);
+    transform-origin: 100% 100%;
+    transition: opacity 0.25s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .majstor-bubble.show { opacity: 1; transform: none; }
+
+  .bubble-tail {
+    position: absolute;
+    right: -18px;
+    bottom: 10px;
+    width: 20px;
+    height: 18px;
+    overflow: visible;
+  }
+
+  .type-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 0.9em;
+    margin-left: 2px;
+    vertical-align: -0.1em;
+    background: #6b4520;
+    animation: blink 0.8s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  @media (max-width: 700px) {
+    .majstor { height: 230px; bottom: 12px; }
+    .majstor-bubble { font-size: 19px; padding: 8px 13px 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .majstor.walking img, .floating-bag.held { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -1722,6 +1838,20 @@
 
   <div class="bag-badge"><strong id="bagCountNum">0</strong> kg</div>
 </div>
+
+<!-- Majstor: pojavljuje se kad se kesa i gomila napune (55 kg) -->
+<div class="ground-nuts" id="groundNuts" aria-hidden="true"></div>
+<div class="majstor" id="majstor" aria-hidden="true"><img id="majstorImg" alt=""></div>
+<!-- samo rukavica, iznad kese: šaka steže ručku -->
+<div class="majstor majstor-glove" id="majstorGlove" aria-hidden="true"><img src="majstor-fist.webp" alt=""></div>
+<div class="majstor-bubble" id="majstorBubble" aria-hidden="true">
+  <span id="majstorText"></span><span class="type-cursor"></span>
+  <svg class="bubble-tail" viewBox="0 0 20 18" aria-hidden="true">
+    <rect x="-3" y="2" width="5" height="12" fill="#fffaf0"/>
+    <path d="M1 1.5 Q 10 7 19 11 Q 9 12.5 1 14.5" fill="#fffaf0" stroke="#6b4520" stroke-width="2" stroke-linejoin="round"/>
+  </svg>
+</div>
+<div class="sr-only" id="majstorSay" aria-live="polite"></div>
 
 <div class="toast" id="toast">
   <span class="toast-icon">✓</span>
@@ -2015,7 +2145,27 @@
     const total = totalKg();
     document.getElementById('bagCountNum').textContent = total;
     bag.classList.toggle('show', total > 0);
+
+    if (total > BAG_SLOTS.length) preloadMajstor();
+
+    // majstor je zakazan, ali je neko u međuvremenu smanjio količinu
+    if (majstorState === 'scheduled' && total < MAX_VISIBLE_NUTS) {
+      clearMajstorTimers();
+      majstorState = 'idle';
+    }
+    // dok majstor drži kesu slika se ne menja; ispod 55 kg on odlazi
+    if (majstorState === 'active') {
+      if (total < MAX_VISIBLE_NUTS) endMajstorScene();
+      return;
+    }
+
     syncBagNuts(animate);
+
+    if (total >= MAX_VISIBLE_NUTS && majstorState === 'idle') {
+      majstorState = 'scheduled';
+      // sačekaj da 55. lešnik doleti i legne na gomilu
+      majstorLater(startMajstorScene, 1700);
+    }
   }
 
   // Lešnik leti od proizvoda do otvora kese (vraćanje rešava "pop" u kesi)
@@ -2408,6 +2558,254 @@
       updateSummary();
     }
   });
+
+
+  // ============================================
+  // MAJSTOR — skeč kad se napuni 55 kg
+  // ============================================
+  const MAJSTOR = {"left": {"w": 159, "h": 640, "headX": 0.641}, "front": {"w": 252, "h": 640, "headX": 0.4973}, "right": {"w": 152, "h": 640, "headX": 0.3684}, "fist": {"w": 278, "h": 640, "headX": 0.4874, "gripX": 0.0917, "gripY": 0.2019}};
+  const MAJSTOR_LINES = [
+    'Znao sam da će neko biti dovoljno radoznao da ispita koliko lešnika može da stane u korpu.',
+    'Ajde sad poruči pa da pakujem'
+  ];
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let majstorState = 'idle';   // idle | scheduled | active
+  let majstorTimers = [];
+  let majstorStandX = 0;       // x centra glave dok stoji
+  let majstorPreloaded = false;
+
+  function majstorLater(fn, ms) { majstorTimers.push(setTimeout(fn, ms)); }
+  function clearMajstorTimers() { majstorTimers.forEach(clearTimeout); majstorTimers = []; }
+
+  function preloadMajstor() {
+    if (majstorPreloaded) return;
+    majstorPreloaded = true;
+    ['left', 'front', 'fist', 'right'].forEach(n => { new Image().src = `majstor-${n}.webp`; });
+  }
+
+  // Postavi pozu tako da centar glave ostane na istom mestu (bez skakanja)
+  function setMajstorPose(pose) {
+    const box = document.getElementById('majstor');
+    const img = document.getElementById('majstorImg');
+    const m = MAJSTOR[pose];
+    const h = box.offsetHeight || parseFloat(getComputedStyle(box).height);
+    const w = h * m.w / m.h;
+    img.src = `majstor-${pose}.webp`;
+    box.style.width = w + 'px';
+    box.style.left = (majstorStandX - m.headX * w) + 'px';
+    const glove = document.getElementById('majstorGlove');
+    glove.style.width = box.style.width;
+    glove.style.left = box.style.left;
+    glove.classList.toggle('on', pose === 'fist');
+    return { w, h, left: majstorStandX - m.headX * w };
+  }
+
+  // pseudo-slučajni brojevi, uvek isti raspored
+  function seededRandom(seed) {
+    let x = seed;
+    return () => { x = (x * 16807) % 2147483647; return (x - 1) / 2147483646; };
+  }
+
+  function nutAngle(el) {
+    const t = getComputedStyle(el).transform;
+    if (!t || t === 'none') return 0;
+    const m = new DOMMatrix(t);
+    return Math.atan2(m.b, m.a) * 180 / Math.PI;
+  }
+
+  // Kopija lešnika na "podu", tačno tamo gde je bio
+  function lift(el) {
+    const r = el.getBoundingClientRect();
+    const c = document.createElement('img');
+    c.src = el.src;
+    c.alt = '';
+    c.style.left = r.left + 'px';
+    c.style.top = r.top + 'px';
+    c.style.width = r.width + 'px';
+    c.style.height = r.height + 'px';
+    document.getElementById('groundNuts').appendChild(c);
+    el.style.visibility = 'hidden';
+    return { el: c, x: r.left, y: r.top, size: r.width, angle: nutAngle(el) };
+  }
+
+  function startMajstorScene() {
+    if (totalKg() < MAX_VISIBLE_NUTS) { majstorState = 'idle'; return; }
+    majstorState = 'active';
+
+    const box = document.getElementById('majstor');
+    const bag = document.getElementById('floatingBag');
+    box.classList.add('on');
+    const charH = box.offsetHeight;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const bottomOff = parseFloat(getComputedStyle(box).bottom);
+    const groundY = vh - bottomOff;
+    majstorStandX = vw - charH * 0.3;
+
+    // 1) ulazi sa desne strane, gleda levo
+    const p = setMajstorPose('left');
+    box.classList.add('walking');
+    const walkIn = vw - p.left + 20;
+    box.animate(
+      [{ transform: `translateX(${walkIn}px)` }, { transform: 'translateX(0)' }],
+      { duration: reduceMotion ? 0 : 1700, easing: 'cubic-bezier(0.25, 0.6, 0.35, 1)', fill: 'both' }
+    );
+
+    // 2) stane i okrene se
+    majstorLater(() => {
+      box.classList.remove('walking');
+      setMajstorPose('front');
+    }, reduceMotion ? 0 : 1750);
+
+    // 3) podigne kesu u pesnicu; par lešnika ispadne, gomila se raspe oko čizama
+    majstorLater(() => {
+      const f = setMajstorPose('fist');
+      const gripX = f.left + MAJSTOR.fist.gripX * f.w;
+      const gripY = (groundY - f.h) + MAJSTOR.fist.gripY * f.h;
+
+      const rnd = seededRandom(55);
+      const feetX = majstorStandX;
+
+      // lešnici koji vire iz kese ispadaju kad se kesa podigne
+      const fromBag = bagNuts.slice(BAG_SLOTS.length - 4, BAG_SLOTS.length).map(n => lift(n.el));
+      // gomila
+      const pile = bagNuts.slice(BAG_SLOTS.length, MAX_VISIBLE_NUTS).map(n => lift(n.el));
+
+      // kesa ide u pesnicu (ručka u šaci)
+      const br = bag.getBoundingClientRect();
+      const dx = gripX - (br.left + br.width / 2);
+      const dy = gripY - (br.top + br.height * 0.04);
+      bag.style.translate = `${dx}px ${dy}px`;
+      bag.classList.add('held');
+
+      // ispadanje iz kese: kratko poleti pa padne pored nogu i odskoči
+      fromBag.forEach((n, i) => {
+        const tx = feetX - charH * 0.2 + rnd() * charH * 0.35;
+        const ty = groundY - n.size - rnd() * 6;
+        const ddx = tx - n.x, ddy = ty - n.y;
+        n.el.animate([
+          { transform: `translate(${dx * 0.3}px, ${dy * 0.3}px) rotate(${n.angle}deg)`, easing: 'ease-out' },
+          { transform: `translate(${ddx * 0.4}px, ${dy * 0.3 - 30}px) rotate(${n.angle - 120}deg)`, offset: 0.3, easing: 'cubic-bezier(0.5, 0, 1, 1)' },
+          { transform: `translate(${ddx}px, ${ddy}px) rotate(${n.angle - 300}deg)`, offset: 0.82, easing: 'ease-out' },
+          { transform: `translate(${ddx}px, ${ddy - 10}px) rotate(${n.angle - 330}deg)`, offset: 0.91, easing: 'ease-in' },
+          { transform: `translate(${ddx}px, ${ddy}px) rotate(${n.angle - 350}deg)` }
+        ], { duration: reduceMotion ? 0 : 1000, delay: 120 + i * 110, fill: 'both' });
+      });
+
+      // rasipanje gomile: lešnici se otkotrljaju i razbacaju oko čizama
+      const targets = pile.map(() => {
+        const size = pile[0] ? pile[0].size : 20;
+        let x = feetX - charH * 0.85 + rnd() * charH * 1.05;
+        x = Math.max(6, Math.min(vw - size - 4, x));
+        const y = groundY - size - rnd() * charH * 0.07;
+        return [x, y];
+      }).sort((a, b) => a[0] - b[0]);
+      pile.slice().sort((a, b) => a.x - b.x).forEach((n, i) => {
+        const [tx, ty] = targets[i];
+        const ddx = tx - n.x, ddy = ty - n.y;
+        const spin = -(160 + Math.abs(ddx) * 2.2) * (ddx < 0 ? 1 : -1);
+        n.el.animate([
+          { transform: `translate(0, 0) rotate(${n.angle}deg)` },
+          { transform: `translate(${ddx * 0.55}px, ${ddy * 0.55 - 16}px) rotate(${n.angle + spin * 0.55}deg)`, offset: 0.55 },
+          { transform: `translate(${ddx}px, ${ddy}px) rotate(${n.angle + spin}deg)` }
+        ], { duration: reduceMotion ? 0 : 750 + rnd() * 450, delay: 250 + i * 22, easing: 'ease-out', fill: 'both' });
+      });
+    }, reduceMotion ? 0 : 2100);
+
+    // 4) oblačić, reč po reč
+    majstorLater(() => {
+      positionBubble();
+      document.getElementById('majstorBubble').classList.add('show');
+      document.getElementById('majstorSay').textContent = MAJSTOR_LINES[0];
+      typeWords(MAJSTOR_LINES[0], () => {
+        majstorLater(() => eraseWords(() => {
+          document.getElementById('majstorSay').textContent = MAJSTOR_LINES[1];
+          majstorLater(() => typeWords(MAJSTOR_LINES[1], () => {
+            // posle nekoliko sekundi oblačić se povuče da ne zaklanja dugmad
+            majstorLater(() => document.getElementById('majstorBubble').classList.remove('show'), 7000);
+          }), 250);
+        }), 2400);
+      });
+    }, reduceMotion ? 300 : 3500);
+  }
+
+  function positionBubble() {
+    const box = document.getElementById('majstor');
+    const bubble = document.getElementById('majstorBubble');
+    const r = box.getBoundingClientRect();
+    const mouthY = r.top + r.height * 0.11;
+    bubble.style.right = (window.innerWidth - majstorStandX + r.height * 0.11) + 'px';
+    bubble.style.bottom = (window.innerHeight - mouthY - 18) + 'px';
+    bubble.style.maxWidth = Math.min(260, majstorStandX - r.height * 0.11 - 24) + 'px';
+  }
+
+  function typeWords(text, done) {
+    const out = document.getElementById('majstorText');
+    const words = text.split(' ');
+    out.textContent = '';
+    words.forEach((w, i) => {
+      majstorLater(() => {
+        out.textContent += (i ? ' ' : '') + w;
+        if (i === words.length - 1 && done) done();
+      }, i * 210 + (/[,.!?]$/.test(words[i - 1] || '') ? 150 : 0));
+    });
+  }
+
+  function eraseWords(done) {
+    const out = document.getElementById('majstorText');
+    const words = out.textContent.split(' ');
+    words.forEach((_, i) => {
+      majstorLater(() => {
+        out.textContent = words.slice(0, words.length - i - 1).join(' ');
+        if (i === words.length - 1 && done) done();
+      }, i * 65);
+    });
+  }
+
+  // Neko je smanjio količinu ili poslao porudžbinu: majstor vraća kesu i odlazi
+  function endMajstorScene() {
+    clearMajstorTimers();
+    majstorState = 'idle';
+
+    const box = document.getElementById('majstor');
+    const bag = document.getElementById('floatingBag');
+    const bubble = document.getElementById('majstorBubble');
+    bubble.classList.remove('show');
+    document.getElementById('majstorText').textContent = '';
+    document.getElementById('majstorSay').textContent = '';
+
+    // kesa nazad na svoje mesto, lešnici sa poda nestaju
+    bag.classList.remove('held');
+    bag.style.translate = '0px 0px';
+    document.getElementById('majstorGlove').classList.remove('on');
+    const ground = document.getElementById('groundNuts');
+    [...ground.children].forEach(c => {
+      c.getAnimations().forEach(a => a.cancel());
+      c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
+    });
+    setTimeout(() => { if (majstorState === 'idle') ground.innerHTML = ''; }, 320);
+
+    // ponovo složi kesu i gomilu prema trenutnoj korpi
+    bagNuts.forEach(n => n.el.remove());
+    bagNuts = [];
+    syncBagNuts(false);
+
+    // majstor se okrene i ode desno
+    if (box.classList.contains('on')) {
+      box.getAnimations().forEach(a => a.cancel());
+      const p = setMajstorPose('right');
+      box.classList.add('walking');
+      const anim = box.animate(
+        [{ transform: 'translateX(0)' }, { transform: `translateX(${window.innerWidth - p.left + 40}px)` }],
+        { duration: reduceMotion ? 0 : 1100, easing: 'cubic-bezier(0.5, 0, 0.75, 0.6)', fill: 'forwards' }
+      );
+      anim.onfinish = () => {
+        if (majstorState !== 'idle') return;
+        box.classList.remove('on', 'walking');
+        anim.cancel();
+      };
+    }
+  }
 
   // Init
   loadData();
