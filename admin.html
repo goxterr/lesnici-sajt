@@ -1415,6 +1415,17 @@
   }
   .arrived-phone { font-size: 12px; color: var(--ink-3); }
   .arrived-phone.missing { color: var(--red); font-style: italic; }
+  .arrived-phone.muted { color: var(--ink-3); font-style: italic; }
+  .mail-status {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+  .mail-status.ok   { background: #dcefe3; color: #1f7a4d; }
+  .mail-status.fail { background: #fde8e8; color: var(--red); }
+  .arrived-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 
   .wa-btn {
     display: inline-flex;
@@ -1762,10 +1773,12 @@
         <div class="form-hint">{ime} se menja imenom kupca u obliku za obraćanje (Gorane, Milice), {porudzbina} onim što je poručio. Tekst se pamti za sledeći put.</div>
       </div>
       <div class="arrived-list" id="arrivedList"></div>
-      <p class="arrived-note">Klik na „Pošalji" otvara WhatsApp sa već napisanom porukom — samo pritisneš strelicu za slanje i vratiš se ovde za sledećeg.</p>
+      <p class="arrived-note">📧 <strong>Pošalji mejl</strong> šalje poruku odjednom svima koji su ostavili mejl, sa slikom lešnika u potpisu.
+        Zeleno dugme <strong>WhatsApp</strong> (kod starih porudžbina sa brojem) otvara WhatsApp sa već napisanom porukom.</p>
     </div>
     <div class="product-modal-footer">
       <button class="product-modal-btn cancel" onclick="closeArrivedModal()">Zatvori</button>
+      <button class="product-modal-btn save" id="sendEmailsBtn" onclick="sendArrivedEmails()">📧 Pošalji mejl</button>
     </div>
   </div>
 </div>
@@ -1929,7 +1942,8 @@
       if (currentFilter === 'done' && !(o.paid !== '' && o.picked)) return false;
       if (searchTerm) {
         const match = String(o.name).toLowerCase().includes(searchTerm) || 
-                      String(o.office).toLowerCase().includes(searchTerm);
+                      String(o.office).toLowerCase().includes(searchTerm) ||
+                      String(o.email || '').toLowerCase().includes(searchTerm);
         if (!match) return false;
       }
       return true;
@@ -2019,7 +2033,7 @@
               <div style="display:flex;align-items:start;gap:10px;flex:1">
                 ${checkbox}
                 <div class="mobile-name-block">
-                  <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
+                  <div class="col-name">${o.name}${contactLine(o)}</div>
                   <div class="col-office">${o.office}</div>
                 </div>
               </div>
@@ -2044,7 +2058,7 @@
           <div class="order-row ${doneClass} ${selectedClass}">
             <div>${checkbox}</div>
             <div class="col-date">${formatShortDate(o.date)}</div>
-            <div class="col-name">${o.name}${o.phone ? `<span class="phone-small">📞 ${o.phone}</span>` : ''}</div>
+            <div class="col-name">${o.name}${contactLine(o)}</div>
             <div class="col-office">${o.office}</div>
             <div class="col-items">${o.items}</div>
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
@@ -2697,26 +2711,85 @@
     document.getElementById('arrivedModal').classList.remove('show');
   }
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // kontakt ispod imena u tabeli: mejl, a kod starih porudžbina telefon
+  function contactLine(o) {
+    const parts = [];
+    if (o.email) parts.push(`✉️ ${escapeHtml(o.email)}`);
+    if (o.phone) parts.push(`📞 ${escapeHtml(String(o.phone))}`);
+    return parts.length ? `<span class="phone-small">${parts.join(' · ')}</span>` : '';
+  }
+
   function renderArrivedList() {
     const chosen = orders.filter(o => selectedIds.has(o.id));
+    const withEmail = chosen.filter(o => EMAIL_RE.test(o.email || '')).length;
+    const btn = document.getElementById('sendEmailsBtn');
+    btn.disabled = withEmail === 0;
+    btn.textContent = withEmail ? `📧 Pošalji mejl (${withEmail})` : '📧 Niko nije ostavio mejl';
+
     const list = document.getElementById('arrivedList');
     list.innerHTML = chosen.map(o => {
+      const hasEmail = EMAIL_RE.test(o.email || '');
       const wa = toWhatsAppNumber(o.phone);
-      const phoneLine = wa
-        ? `<div class="arrived-phone">${escapeHtml(String(o.phone))}</div>`
-        : `<div class="arrived-phone missing">${o.phone ? 'broj nije ispravan: ' + escapeHtml(String(o.phone)) : 'nije ostavio broj'}</div>`;
-      const action = wa
-        ? `<button class="wa-btn" onclick="sendArrived(${o.id}, this)">Pošalji</button>`
-        : '';
+      const emailLine = hasEmail
+        ? `<div class="arrived-phone">✉️ ${escapeHtml(o.email)}</div>`
+        : `<div class="arrived-phone missing">nije ostavio mejl</div>`;
+      const phoneLine = wa ? `<div class="arrived-phone muted">📞 ${escapeHtml(String(o.phone))}</div>` : '';
+      const waBtn = wa ? `<button class="wa-btn" onclick="sendArrived(${o.id}, this)">WhatsApp</button>` : '';
       return `
         <div class="arrived-row" id="arrived-row-${o.id}">
           <div class="arrived-person">
             <div class="arrived-name">${escapeHtml(o.name)}</div>
+            ${emailLine}
             ${phoneLine}
           </div>
-          ${action}
+          <div class="arrived-actions" id="arrived-actions-${o.id}">${waBtn}</div>
         </div>`;
     }).join('');
+  }
+
+  // Jedan klik: mejl svim izabranim kupcima koji imaju adresu
+  async function sendArrivedEmails() {
+    const chosen = orders.filter(o => selectedIds.has(o.id) && EMAIL_RE.test(o.email || ''));
+    if (!chosen.length) return;
+    const message = document.getElementById('arrivedMessage').value.trim() || ARRIVED_DEFAULT;
+    const btn = document.getElementById('sendEmailsBtn');
+    btn.disabled = true;
+    btn.textContent = 'Šaljem...';
+    try {
+      const result = await apiCall({
+        action: 'notifyArrived',
+        ids: chosen.map(o => o.id),
+        message,
+        subject: '🌰 Stigli su lešnici!'
+      });
+      if (!result.success) {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+        btn.disabled = false;
+        btn.textContent = `📧 Pošalji mejl (${chosen.length})`;
+        return;
+      }
+      const mark = (ids, cls, label) => (ids || []).forEach(id => {
+        const box = document.getElementById('arrived-actions-' + id);
+        if (box) box.insertAdjacentHTML('afterbegin', `<span class="mail-status ${cls}">${label}</span>`);
+        if (cls === 'ok') document.getElementById('arrived-row-' + id)?.classList.add('sent');
+      });
+      mark(result.sent, 'ok', '✓ mejl poslat');
+      mark(result.failed, 'fail', 'mejl nije poslat');
+      const n = (result.sent || []).length;
+      showToast(n === 1 ? 'Poslat 1 mejl' : `Poslato mejlova: ${n}`, n === 0);
+      if ((result.failed || []).length) {
+        showToast('Neki mejlovi nisu poslati (dnevni limit Gmail-a ili greška)', true);
+      }
+      btn.textContent = '✓ Poslato';
+      loadData();   // da se vidi novi komentar "📧 Poslat mejl"
+    } catch (err) {
+      showToast('Mejlovi nisu poslati — proveri internet i Apps Script v7', true);
+      btn.disabled = false;
+      btn.textContent = `📧 Pošalji mejl (${chosen.length})`;
+      console.error(err);
+    }
   }
 
   function sendArrived(orderId, btn) {

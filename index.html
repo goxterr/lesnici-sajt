@@ -1772,8 +1772,8 @@
           <input type="text" id="office" placeholder="npr. Infostud, Polovnjaci, 4zida">
         </div>
         <div class="form-group">
-          <label for="phone">Telefon (opciono)</label>
-          <input type="tel" id="phone" placeholder="npr. 064 123 4567">
+          <label for="email">Email (za info o isporuci)</label>
+          <input type="email" id="email" placeholder="npr. marko@gmail.com" autocomplete="email" inputmode="email">
         </div>
       </div>
 
@@ -2615,10 +2615,14 @@
   document.getElementById('submitBtn').addEventListener('click', async () => {
     const name = document.getElementById('name').value.trim();
     const office = document.getElementById('office').value.trim();
-    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
 
     if (!name || !office) {
       showToast('Unesite ime i biznis', true);
+      return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('Proveri email adresu', true);
       return;
     }
 
@@ -2645,7 +2649,7 @@
         action: 'createOrder',
         name,
         office,
-        phone,
+        email,
         items,
         total
       });
@@ -2657,7 +2661,7 @@
         products.forEach(p => cart[p.id] = 0);
         document.getElementById('name').value = '';
         document.getElementById('office').value = '';
-        document.getElementById('phone').value = '';
+        document.getElementById('email').value = '';
         
         // Sakri kesu i resetuj broj
         updateBag();
