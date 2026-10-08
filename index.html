@@ -1486,9 +1486,13 @@
     .botanical, .hero-illustration { animation: none; }
   }
 
+
   /* ============================
-     MAJSTOR (55 kg)
+     MAJSTOR
      ============================ */
+  :root { --floor: 30px; }                 /* dno kese (24px) + donja ivica crteža kese */
+  @media (max-width: 700px) { :root { --floor: 21px; } }
+
   .sr-only {
     position: absolute;
     width: 1px; height: 1px;
@@ -1497,60 +1501,76 @@
     white-space: nowrap;
   }
 
-  .ground-nuts {
+  .scene-layer {
     position: fixed;
-    inset: 0;
+    left: 0;
+    right: 0;
+    bottom: var(--floor);
+    height: 0;
     pointer-events: none;
-    z-index: 148;
   }
-  .ground-nuts img {
+  .scene-ground { z-index: 148; }
+  .scene-char   { z-index: 149; }
+  .scene-front  { z-index: 151; }   /* iznad kese (150) */
+
+  .scene-layer .nut {
     position: absolute;
     object-fit: contain;
     filter: drop-shadow(0 1px 1px rgba(74, 47, 22, 0.35));
   }
 
+  /* "majstor" je tačka na podu ispod centra glave; poze se crtaju oko nje */
   .majstor {
-    position: fixed;
-    bottom: 18px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
     height: 300px;
-    z-index: 149;
-    pointer-events: none;
     display: none;
   }
   .majstor.on { display: block; }
-  .majstor img {
+  .majstor-body {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 100%;
+    transform-origin: 0 100%;
+  }
+  .majstor .pose {
+    position: absolute;
+    bottom: 0;
     height: 100%;
     width: auto;
-    display: block;
-    filter: drop-shadow(0 6px 6px rgba(42, 31, 21, 0.25));
+    opacity: 0;
+    transition: opacity 0.32s ease;
+    filter: drop-shadow(0 5px 5px rgba(42, 31, 21, 0.22));
   }
-  .majstor-glove { z-index: 151; }
-  .majstor-glove img {
-    clip-path: inset(15.5% 81.3% 75.5% 0);
-    filter: none;
-  }
-  .floating-bag.held .bag-pile-shadow { opacity: 0; }
-  .floating-bag.held .bag-badge { top: auto; bottom: -8px; right: -10px; }
-
-  .majstor.walking img {
-    animation: waddle 0.3s ease-in-out infinite alternate;
-    transform-origin: 50% 100%;
-  }
+  .majstor .pose.visible { opacity: 1; }
+  .majstor.walking .majstor-body { animation: waddle 0.3s ease-in-out infinite alternate; }
   @keyframes waddle {
     from { transform: translateY(0) rotate(-1.5deg); }
     to   { transform: translateY(-4px) rotate(1.5deg); }
   }
 
-  /* kesa u majstorovoj pesnici: klati se oko ručke */
-  .floating-bag { transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), translate 0.6s cubic-bezier(0.3, 0.8, 0.4, 1); }
+  .majstor-glove .pose {
+    clip-path: inset(15.5% 81.3% 75.5% 0);
+    filter: none;
+    transition: opacity 0.2s ease;
+  }
+
+  /* kesa u pesnici: klati se oko ručke */
+  .floating-bag { transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .floating-bag.held {
     transform-origin: 50% 4%;
-    animation: bagSway 2.6s ease-in-out 0.6s infinite;
+    animation: bagSway 2.6s ease-in-out infinite;
   }
   @keyframes bagSway {
-    0%, 100% { rotate: -5deg; }
+    0%, 100% { rotate: -4deg; }
     50%      { rotate: 4deg; }
   }
+  .floating-bag.held .bag-pile-shadow { opacity: 0; }
+  .floating-bag.held .bag-badge { top: auto; bottom: -8px; right: -10px; }
 
   .majstor-bubble {
     position: fixed;
@@ -1572,7 +1592,6 @@
     transition: opacity 0.25s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .majstor-bubble.show { opacity: 1; transform: none; }
-
   .bubble-tail {
     position: absolute;
     right: -18px;
@@ -1581,7 +1600,6 @@
     height: 18px;
     overflow: visible;
   }
-
   .type-cursor {
     display: inline-block;
     width: 2px;
@@ -1594,12 +1612,12 @@
   @keyframes blink { 50% { opacity: 0; } }
 
   @media (max-width: 700px) {
-    .majstor { height: 230px; bottom: 12px; }
+    .majstor { height: 230px; }
     .majstor-bubble { font-size: 19px; padding: 8px 13px 10px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .majstor.walking img, .floating-bag.held { animation: none; }
+    .majstor.walking .majstor-body, .floating-bag.held { animation: none; }
   }
 </style>
 </head>
@@ -1839,11 +1857,15 @@
   <div class="bag-badge"><strong id="bagCountNum">0</strong> kg</div>
 </div>
 
-<!-- Majstor: pojavljuje se kad se kesa i gomila napune (55 kg) -->
-<div class="ground-nuts" id="groundNuts" aria-hidden="true"></div>
-<div class="majstor" id="majstor" aria-hidden="true"><img id="majstorImg" alt=""></div>
-<!-- samo rukavica, iznad kese: šaka steže ručku -->
-<div class="majstor majstor-glove" id="majstorGlove" aria-hidden="true"><img src="majstor-fist.webp" alt=""></div>
+<!-- Majstor. Tri sloja dele istu liniju poda (stopala = pod), pa se nikad ne razdvajaju:
+     iza njega (lešnici na podu), on sam, i ispred kese (rukavica i lešnici koji padaju na čizme) -->
+<div class="scene-layer scene-ground" id="sceneGround" aria-hidden="true"></div>
+<div class="scene-layer scene-char" aria-hidden="true">
+  <div class="majstor" id="majstor"><div class="majstor-body" id="majstorBody"></div></div>
+</div>
+<div class="scene-layer scene-front" id="sceneFront" aria-hidden="true">
+  <div class="majstor majstor-glove" id="majstorGlove"><div class="majstor-body" id="majstorGloveBody"></div></div>
+</div>
 <div class="majstor-bubble" id="majstorBubble" aria-hidden="true">
   <span id="majstorText"></span><span class="type-cursor"></span>
   <svg class="bubble-tail" viewBox="0 0 20 18" aria-hidden="true">
@@ -1900,6 +1922,7 @@
       if (data.success) {
         products = data.products;
         orders = data.orders;
+        applyMajstorSettings(data.settings);
         
         // Inicijalizuj cart
         products.forEach(p => { cart[p.id] = 0; });
@@ -2146,24 +2169,24 @@
     document.getElementById('bagCountNum').textContent = total;
     bag.classList.toggle('show', total > 0);
 
-    if (total > BAG_SLOTS.length) preloadMajstor();
+    if (total >= Math.min(BAG_SLOTS.length, MAJSTOR_TRIGGER - 5)) preloadMajstor();
 
     // majstor je zakazan, ali je neko u međuvremenu smanjio količinu
-    if (majstorState === 'scheduled' && total < MAX_VISIBLE_NUTS) {
+    if (majstorState === 'scheduled' && total < MAJSTOR_TRIGGER) {
       clearMajstorTimers();
       majstorState = 'idle';
     }
     // dok majstor drži kesu slika se ne menja; ispod 55 kg on odlazi
     if (majstorState === 'active') {
-      if (total < MAX_VISIBLE_NUTS) endMajstorScene();
+      if (total < MAJSTOR_TRIGGER) endMajstorScene();
       return;
     }
 
     syncBagNuts(animate);
 
-    if (total >= MAX_VISIBLE_NUTS && majstorState === 'idle') {
+    if (total >= MAJSTOR_TRIGGER && majstorState === 'idle') {
       majstorState = 'scheduled';
-      // sačekaj da 55. lešnik doleti i legne na gomilu
+      // sačekaj da poslednji lešnik doleti i legne
       majstorLater(startMajstorScene, 1700);
     }
   }
@@ -2561,19 +2584,40 @@
 
 
   // ============================================
-  // MAJSTOR — skeč kad se napuni 55 kg
+  // MAJSTOR — skeč kad korpa dostigne zadati broj kg
   // ============================================
+  // Geometrija poza (udeo visine lika, merano od centra glave):
+  // širina slike, položaj glave, tačka hvata u pesnici, ivice čizama i kape čizama
   const MAJSTOR = {"left": {"w": 159, "h": 640, "headX": 0.641}, "front": {"w": 252, "h": 640, "headX": 0.4973}, "right": {"w": 152, "h": 640, "headX": 0.3684}, "fist": {"w": 278, "h": 640, "headX": 0.4874, "gripX": 0.0917, "gripY": 0.2019}};
-  const MAJSTOR_LINES = [
+  const MAJSTOR_FEET = {
+    profileToe: -0.159,                 // vrh čizme dok hoda ulevo
+    stanceLeft: -0.194,                 // leva ivica stopala kad stoji
+    stanceRight: 0.221,
+    toes: [{ x: -0.145, top: 0.07 }, { x: 0.18, top: 0.075 }],  // kape čizama u pozi sa pesnicom
+    lowHand: { x: -0.125, y: 0.47 }     // leva šaka kad stoji spreda (visina kuka)
+  };
+  const MAJSTOR_DEFAULT_LINES = [
     'Znao sam da će neko biti dovoljno radoznao da ispita koliko lešnika može da stane u korpu.',
     'Ajde sad poruči pa da pakujem'
   ];
+  let MAJSTOR_TRIGGER = 55;
+  let MAJSTOR_LINES = MAJSTOR_DEFAULT_LINES.slice();
+
+  function applyMajstorSettings(st) {
+    if (!st) return;   // stari Apps Script: ostaju podrazumevane vrednosti
+    const kg = Math.round(Number(st.majstorKg));
+    if (kg >= 5 && kg <= MAX_VISIBLE_NUTS) MAJSTOR_TRIGGER = kg;
+    const lines = String(st.majstorPoruke || '').split(';').map(t => t.trim()).filter(Boolean);
+    if (lines.length) MAJSTOR_LINES = lines;
+  }
+
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const T = ms => (reduceMotion ? 0 : ms);
 
   let majstorState = 'idle';   // idle | scheduled | active
   let majstorTimers = [];
-  let majstorStandX = 0;       // x centra glave dok stoji
   let majstorPreloaded = false;
+  let scene = null;            // mere trenutne scene
 
   function majstorLater(fn, ms) { majstorTimers.push(setTimeout(fn, ms)); }
   function clearMajstorTimers() { majstorTimers.forEach(clearTimeout); majstorTimers = []; }
@@ -2581,32 +2625,39 @@
   function preloadMajstor() {
     if (majstorPreloaded) return;
     majstorPreloaded = true;
-    ['left', 'front', 'fist', 'right'].forEach(n => { new Image().src = `majstor-${n}.webp`; });
+    // sve poze se crtaju unapred, jedna preko druge, pa se samo pretapaju
+    [['majstorBody', ['left', 'front', 'fist', 'right']], ['majstorGloveBody', ['fist']]].forEach(([id, poses]) => {
+      const body = document.getElementById(id);
+      poses.forEach(pose => {
+        const img = document.createElement('img');
+        img.className = 'pose';
+        img.dataset.pose = pose;
+        img.alt = '';
+        img.src = `majstor-${pose}.webp`;
+        body.appendChild(img);
+      });
+    });
   }
 
-  // Postavi pozu tako da centar glave ostane na istom mestu (bez skakanja)
-  function setMajstorPose(pose) {
-    const box = document.getElementById('majstor');
-    const img = document.getElementById('majstorImg');
-    const m = MAJSTOR[pose];
-    const h = box.offsetHeight || parseFloat(getComputedStyle(box).height);
-    const w = h * m.w / m.h;
-    img.src = `majstor-${pose}.webp`;
-    box.style.width = w + 'px';
-    box.style.left = (majstorStandX - m.headX * w) + 'px';
-    const glove = document.getElementById('majstorGlove');
-    glove.style.width = box.style.width;
-    glove.style.left = box.style.left;
-    glove.classList.toggle('on', pose === 'fist');
-    return { w, h, left: majstorStandX - m.headX * w };
+  function layoutPoses(charH) {
+    document.querySelectorAll('.majstor .pose').forEach(img => {
+      const m = MAJSTOR[img.dataset.pose];
+      const w = charH * m.w / m.h;
+      img.style.width = w + 'px';
+      img.style.left = (-m.headX * w) + 'px';
+    });
   }
 
-  // pseudo-slučajni brojevi, uvek isti raspored
-  function seededRandom(seed) {
-    let x = seed;
-    return () => { x = (x * 16807) % 2147483647; return (x - 1) / 2147483646; };
+  // ms = koliko traje pretapanje (okret je brz, dizanje ruke sporije)
+  function showPose(pose, ms = 160) {
+    document.querySelectorAll('.majstor .pose').forEach(img => {
+      img.style.transitionDuration = T(ms) + 'ms';
+      const isGlove = img.parentElement.id === 'majstorGloveBody';
+      img.classList.toggle('visible', isGlove ? pose === 'fist' : img.dataset.pose === pose);
+    });
   }
 
+  // ---------- lešnici na podu ----------
   function nutAngle(el) {
     const t = getComputedStyle(el).transform;
     if (!t || t === 'none') return 0;
@@ -2614,140 +2665,234 @@
     return Math.atan2(m.b, m.a) * 180 / Math.PI;
   }
 
-  // Kopija lešnika na "podu", tačno tamo gde je bio
-  function lift(el) {
+  // Prebaci lešnik u sloj scene, tačno tamo gde je bio (x od levo, b od poda)
+  function toScene(el, layer) {
     const r = el.getBoundingClientRect();
     const c = document.createElement('img');
+    c.className = 'nut';
     c.src = el.src;
     c.alt = '';
-    c.style.left = r.left + 'px';
-    c.style.top = r.top + 'px';
-    c.style.width = r.width + 'px';
-    c.style.height = r.height + 'px';
-    document.getElementById('groundNuts').appendChild(c);
+    const nut = { el: c, x: r.left, b: scene.floorY - r.bottom, size: r.width, a: nutAngle(el) };
+    c.style.left = nut.x + 'px';
+    c.style.bottom = nut.b + 'px';
+    c.style.width = c.style.height = nut.size + 'px';
+    c.style.transform = `rotate(${nut.a}deg)`;
+    layer.appendChild(c);
     el.style.visibility = 'hidden';
-    return { el: c, x: r.left, y: r.top, size: r.width, angle: nutAngle(el) };
+    return nut;
   }
 
+  // Putanja kroz više delova: 'arc' (let/pad po paraboli) i 'roll' (kotrljanje po podu)
+  function moveNut(nut, parts, delay) {
+    const frames = [];
+    let x = nut.x, b = nut.b, a = nut.a, t = 0;
+    const total = parts.reduce((sum, p) => sum + p.dur, 0);
+    const push = (px, pb, pa, time) => frames.push({
+      transform: `translate(${(px - nut.x).toFixed(1)}px, ${(-(pb - nut.b)).toFixed(1)}px) rotate(${pa.toFixed(0)}deg)`,
+      offset: total ? time / total : 1
+    });
+    push(x, b, a, 0);
+    parts.forEach(p => {
+      const steps = p.type === 'arc' ? 9 : 6;
+      const spin = p.spin !== undefined ? p.spin
+        : -((p.x - x) / (Math.PI * nut.size)) * 360;          // kotrljanje bez klizanja
+      for (let k = 1; k <= steps; k++) {
+        let u = k / steps;
+        if (p.type === 'roll') u = 1 - Math.pow(1 - u, 2);      // usporava pri kraju
+        const px = x + (p.x - x) * u;
+        const pb = p.type === 'arc'
+          ? b + (p.b - b) * u + 4 * (p.hop || 0) * u * (1 - u) // parabola = gravitacija
+          : b + (p.b - b) * u;
+        push(px, pb, a + spin * u, t + p.dur * (k / steps));
+      }
+      x = p.x; b = p.b; a = a + spin; t += p.dur;
+    });
+    nut.el.animate(frames, { duration: T(total), delay: T(delay), easing: 'linear', fill: 'both' });
+    nut.x = x; nut.b = b; nut.a = a;
+  }
+
+  // ---------- scena ----------
   function startMajstorScene() {
-    if (totalKg() < MAX_VISIBLE_NUTS) { majstorState = 'idle'; return; }
+    if (totalKg() < MAJSTOR_TRIGGER) { majstorState = 'idle'; return; }
     majstorState = 'active';
+    preloadMajstor();
 
     const box = document.getElementById('majstor');
+    const glove = document.getElementById('majstorGlove');
     const bag = document.getElementById('floatingBag');
+    const ground = document.getElementById('sceneGround');
+    const front = document.getElementById('sceneFront');
     box.classList.add('on');
-    const charH = box.offsetHeight;
-    const vw = window.innerWidth, vh = window.innerHeight;
-    const bottomOff = parseFloat(getComputedStyle(box).bottom);
-    const groundY = vh - bottomOff;
-    majstorStandX = vw - charH * 0.3;
+    glove.classList.add('on');
+    bag.classList.remove('has-pile');
 
-    // 1) ulazi sa desne strane, gleda levo
-    const p = setMajstorPose('left');
+    const H = box.offsetHeight;
+    const vw = window.innerWidth;
+    const floorPx = parseFloat(getComputedStyle(ground).bottom);
+    scene = { H, vw, floorY: window.innerHeight - floorPx, standX: vw - H * 0.3 };
+    const X = scene.standX;
+    layoutPoses(H);
+    box.style.left = glove.style.left = X + 'px';
+    showPose('left');
+
+    // lešnici sa gomile prelaze u sloj poda (od sada se ravnaju po podu, ne po kesi)
+    const pileNuts = bagNuts.slice(BAG_SLOTS.length, MAX_VISIBLE_NUTS)
+      .filter(n => n.el.style.display !== 'none')
+      .map(n => toScene(n.el, ground));
+
+    // 1) ulazi sa desne strane
+    const WALK = T(1800);
+    const walkIn = vw - X + H * 0.25;
     box.classList.add('walking');
-    const walkIn = vw - p.left + 20;
-    box.animate(
-      [{ transform: `translateX(${walkIn}px)` }, { transform: 'translateX(0)' }],
-      { duration: reduceMotion ? 0 : 1700, easing: 'cubic-bezier(0.25, 0.6, 0.35, 1)', fill: 'both' }
-    );
+    box.animate([{ transform: `translateX(${walkIn}px)` }, { transform: 'translateX(0)' }],
+      { duration: WALK, easing: 'cubic-bezier(0.33, 1, 0.68, 1)', fill: 'both' });   // ≈ easeOutCubic
 
-    // 2) stane i okrene se
+    // ...i razgrne lešnike koji su mu na putu, u trenutku kad ih vrh čizme stigne
+    const toeEnd = X + MAJSTOR_FEET.profileToe * H;
+    const stanceEdge = X + MAJSTOR_FEET.stanceLeft * H;
+    let pushed = 0;
+    pileNuts.slice().sort((p, q) => (q.x + q.size) - (p.x + p.size)).forEach(nut => {
+      const right = nut.x + nut.size;
+      if (right < stanceEdge - 2) return;                     // nije mu na putu
+      let when;
+      if (right > toeEnd) {
+        const q = Math.min(1, (right - toeEnd) / walkIn);     // easeOutCubic: 1-(1-u)^3
+        when = WALK * (1 - Math.cbrt(q));
+      } else {
+        when = WALK + T(120);                                 // zakači ga kad se okrene ka nama
+      }
+      const destX = Math.max(4, stanceEdge - nut.size - 6 - (pushed % 4) * nut.size * 0.55 - ((pushed * 37) % 11));
+      const destB = ((pushed * 53) % 5) * 1.5;
+      pushed++;
+      nut.el.style.zIndex = 5;
+      moveNut(nut, [
+        { type: 'arc', x: nut.x - (nut.x - destX) * 0.45, b: Math.max(destB, nut.b * 0.4), hop: 10 + nut.b * 0.15, dur: 260 },
+        { type: 'roll', x: destX, b: destB, dur: 380 + (pushed % 3) * 60 }
+      ], Math.max(0, when - 40));
+    });
+
+    // 2) stane i okrene se ka nama
     majstorLater(() => {
       box.classList.remove('walking');
-      setMajstorPose('front');
-    }, reduceMotion ? 0 : 1750);
+      showPose('front');
+    }, WALK);
 
-    // 3) podigne kesu u pesnicu; par lešnika ispadne, gomila se raspe oko čizama
+    // 3) uhvati kesu: blago se spusti, pa se ispravi dok diže kesu u pesnicu
+    const GRAB = WALK + T(380);
+    const LIFT = T(1050);
     majstorLater(() => {
-      const f = setMajstorPose('fist');
-      const gripX = f.left + MAJSTOR.fist.gripX * f.w;
-      const gripY = (groundY - f.h) + MAJSTOR.fist.gripY * f.h;
+      const bodies = [document.getElementById('majstorBody'), document.getElementById('majstorGloveBody')];
+      bodies.forEach(body => body.animate([
+        { transform: 'translateY(0) scaleY(1)' },
+        { transform: 'translateY(4px) scaleY(0.975)', offset: 0.3 },
+        { transform: 'translateY(4px) scaleY(0.975)', offset: 0.45 },
+        { transform: 'translateY(-3px) scaleY(1.01)', offset: 0.8 },
+        { transform: 'translateY(0) scaleY(1)' }
+      ], { duration: T(1100), easing: 'ease-in-out' }));
 
-      const rnd = seededRandom(55);
-      const feetX = majstorStandX;
+      majstorLater(() => {
+        // kesa ide lukom: prvo do šake u visini kuka, pa gore u pesnicu
+        const m = MAJSTOR.fist, wF = H * m.w / m.h;
+        const gripX = X + (m.gripX - m.headX) * wF;
+        const gripY = scene.floorY - H * (1 - m.gripY);
+        const lowX = X + MAJSTOR_FEET.lowHand.x * H;
+        const lowY = scene.floorY - H * MAJSTOR_FEET.lowHand.y;
+        const br = bag.getBoundingClientRect();
+        const hx = br.left + br.width / 2, hy = br.top + br.height * 0.04;   // vrh ručke
+        const dx = gripX - hx, dy = gripY - hy;
+        const lift = bag.animate([
+          { translate: '0px 0px', easing: 'cubic-bezier(0.4, 0, 0.6, 1)' },
+          { translate: `${lowX - hx}px ${lowY - hy}px`, offset: 0.38, easing: 'cubic-bezier(0.35, 0, 0.25, 1)' },
+          { translate: `${dx}px ${dy}px` }
+        ], { duration: LIFT, fill: 'forwards' });
+        lift.onfinish = () => {
+          bag.style.translate = `${dx}px ${dy}px`;
+          lift.cancel();
+          bag.classList.add('held');
+        };
 
-      // lešnici koji vire iz kese ispadaju kad se kesa podigne
-      const fromBag = bagNuts.slice(BAG_SLOTS.length - 4, BAG_SLOTS.length).map(n => lift(n.el));
-      // gomila
-      const pile = bagNuts.slice(BAG_SLOTS.length, MAX_VISIBLE_NUTS).map(n => lift(n.el));
+        // ruka se diže zajedno sa kesom
+        majstorLater(() => showPose('fist', LIFT * 0.5), LIFT * 0.36);
 
-      // kesa ide u pesnicu (ručka u šaci)
-      const br = bag.getBoundingClientRect();
-      const dx = gripX - (br.left + br.width / 2);
-      const dy = gripY - (br.top + br.height * 0.04);
-      bag.style.translate = `${dx}px ${dy}px`;
-      bag.classList.add('held');
+        // 4) iz kese ispada par lešnika: oko nogu i na kape čizama, pa se otkotrljaju
+        majstorLater(() => dropFromBag(front), LIFT * 0.55);
+      }, T(300));
+    }, GRAB);
 
-      // ispadanje iz kese: kratko poleti pa padne pored nogu i odskoči
-      fromBag.forEach((n, i) => {
-        const tx = feetX - charH * 0.2 + rnd() * charH * 0.35;
-        const ty = groundY - n.size - rnd() * 6;
-        const ddx = tx - n.x, ddy = ty - n.y;
-        n.el.animate([
-          { transform: `translate(${dx * 0.3}px, ${dy * 0.3}px) rotate(${n.angle}deg)`, easing: 'ease-out' },
-          { transform: `translate(${ddx * 0.4}px, ${dy * 0.3 - 30}px) rotate(${n.angle - 120}deg)`, offset: 0.3, easing: 'cubic-bezier(0.5, 0, 1, 1)' },
-          { transform: `translate(${ddx}px, ${ddy}px) rotate(${n.angle - 300}deg)`, offset: 0.82, easing: 'ease-out' },
-          { transform: `translate(${ddx}px, ${ddy - 10}px) rotate(${n.angle - 330}deg)`, offset: 0.91, easing: 'ease-in' },
-          { transform: `translate(${ddx}px, ${ddy}px) rotate(${n.angle - 350}deg)` }
-        ], { duration: reduceMotion ? 0 : 1000, delay: 120 + i * 110, fill: 'both' });
-      });
+    // 5) oblačić, poruka po poruka (; = nova poruka), reč po reč
+    majstorLater(() => sayLines(0), GRAB + T(300) + LIFT + T(800));
+  }
 
-      // rasipanje gomile: lešnici se otkotrljaju i razbacaju oko čizama
-      const targets = pile.map(() => {
-        const size = pile[0] ? pile[0].size : 20;
-        let x = feetX - charH * 0.85 + rnd() * charH * 1.05;
-        x = Math.max(6, Math.min(vw - size - 4, x));
-        const y = groundY - size - rnd() * charH * 0.07;
-        return [x, y];
-      }).sort((a, b) => a[0] - b[0]);
-      pile.slice().sort((a, b) => a.x - b.x).forEach((n, i) => {
-        const [tx, ty] = targets[i];
-        const ddx = tx - n.x, ddy = ty - n.y;
-        const spin = -(160 + Math.abs(ddx) * 2.2) * (ddx < 0 ? 1 : -1);
-        n.el.animate([
-          { transform: `translate(0, 0) rotate(${n.angle}deg)` },
-          { transform: `translate(${ddx * 0.55}px, ${ddy * 0.55 - 16}px) rotate(${n.angle + spin * 0.55}deg)`, offset: 0.55 },
-          { transform: `translate(${ddx}px, ${ddy}px) rotate(${n.angle + spin}deg)` }
-        ], { duration: reduceMotion ? 0 : 750 + rnd() * 450, delay: 250 + i * 22, easing: 'ease-out', fill: 'both' });
-      });
-    }, reduceMotion ? 0 : 2100);
-
-    // 4) oblačić, reč po reč
-    majstorLater(() => {
-      positionBubble();
-      document.getElementById('majstorBubble').classList.add('show');
-      document.getElementById('majstorSay').textContent = MAJSTOR_LINES[0];
-      typeWords(MAJSTOR_LINES[0], () => {
-        majstorLater(() => eraseWords(() => {
-          document.getElementById('majstorSay').textContent = MAJSTOR_LINES[1];
-          majstorLater(() => typeWords(MAJSTOR_LINES[1], () => {
-            // posle nekoliko sekundi oblačić se povuče da ne zaklanja dugmad
-            majstorLater(() => document.getElementById('majstorBubble').classList.remove('show'), 7000);
-          }), 250);
-        }), 2400);
-      });
-    }, reduceMotion ? 300 : 3500);
+  function dropFromBag(front) {
+    const H = scene.H, X = scene.standX;
+    const inBag = bagNuts.slice(0, Math.min(bagNuts.length, BAG_SLOTS.length));
+    const falling = inBag.slice(-4).filter(n => n.el.style.visibility !== 'hidden').map(n => toScene(n.el, front));
+    const maxX = scene.vw - 4;
+    falling.forEach((nut, i) => {
+      const s = nut.size;
+      if (i < 2) {
+        // pada na kapu čizme, odskoči, pa se skotrlja na stranu
+        const toe = MAJSTOR_FEET.toes[i];
+        const tx = X + toe.x * H - s / 2;
+        const tb = toe.top * H - s * 0.25;
+        const offX = i === 0 ? tx - H * 0.13 - s : Math.min(maxX - s, tx + H * 0.12 + s * 0.5);
+        moveNut(nut, [
+          { type: 'arc', x: tx, b: tb, hop: 14, dur: 520, spin: -200 },
+          { type: 'arc', x: tx + (offX - tx) * 0.12, b: tb, hop: 7, dur: 170 },
+          { type: 'arc', x: tx + (offX - tx) * 0.45, b: 0, hop: 6, dur: 300 },
+          { type: 'roll', x: offX, b: 0, dur: 420 }
+        ], i * 140);
+      } else {
+        // pada pored nogu, odskoči i malo se otkotrlja
+        const side = i === 2 ? -1 : 1;
+        const tx = side < 0 ? X - H * 0.27 - s : Math.min(maxX - s, X + H * 0.27);
+        moveNut(nut, [
+          { type: 'arc', x: tx, b: 0, hop: 18, dur: 560, spin: -260 },
+          { type: 'arc', x: tx + side * s * 0.5, b: 0, hop: 8, dur: 200 },
+          { type: 'roll', x: Math.max(4, Math.min(maxX - s, tx + side * s * 1.6)), b: 0, dur: 380 }
+        ], 60 + i * 120);
+      }
+    });
   }
 
   function positionBubble() {
     const box = document.getElementById('majstor');
     const bubble = document.getElementById('majstorBubble');
-    const r = box.getBoundingClientRect();
-    const mouthY = r.top + r.height * 0.11;
-    bubble.style.right = (window.innerWidth - majstorStandX + r.height * 0.11) + 'px';
+    const H = scene.H;
+    const headTop = window.innerHeight - parseFloat(getComputedStyle(document.getElementById('sceneGround')).bottom) - H;
+    const mouthY = headTop + H * 0.11;
+    bubble.style.right = (window.innerWidth - scene.standX + H * 0.11) + 'px';
     bubble.style.bottom = (window.innerHeight - mouthY - 18) + 'px';
-    bubble.style.maxWidth = Math.min(260, majstorStandX - r.height * 0.11 - 24) + 'px';
+    bubble.style.maxWidth = Math.min(260, scene.standX - H * 0.11 - 24) + 'px';
+  }
+
+  function sayLines(i) {
+    if (majstorState !== 'active' || !MAJSTOR_LINES[i]) return;
+    const bubble = document.getElementById('majstorBubble');
+    if (i === 0) { positionBubble(); bubble.classList.add('show'); }
+    document.getElementById('majstorSay').textContent = MAJSTOR_LINES[i];
+    typeWords(MAJSTOR_LINES[i], () => {
+      if (i < MAJSTOR_LINES.length - 1) {
+        majstorLater(() => eraseWords(() => majstorLater(() => sayLines(i + 1), 250)), 2400);
+      } else {
+        // poslednja poruka ostaje par sekundi, pa se oblačić povuče da ne zaklanja dugmad
+        majstorLater(() => bubble.classList.remove('show'), 7000);
+      }
+    });
   }
 
   function typeWords(text, done) {
     const out = document.getElementById('majstorText');
-    const words = text.split(' ');
+    const words = text.split(/\s+/);
     out.textContent = '';
+    let t = 0;
     words.forEach((w, i) => {
+      if (i > 0 && /[,.!?:]$/.test(words[i - 1])) t += 150;    // mala pauza posle interpunkcije
       majstorLater(() => {
         out.textContent += (i ? ' ' : '') + w;
         if (i === words.length - 1 && done) done();
-      }, i * 210 + (/[,.!?]$/.test(words[i - 1] || '') ? 150 : 0));
+      }, t);
+      t += 210;
     });
   }
 
@@ -2762,49 +2907,57 @@
     });
   }
 
-  // Neko je smanjio količinu ili poslao porudžbinu: majstor vraća kesu i odlazi
+  // Ispod praga ili poslata porudžbina: spusti kesu, okrene se i ode
   function endMajstorScene() {
     clearMajstorTimers();
     majstorState = 'idle';
 
     const box = document.getElementById('majstor');
+    const glove = document.getElementById('majstorGlove');
     const bag = document.getElementById('floatingBag');
-    const bubble = document.getElementById('majstorBubble');
-    bubble.classList.remove('show');
+    document.getElementById('majstorBubble').classList.remove('show');
     document.getElementById('majstorText').textContent = '';
     document.getElementById('majstorSay').textContent = '';
 
-    // kesa nazad na svoje mesto, lešnici sa poda nestaju
+    // kesa se vraća na mesto
+    bag.getAnimations().filter(a => !(a instanceof CSSAnimation)).forEach(a => a.cancel());
+    const from = bag.style.translate || '0px 0px';
     bag.classList.remove('held');
     bag.style.translate = '0px 0px';
-    document.getElementById('majstorGlove').classList.remove('on');
-    const ground = document.getElementById('groundNuts');
-    [...ground.children].forEach(c => {
-      c.getAnimations().forEach(a => a.cancel());
-      c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
-    });
-    setTimeout(() => { if (majstorState === 'idle') ground.innerHTML = ''; }, 320);
+    if (from !== '0px 0px' && from !== 'none') {
+      bag.animate([{ translate: from }, { translate: '0px 0px' }], { duration: T(550), easing: 'ease-in-out' });
+    }
 
-    // ponovo složi kesu i gomilu prema trenutnoj korpi
+    // lešnici sa poda nestaju, a gomila se ponovo složi uz kesu
+    ['sceneGround', 'sceneFront'].forEach(id => {
+      document.querySelectorAll(`#${id} .nut`).forEach(n => {
+        n.getAnimations().forEach(a => a.pause());
+        n.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T(350), fill: 'forwards' }).onfinish = () => n.remove();
+      });
+    });
     bagNuts.forEach(n => n.el.remove());
     bagNuts = [];
     syncBagNuts(false);
 
-    // majstor se okrene i ode desno
-    if (box.classList.contains('on')) {
-      box.getAnimations().forEach(a => a.cancel());
-      const p = setMajstorPose('right');
+    if (!box.classList.contains('on')) return;
+    [box, document.getElementById('majstorBody'), document.getElementById('majstorGloveBody')]
+      .forEach(el => el.getAnimations().filter(a => !(a instanceof CSSAnimation)).forEach(a => a.cancel()));
+
+    // spusti ruku, okrene se desno i ode
+    showPose('front', 300);
+    setTimeout(() => {
+      if (majstorState !== 'idle') return;
+      glove.classList.remove('on');
+      showPose('right');
       box.classList.add('walking');
-      const anim = box.animate(
-        [{ transform: 'translateX(0)' }, { transform: `translateX(${window.innerWidth - p.left + 40}px)` }],
-        { duration: reduceMotion ? 0 : 1100, easing: 'cubic-bezier(0.5, 0, 0.75, 0.6)', fill: 'forwards' }
-      );
-      anim.onfinish = () => {
+      const out = box.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${window.innerWidth - scene.standX + scene.H * 0.3}px)` }],
+        { duration: T(1100), easing: 'cubic-bezier(0.5, 0, 0.75, 0.6)', fill: 'forwards' });
+      out.onfinish = () => {
         if (majstorState !== 'idle') return;
         box.classList.remove('on', 'walking');
-        anim.cancel();
+        out.cancel();
       };
-    }
+    }, T(450));
   }
 
   // Init

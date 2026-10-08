@@ -1444,6 +1444,83 @@
     margin-top: 12px;
     line-height: 1.5;
   }
+
+  /* ============================
+     TAB: ANIMACIJA
+     ============================ */
+  .anim-card {
+    background: white;
+    border: 1px solid var(--husk);
+    border-radius: 14px;
+    padding: 22px 24px;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .anim-warning {
+    display: none;
+    background: #fef3e2;
+    border: 1px solid #d97706;
+    color: #92400e;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .anim-warning.show { display: block; }
+  .anim-kg-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .anim-kg-row input { width: 90px; }
+  .anim-kg-unit { font-size: 14px; color: var(--ink-2); margin-right: 6px; }
+  .anim-chip {
+    border: 1px solid var(--husk);
+    background: var(--cream);
+    color: var(--ink-2);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .anim-chip:hover { background: var(--cream-2); }
+  .anim-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .anim-preview-title {
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+    color: var(--leaf-dark);
+    margin: 4px 0 8px;
+  }
+  .anim-preview { display: flex; flex-direction: column; gap: 10px; }
+  .anim-bubble {
+    position: relative;
+    align-self: flex-start;
+    max-width: 90%;
+    background: #fffaf0;
+    border: 2px solid #6b4520;
+    border-radius: 18px 16px 20px 14px;
+    padding: 8px 14px;
+    font-family: 'Caveat', cursive;
+    font-size: 19px;
+    line-height: 1.2;
+    color: #2a1f15;
+  }
+  .anim-bubble .anim-step {
+    position: absolute;
+    left: -10px;
+    top: -10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .anim-empty { font-size: 13px; color: var(--ink-3); font-style: italic; }
+  .anim-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
 </style>
 </head>
 <body>
@@ -1475,6 +1552,7 @@
   <div class="tabs">
     <button class="tab active" onclick="switchTab('orders', this)">📋 Porudžbine <span class="tab-count" id="countOrders">0</span></button>
     <button class="tab" onclick="switchTab('products', this)">🌰 Proizvodi <span class="tab-count" id="countProducts">0</span></button>
+    <button class="tab" onclick="switchTab('animation', this)">🎬 Animacija</button>
   </div>
 
   <div class="main">
@@ -1549,6 +1627,38 @@
       <p style="font-size:13px;color:var(--ink-3);text-align:center;margin-top:16px;font-style:italic">
         Kad promeniš dostupnost, korisnici će na sajtu odmah videti promenu.
       </p>
+    </div>
+
+    <div class="view" id="viewAnimation">
+      <div class="anim-card">
+        <div class="anim-warning" id="animWarning">
+          Podešavanja se još ne čitaju iz Sheet-a. Ubaci Apps Script v6 i uradi Redeploy, pa osveži admin.
+        </div>
+
+        <div class="product-form-group">
+          <label for="animKg">Kada se pojavljuje majstor</label>
+          <div class="anim-kg-row">
+            <input type="number" id="animKg" min="5" max="55" step="1" oninput="markAnimDirty()">
+            <span class="anim-kg-unit">kg u korpi</span>
+            <button type="button" class="anim-chip" onclick="setAnimKg(35)">35</button>
+            <button type="button" class="anim-chip" onclick="setAnimKg(55)">55</button>
+          </div>
+          <div class="form-hint">Od 5 do 55. U kesu staje 16, ostalo ide na gomilu; 55 je najviše što se vidi.</div>
+        </div>
+
+        <div class="product-form-group">
+          <label for="animMessages">Šta majstor kaže</label>
+          <textarea id="animMessages" rows="5" maxlength="1000" oninput="markAnimDirty(); renderAnimPreview()"></textarea>
+          <div class="form-hint">Tačka-zarez <strong>;</strong> znači: obriši prethodnu poruku i počni novu.</div>
+        </div>
+
+        <div class="anim-preview-title">Ovako će ići, redom:</div>
+        <div class="anim-preview" id="animPreview"></div>
+
+        <div class="anim-actions">
+          <button class="product-modal-btn save" id="animSaveBtn" onclick="saveAnimSettings()">Sačuvaj</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1709,6 +1819,7 @@
         password = attemptedPassword;
         products = data.products;
         orders = data.orders;
+        receiveSettings(data.settings);
         
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('adminApp').classList.add('active');
@@ -1748,6 +1859,7 @@
       if (data.success) {
         products = data.products;
         orders = data.orders;
+        receiveSettings(data.settings);
         renderAll();
       } else {
         showToast('Greška: ' + (data.error || 'nepoznato'), true);
@@ -1776,7 +1888,8 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('view' + (tab === 'orders' ? 'Orders' : 'Products')).classList.add('active');
+    const views = { orders: 'Orders', products: 'Products', animation: 'Animation' };
+    document.getElementById('view' + views[tab]).classList.add('active');
   }
 
   function setFilter(f) {
@@ -2603,6 +2716,76 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeArrivedModal();
   });
+
+  // ============================================
+  // TAB: ANIMACIJA (majstor)
+  // ============================================
+  let animSettings = null;
+  let animDirty = false;
+
+  function splitMessages(text) {
+    return String(text || '').split(';').map(t => t.trim()).filter(Boolean);
+  }
+
+  function receiveSettings(settings) {
+    document.getElementById('animWarning').classList.toggle('show', !settings);
+    if (!settings || animDirty) return;   // ne gazi ono što upravo kucaš
+    animSettings = settings;
+    document.getElementById('animKg').value = settings.majstorKg;
+    document.getElementById('animMessages').value = settings.majstorPoruke;
+    updateAnimChips();
+    renderAnimPreview();
+  }
+
+  function markAnimDirty() {
+    animDirty = true;
+    updateAnimChips();
+  }
+
+  function setAnimKg(kg) {
+    document.getElementById('animKg').value = kg;
+    markAnimDirty();
+  }
+
+  function updateAnimChips() {
+    const kg = Number(document.getElementById('animKg').value);
+    document.querySelectorAll('.anim-chip').forEach(c => c.classList.toggle('active', Number(c.textContent) === kg));
+  }
+
+  function renderAnimPreview() {
+    const msgs = splitMessages(document.getElementById('animMessages').value);
+    const box = document.getElementById('animPreview');
+    box.innerHTML = msgs.length
+      ? msgs.map((m, i) => `<div class="anim-bubble"><span class="anim-step">${i + 1}</span>${escapeHtml(m)}</div>`).join('')
+      : '<div class="anim-empty">Nema poruka — upiši bar jednu.</div>';
+  }
+
+  async function saveAnimSettings() {
+    const kg = Math.round(Number(document.getElementById('animKg').value));
+    const text = document.getElementById('animMessages').value.trim();
+    if (!(kg >= 5 && kg <= 55)) { showToast('Broj kg mora biti između 5 i 55', true); return; }
+    if (!splitMessages(text).length) { showToast('Upiši bar jednu poruku', true); return; }
+
+    const btn = document.getElementById('animSaveBtn');
+    btn.disabled = true;
+    btn.textContent = 'Snimam...';
+    try {
+      const result = await apiCall({ action: 'updateSettings', majstorKg: kg, majstorPoruke: text });
+      if (result.success) {
+        animDirty = false;
+        receiveSettings(result.settings);
+        showToast('Animacija sačuvana');
+      } else {
+        showToast('Greška: ' + (result.error || 'nepoznato'), true);
+      }
+    } catch (err) {
+      showToast('Greška u snimanju', true);
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sačuvaj';
+    }
+  }
 </script>
 
 </body>
