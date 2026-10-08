@@ -175,14 +175,12 @@
   h1 em::after {
     content: '';
     position: absolute;
-    bottom: 4px;
-    left: 2px;
-    right: 2px;
-    height: 3px;
-    background: var(--accent-soft);
-    border-radius: 2px;
+    bottom: -0.1em;
+    left: -0.04em;
+    right: -0.08em;
+    height: 0.2em;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'%3E%3Cpath d='M3 10 C 40 4, 75 13, 110 8 S 170 3, 197 7' fill='none' stroke='%23e8b88f' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M30 12 C 70 9, 120 13, 160 9' fill='none' stroke='%23e8b88f' stroke-width='2' stroke-linecap='round' opacity='0.6'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
     z-index: -1;
-    opacity: 0.6;
   }
 
 
@@ -1295,6 +1293,33 @@
     100% { opacity: 1; transform: translateY(0) rotate(var(--rot, 0deg)); }
   }
 
+  /* Lešnik ispada preko ruba kese, zakotrlja se i legne na gomilu */
+  .bag-nut.spill {
+    animation: nutSpill 0.75s cubic-bezier(0.35, 0.1, 0.5, 1) 0.3s both;
+  }
+
+  @keyframes nutSpill {
+    0%   { opacity: 0; transform: translate(calc(var(--fx) * 1%), calc(var(--fy) * 1%)) rotate(var(--rot, 0deg)); }
+    15%  { opacity: 1; }
+    45%  { transform: translate(calc(var(--fx) * 0.6%), calc(var(--fy) * 1% - 45%)) rotate(calc(var(--rot, 0deg) - 160deg)); }
+    85%  { transform: translate(0, 6%) rotate(calc(var(--rot, 0deg) - 340deg)); }
+    100% { opacity: 1; transform: translate(0, 0) rotate(calc(var(--rot, 0deg) - 360deg)); }
+  }
+
+  /* Senka na "podu" ispod gomile */
+  .bag-pile-shadow {
+    position: absolute;
+    left: -92%;
+    width: 98%;
+    bottom: 1%;
+    height: 9%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(107, 69, 32, 0.28), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .floating-bag.has-pile .bag-pile-shadow { opacity: 1; }
+
   /* Lešnik iskače iz kese kad se oduzme */
   .bag-nut.pop { animation: nutPop 0.4s ease-in forwards; }
 
@@ -1345,7 +1370,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .bag-nut.drop, .bag-nut.pop { animation: none; }
+    .bag-nut.drop, .bag-nut.spill, .bag-nut.pop { animation: none; }
   }
 
 
@@ -1392,12 +1417,78 @@
 
   .product-price { white-space: nowrap; }
 
+  /* ============================
+     Ručni detalji u naslovima
+     ============================ */
+  .gl {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* reč sa ukrasima se ne sme prelomiti na pola */
+  .gw { white-space: nowrap; }
+
+  .mk {
+    position: absolute;
+    left: 50%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .mk-nut {
+    width: 0.25em;
+    height: 0.28em;
+    top: 0.1em;
+    transform: translateX(-50%) rotate(-14deg);
+  }
+
+  .mk-hacek {
+    width: 0.42em;
+    height: 0.25em;
+    top: 0.17em;
+    transform: translateX(-50%) rotate(-4deg);
+  }
+
+  .mk-acute {
+    width: 0.24em;
+    height: 0.28em;
+    top: 0.14em;
+    transform: translateX(-30%);
+  }
+
+  /* Kurziv je nagnut, pa znak ide malo udesno */
+  em .mk-nut   { margin-left: 0.05em; }
+  em .mk-hacek { margin-left: 0.06em; }
+
+  /* Caveat (rukopis) ima drugačije proporcije od Fraunces-a */
+  .tagline .mk-hacek { width: 0.5em; height: 0.3em; top: 0.33em; margin-left: 0.04em; }
+  .tagline .mk-acute { width: 0.3em; height: 0.35em; top: 0.28em; }
+
   @media (prefers-reduced-motion: reduce) {
     .botanical, .hero-illustration { animation: none; }
   }
 </style>
 </head>
 <body>
+
+<!-- Ručno crtani znakovi za naslove: lešnik umesto tačke, listići umesto kvačica -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="g-nut" viewBox="0 0 20 22">
+    <path d="M10 1.5 C 15 4.5, 18.3 8.6, 18.3 13.4 C 18.3 18.4, 14.6 21, 10 21 C 5.4 21, 1.7 18.4, 1.7 13.4 C 1.7 8.6, 5 4.5, 10 1.5 Z" fill="#a0522d"/>
+    <path d="M10 2.5 C 8.5 7, 8 11, 8.6 16 M10 2.5 C 12.2 7, 12.8 11, 12.4 16" stroke="#7a3b1c" stroke-width="0.7" fill="none" opacity="0.55"/>
+    <ellipse cx="10" cy="18.4" rx="6.6" ry="2.7" fill="#d9b98a"/>
+    <ellipse cx="6.6" cy="10" rx="1.8" ry="3.2" fill="#fff" opacity="0.35" transform="rotate(-18 6.6 10)"/>
+  </symbol>
+  <symbol id="g-hacek" viewBox="0 0 30 18">
+    <path d="M15 16.5 C 8 15.5, 3 9.5, 1.5 1.5 C 9 2.5, 14 8.5, 15 16.5 Z" fill="#7a9150"/>
+    <path d="M15 16.5 C 22 15.5, 27 9.5, 28.5 1.5 C 21 2.5, 16 8.5, 15 16.5 Z" fill="#8fa95e"/>
+    <path d="M14.6 15.6 L 3.5 3.4 M15.4 15.6 L 26.5 3.4" stroke="#4d6030" stroke-width="0.9" stroke-linecap="round" opacity="0.8"/>
+  </symbol>
+  <symbol id="g-acute" viewBox="0 0 16 18">
+    <path d="M2.5 16.5 C 2.5 9.5, 7 3.2, 14.5 1.2 C 15 8, 10.5 14, 2.5 16.5 Z" fill="#7a9150"/>
+    <path d="M3.2 15.6 L 13.2 2.6" stroke="#4d6030" stroke-width="0.9" stroke-linecap="round" opacity="0.8"/>
+  </symbol>
+</svg>
 
 <!-- Dekorativni akvarel elementi u pozadini -->
 <div class="botanicals" aria-hidden="true">
@@ -1415,8 +1506,8 @@
   <header class="hero">
     <img src="hero-hazelnuts.png" alt="" class="hero-illustration">
     <div class="hero-text">
-      <div class="tagline">~ domaći, sveži ~</div>
-      <h1>Goranovi <em>lešnici</em></h1>
+      <div class="tagline" aria-label="domaći, sveži"><span aria-hidden="true">~ <span class="gw">doma<span class="gl">c<svg class="mk mk-acute"><use href="#g-acute"/></svg></span>i,</span> <span class="gw">sve<span class="gl">z<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span>i</span> ~</span></div>
+      <h1 aria-label="Goranovi lešnici"><span aria-hidden="true"><span class="gw">Goranov<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span> <em><span class="gw">le<span class="gl">s<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span>n<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span>c<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span></em></span></h1>
     </div>
   </header>
 
@@ -1424,7 +1515,7 @@
   <section>
     <div class="section-head">
       <img class="section-icon" src="product-sirovi.png" alt="" aria-hidden="true">
-      <h2 class="section-title">Naši <em>proizvodi</em></h2>
+      <h2 class="section-title" aria-label="Naši proizvodi"><span aria-hidden="true"><span class="gw">Na<span class="gl">s<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span><span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span> <em><span class="gw">pro<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span>zvod<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span></em></span></h2>
       <span class="section-handwrite">1kg pakovanja</span>
     </div>
     <div class="products-wrap">
@@ -1438,7 +1529,7 @@
   <section>
     <div class="section-head">
       <img class="section-icon" src="product-peceni.png" alt="" aria-hidden="true">
-      <h2 class="section-title">Vaši <em>podaci</em></h2>
+      <h2 class="section-title" aria-label="Vaši podaci"><span aria-hidden="true"><span class="gw">Va<span class="gl">s<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span><span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span> <em><span class="gw">podac<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span></em></span></h2>
     </div>
 
     <div class="form-card">
@@ -1472,7 +1563,7 @@
   <section>
     <div class="section-head">
       <img class="section-icon" src="hazelnut-kernels.png" alt="" aria-hidden="true">
-      <h2 class="section-title">Sve <em>porudžbine</em></h2>
+      <h2 class="section-title" aria-label="Sve porudžbine"><span aria-hidden="true"><span class="gw">Sve</span> <em><span class="gw">porud<span class="gl">z<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span>b<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span>ne</span></em></span></h2>
       <span class="section-handwrite" id="orderCount">učitavam...</span>
     </div>
 
@@ -1585,6 +1676,8 @@
     <path d="M 16 30 L 84 30 L 90 108 Q 90 114 84 114 L 16 114 Q 10 114 10 108 Z" fill="#f1e3c4"/>
     <ellipse cx="50" cy="108" rx="34" ry="6" fill="#d9c196" opacity="0.6"/>
   </svg>
+
+  <div class="bag-pile-shadow" aria-hidden="true"></div>
 
   <!-- Lešnici (dodaje ih JavaScript) -->
   <div class="bag-nuts" id="bagNuts"></div>
@@ -1752,8 +1845,9 @@
   }
 
   // ---------- Kesa koja se puni ----------
-  // Mesta za lešnike u kesi (koordinate u crtežu kese 100x120),
-  // redom od dna nagore; poslednja tri su gomilica preko ruba
+  // Koordinate su u crtežu kese (100x120). Prvih 16 lešnika ide u kesu
+  // (od dna nagore, poslednja tri vire preko ruba), sledećih 14 ispada
+  // i slaže se u gomilu levo od kese. Preko 30 kg samo raste broj u bedžu.
   const BAG_SLOTS = (() => {
     const slots = [];
     [100, 86, 72, 58, 44].forEach((y, row) => {
@@ -1764,6 +1858,18 @@
     return slots;
   })();
 
+  const PILE_SLOTS = [
+    [-6, 103], [-25, 104], [-44, 102.5], [-63, 104], [-83, 103.5], // dno gomile
+    [-15, 90.5], [-35, 89], [-54, 91], [-73, 92],                   // blago neravno,
+    [-26, 77.5], [-45, 76], [-63, 78.5],                            // kao da su stvarno
+    [-36, 64.5], [-53, 63]                                          // popadali
+  ];
+
+  const ALL_SLOTS = BAG_SLOTS.concat(PILE_SLOTS);
+  const MAX_VISIBLE_NUTS = ALL_SLOTS.length; // 30
+  const NUT_SIZE = 23;                       // širina lešnika u jedinicama crteža
+  const BAG_RIM = [28, 24];                  // odakle lešnik ispada iz kese
+
   let bagNuts = []; // [{ pid, el }] redom kojim su dodati
 
   function nutImageFor(productId) {
@@ -1772,20 +1878,41 @@
 
   function layoutBagNuts() {
     bagNuts.forEach((nut, i) => {
-      const slot = BAG_SLOTS[i];
-      if (!slot) { nut.el.style.display = 'none'; return; } // kesa je puna, broj u bedžu i dalje raste
+      const slot = ALL_SLOTS[i];
+      if (!slot) { nut.el.style.display = 'none'; return; }
       nut.el.style.display = '';
-      nut.el.style.left = (slot[0] - 11.5) + '%';           // 11.5 = pola širine lešnika
-      nut.el.style.top = ((slot[1] - 11.5) / 120 * 100) + '%';
+      nut.el.style.left = (slot[0] - NUT_SIZE / 2) + '%';
+      nut.el.style.top = ((slot[1] - NUT_SIZE / 2) / 120 * 100) + '%';
       nut.el.style.zIndex = i + 1;
     });
+    document.getElementById('floatingBag').classList.toggle('has-pile', bagNuts.length > BAG_SLOTS.length);
   }
 
-  // Uskladi lešnike u kesi sa korpom: po jedan lešnik za svaki kg
+  function createBagNut(productId, animate) {
+    const index = bagNuts.length;
+    const el = document.createElement('img');
+    el.src = nutImageFor(productId);
+    el.alt = '';
+    el.className = 'bag-nut';
+    el.style.setProperty('--rot', (((index * 47) % 60) - 30) + 'deg');
+
+    if (animate && index < BAG_SLOTS.length) {
+      el.classList.add('drop');                       // upada u kesu
+    } else if (animate && index < MAX_VISIBLE_NUTS) {
+      const slot = ALL_SLOTS[index];                  // ispada iz kese na gomilu
+      el.style.setProperty('--fx', ((BAG_RIM[0] - slot[0]) / NUT_SIZE * 100).toFixed(1));
+      el.style.setProperty('--fy', ((BAG_RIM[1] - slot[1]) / NUT_SIZE * 100).toFixed(1));
+      el.classList.add('spill');
+    }
+    return el;
+  }
+
+  // Uskladi lešnike sa korpom: po jedan lešnik za svaki kg
   function syncBagNuts(animate) {
     const layer = document.getElementById('bagNuts');
 
-    // Višak: ukloni poslednje dodate lešnike tog proizvoda
+    // Višak: ukloni poslednje dodat lešnik tog proizvoda, a na njegovo
+    // mesto premesti poslednji lešnik uopšte, da se pomeri samo jedan
     products.forEach(p => {
       const want = Number(cart[p.id]) || 0;
       let have = bagNuts.filter(n => n.pid === p.id).length;
@@ -1795,8 +1922,10 @@
           if (bagNuts[i].pid === p.id) { idx = i; break; }
         }
         const [gone] = bagNuts.splice(idx, 1);
-        if (animate) {
-          gone.el.classList.remove('drop');
+        if (idx < bagNuts.length) bagNuts.splice(idx, 0, bagNuts.pop());
+
+        if (animate && idx < MAX_VISIBLE_NUTS) {
+          gone.el.classList.remove('drop', 'spill');
           gone.el.classList.add('pop');
           setTimeout(() => gone.el.remove(), 400);
         } else {
@@ -1806,16 +1935,12 @@
       }
     });
 
-    // Manjak: dodaj nove lešnike na vrh gomile
+    // Manjak: dodaj nove lešnike na kraj reda
     products.forEach(p => {
       const want = Number(cart[p.id]) || 0;
       let have = bagNuts.filter(n => n.pid === p.id).length;
       while (have < want) {
-        const el = document.createElement('img');
-        el.src = nutImageFor(p.id);
-        el.alt = '';
-        el.className = 'bag-nut' + (animate ? ' drop' : '');
-        el.style.setProperty('--rot', (((bagNuts.length * 47) % 60) - 30) + 'deg');
+        const el = createBagNut(p.id, animate);
         layer.appendChild(el);
         bagNuts.push({ pid: p.id, el });
         have++;
@@ -1837,6 +1962,8 @@
   // Lešnik leti od proizvoda do otvora kese (vraćanje rešava "pop" u kesi)
   function animateBag(productId, delta) {
     const bag = document.getElementById('floatingBag');
+    if (delta > 0 && totalKg() > MAX_VISIBLE_NUTS) return; // gomila je puna, samo broj raste
+
     bag.classList.remove('pulse');
     void bag.offsetWidth; // restart animacije
     bag.classList.add('pulse');
