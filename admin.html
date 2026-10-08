@@ -2876,7 +2876,13 @@
       const n = (result.sent || []).length;
       showToast(n === 1 ? 'Poslat 1 mejl' : `Poslato mejlova: ${n}`, n === 0);
       if ((result.failed || []).length) {
-        showToast('Neki mejlovi nisu poslati (dnevni limit Gmail-a ili greška)', true);
+        // tačan razlog sa servera, da se zna šta treba popraviti
+        const why = result.error ? String(result.error).replace(/^Error:\s*/, '') : 'nepoznata greška';
+        setTimeout(() => showToast('Mejl nije poslat: ' + why, true), n ? 2500 : 0);
+        console.warn('Slanje mejla:', result);
+      } else if (result.usedBackup) {
+        // poslato rezervnim putem: radi, ali bez kopije u "Poslato" — treba odobriti Gmail u editoru
+        setTimeout(() => showToast('Poslato ✓ (rezervnim putem — pokreni "testMejl" u Apps Script-u da odobriš Gmail)'), 2500);
       }
       btn.textContent = '✓ Poslato';
       loadData();   // da se vidi novi komentar "📧 Poslat mejl"
