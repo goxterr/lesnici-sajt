@@ -1759,7 +1759,7 @@
       <div class="product-form-group">
         <label for="arrivedMessage">Poruka</label>
         <textarea id="arrivedMessage" rows="4" maxlength="600" oninput="saveArrivedTemplate()"></textarea>
-        <div class="form-hint">{ime} se menja imenom kupca, {porudzbina} onim što je poručio. Tekst se pamti za sledeći put.</div>
+        <div class="form-hint">{ime} se menja imenom kupca u obliku za obraćanje (Gorane, Milice), {porudzbina} onim što je poručio. Tekst se pamti za sledeći put.</div>
       </div>
       <div class="arrived-list" id="arrivedList"></div>
       <p class="arrived-note">Klik na „Pošalji" otvara WhatsApp sa već napisanom porukom — samo pritisneš strelicu za slanje i vratiš se ovde za sledećeg.</p>
@@ -2642,7 +2642,7 @@
   // ============================================
   // STIGLO — WhatsApp obaveštenje izabranim kupcima
   // ============================================
-  const ARRIVED_DEFAULT = 'Ćao {ime}! 🌰 Stigli su lešnici — tvoja porudžbina ({porudzbina}) te čeka. Javi kad ti odgovara da preuzmeš. Pozdrav, Goran';
+  const ARRIVED_DEFAULT = 'Ćao, {ime}! 🌰 Stigli su lešnici — tvoja porudžbina ({porudzbina}) te čeka. Javi kad ti odgovara da preuzmeš. Pozdrav, Goran';
   const ARRIVED_KEY = 'lesnici_stiglo_poruka';
 
   // Pretvara broj iz forme (063/869-0881, +381 63..., 638690881) u format za WhatsApp (381638690881)
@@ -2678,9 +2678,8 @@
 
   function buildArrivedMessage(order) {
     const template = document.getElementById('arrivedMessage').value || ARRIVED_DEFAULT;
-    const firstName = String(order.name || '').trim().split(/\s+/)[0] || '';
     return template
-      .replace(/\{ime\}/g, firstName)
+      .replace(/\{ime\}/g, vocative(order.name))      // obraćanje: Gorane, Milice, Petre...
       .replace(/\{porudzbina\}/g, order.items || '');
   }
 
@@ -2808,6 +2807,25 @@
       btn.textContent = 'Sačuvaj';
     }
   }
+
+  // Vokativ imena (srpski pravopis), za obraćanje kupcu
+function vocative(rawName) {
+  let n = String(rawName || '').trim().split(/\s+/)[0] || '';
+  if (!n) return '';
+  n = n.charAt(0).toUpperCase() + n.slice(1);
+  const low = n.toLowerCase();
+  if (/[aeiou]$/.test(low)) {
+    if (/ica$/.test(low)) return n.slice(0, -1) + 'e';          // Milica → Milice, Ivica → Ivice
+    return n;                                                    // Marko, Ana, Nikola, Đorđe, Jelena
+  }
+  if (/[td]ar$/.test(low) && low.length > 4) return n.slice(0, -2) + 're'; // Petar → Petre, Aleksandar → Aleksandre
+  if (/(j|č|ć|đ|š|ž)$/.test(low)) return n + 'u';               // Miloš → Milošu, Andrej → Andreju (i lj, nj, dž)
+  if (/k$/.test(low)) return n.slice(0, -1) + 'če';             // Vuk → Vuče
+  if (/g$/.test(low)) return n.slice(0, -1) + 'že';             // Miodrag → Miodraže
+  if (/h$/.test(low)) return n.slice(0, -1) + 'še';
+  if (/c$/.test(low)) return n.slice(0, -1) + 'če';
+  return n + 'e';                                                // Goran → Gorane, Milan → Milane
+}
 </script>
 
 </body>

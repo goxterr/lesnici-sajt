@@ -1626,83 +1626,57 @@
   .success-botanicals { position: fixed; }      /* stoji u mestu dok se sadržaj skroluje */
   .success-inner { z-index: 1; }
 
-  .money-scene {
-    position: relative;
-    height: 220px;
-    max-width: 460px;
-    margin: 0 auto 18px;
-    text-align: left;
-  }
-  .money-scene-sm { height: 175px; margin-bottom: 10px; }
+  .success-screen { overflow-x: hidden; }
 
-  .money-scene .ms-floor {
+  /* Majstor viri sa desne ivice, nagnut; telo je pola van ekrana.
+     Na telefonu mu noge zaklanja kartica sa uplatom, pa se vidi samo do pola. */
+  .money-peek {
     position: absolute;
-    left: 2%;
-    right: 2%;
-    bottom: -6px;
-    height: 16px;
-    border-radius: 50%;
-    background: radial-gradient(ellipse at center, rgba(107, 69, 32, 0.2), transparent 70%);
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 330px;
+    --fig-h: 330px;             /* visina cele figure; okvir je može odseći odozdo */
+    overflow: hidden;           /* sve što je van ekrana se odseca, bez skrolovanja u stranu */
+    z-index: 0;
+    pointer-events: none;
   }
-  .money-scene .ms-char,
-  .money-scene .ms-glove {
+  .mp-figure {
     position: absolute;
-    bottom: 0;
+    top: 0;
     transform-origin: 50% 100%;
-    filter: drop-shadow(0 4px 4px rgba(42, 31, 21, 0.2));
   }
-  .money-scene .ms-glove {
-    clip-path: inset(15.5% 81.3% 75.5% 0);
-    filter: none;
+  .mp-figure .mp-char {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 5px 6px rgba(42, 31, 21, 0.22));
   }
-  .money-scene .ms-note {
+  .mp-figure .mp-note {
     position: absolute;
     border-radius: 2px;
     box-shadow: 0 1px 3px rgba(42, 31, 21, 0.3);
   }
-  .money-scene .ms-hand-note {
-    transform-origin: 88% 50%;
-    transition: opacity 0.12s;
-  }
-  .money-scene .ms-badge {
+  .mp-figure .mp-count {
     position: absolute;
-    background: var(--ink);
-    color: var(--cream);
-    font-family: 'Fraunces', serif;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1;
-    padding: 4px 8px;
-    border-radius: 999px;
-    box-shadow: 0 2px 5px rgba(42, 31, 21, 0.3);
-    z-index: 60;
-    transform: scale(0);
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .money-scene .ms-badge.show { transform: scale(1); }
-
-  .money-scene .ms-bubble {
-    position: absolute;
-    z-index: 70;
-    background: #fffaf0;
-    border: 2px solid #6b4520;
-    border-radius: 18px 14px 18px 12px;
-    padding: 4px 12px 6px;
     font-family: 'Caveat', cursive;
-    font-size: 21px;
-    line-height: 1.1;
-    color: #2a1f15;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink-2);
     white-space: nowrap;
-    box-shadow: 2px 3px 0 rgba(107, 69, 32, 0.15);
+    transform: rotate(8deg);
+    transition: color 0.3s;
   }
-  .money-scene .ms-bubble .bubble-tail { right: -18px; bottom: 6px; }
-  .money-scene .ms-bubble.done { border-color: #1f7a4d; color: #17603c; }
-  .money-scene .ms-bubble.done .bubble-tail path { stroke: #1f7a4d; }
+  .mp-figure .mp-count.done { color: #1f7a4d; }
 
   @media (max-width: 700px) {
-    .money-scene { height: 190px; }
-    .money-scene-sm { height: 160px; }
-    .money-scene .ms-bubble { font-size: 18px; }
+    .money-peek { top: 8px; height: 250px; --fig-h: 250px; }
+    /* naslov levo, da ima mesta za majstora desno */
+    .success-inner { padding-top: 28px; }
+    .success-title, .success-subtitle { text-align: left; padding-right: 128px; }
+    .success-title br { display: none; }
   }
 </style>
 </head>
@@ -1823,13 +1797,14 @@
     <img src="hazel-leaves.png" alt="" class="botanical b7">
     <img src="hazelnut-kernels.png" alt="" class="botanical b8">
   </div>
+  <!-- majstor viri sa desne strane i prima novčanice u dlan -->
+  <div class="money-peek" id="moneyPeek" aria-hidden="true"></div>
+
   <div class="success-inner">
 
-    <!-- majstor broji novčanice do tačnog iznosa -->
-    <div class="money-scene" id="successMoney" aria-hidden="true"></div>
 
     <h2 class="success-title">Porudžbina <em>primljena!</em></h2>
-    <div class="success-subtitle">Hvala <span id="successName">vam</span> 🌰</div>
+    <div class="success-subtitle">Hvala, <span id="successName">vam</span>! 🌰</div>
 
     <div class="payment-card">
       <div class="payment-total">
@@ -1875,11 +1850,9 @@
   <div class="payment-modal">
     <button class="payment-modal-close" onclick="closePaymentModal()">×</button>
     <div class="payment-modal-header">
-      <div class="payment-modal-title">Uplata za <em id="payModalName">porudžbinu</em></div>
+      <div class="payment-modal-title">Hej, <em id="payModalName">tu si</em>!</div>
       <div class="payment-modal-sub">skeniraj QR ili koristi podatke ispod</div>
     </div>
-
-    <div class="money-scene money-scene-sm" id="payModalMoney" aria-hidden="true"></div>
 
     <div class="payment-card">
       <div class="payment-total">
@@ -2505,7 +2478,7 @@
   }
 
   function showSuccessScreen(name, total, orderId) {
-    document.getElementById('successName').textContent = name.split(' ')[0];
+    document.getElementById('successName').textContent = vocative(name);
     document.getElementById('successAmount').textContent = total.toLocaleString('sr') + ' din';
     
     // Generiši dinamički QR kod sa tačnim iznosom i ID-jem porudžbine
@@ -2513,7 +2486,7 @@
     
     document.getElementById('successScreen').classList.add('show');
     window.scrollTo(0, 0);
-    playMoneyScene('successMoney', total);
+    playMoneyScene('moneyPeek', total);
   }
 
   // Generiše NBS IPS QR string prema zvaničnoj specifikaciji
@@ -2564,7 +2537,7 @@
   }
 
   function closeSuccess() {
-    stopMoneyScene('successMoney');
+    stopMoneyScene('moneyPeek');
     document.getElementById('successScreen').classList.remove('show');
   }
 
@@ -2596,7 +2569,7 @@
     
     const poziv = '00' + orderId;
     
-    document.getElementById('payModalName').textContent = order.name.split(' ')[0];
+    document.getElementById('payModalName').textContent = vocative(order.name);
     document.getElementById('payModalAmount').textContent = Number(order.total).toLocaleString('sr') + ' din';
     document.getElementById('payModalReference').textContent = poziv;
     
@@ -2605,11 +2578,9 @@
     
     document.getElementById('paymentModal').classList.add('show');
     document.body.style.overflow = 'hidden'; // sprečava skrol iza modal-a
-    playMoneyScene('payModalMoney', order.total);
   }
 
   function closePaymentModal() {
-    stopMoneyScene('payModalMoney');
     document.getElementById('paymentModal').classList.remove('show');
     document.body.style.overflow = '';
   }
@@ -3086,6 +3057,9 @@
     moneyTimers[id] = [];
   }
 
+  // Poza sa otvorenim dlanom: širina slike, centar glave i tačka na dlanu (udeo širine/visine)
+  const PALM_POSE = {"w": 299, "h": 640, "headX": 0.5209, "palmX": 0.1008, "palmY": 0.3393, "palmL": 0.0, "palmR": 0.2241};
+
   function playMoneyScene(id, amount) {
     stopMoneyScene(id);
     const root = document.getElementById(id);
@@ -3094,134 +3068,117 @@
     const later = (fn, ms) => moneyTimers[id].push(setTimeout(fn, ms));
     const fmt = n => Number(n).toLocaleString('sr');
 
-    const W = root.clientWidth, SH = root.clientHeight;
-    const add = (tag, cls, css) => {
-      const el = document.createElement(tag);
-      el.className = cls;
-      Object.assign(el.style, css || {});
-      root.appendChild(el);
-      return el;
-    };
-    add('div', 'ms-floor');
-
-    // majstor sa pesnicom, desno
-    const m = MAJSTOR.fist;
-    const charH = SH * 0.94;
-    const charW = charH * m.w / m.h;
-    const charLeft = W - charW - W * 0.01;
-    const headX = charLeft + m.headX * charW;
-    const grip = { x: charLeft + m.gripX * charW, y: SH - charH * (1 - m.gripY) };
-
-    // gomilice novčanica: levo od majstora, najviše 3 u redu (zadnji red malo više)
-    const groups = splitIntoNotes(amount);
-    const area = Math.max(140, grip.x - 26);
-    const perRow = Math.min(3, groups.length || 1);
-    const nw = Math.min(100, (area - (perRow - 1) * 8) / perRow);
-    const nh = nw * 0.475;
-    const twoRows = groups.length > 3;
-    groups.forEach((g, k) => {
-      const back = twoRows && k < 3;                           // prva tri apoena u zadnji red
-      const rowItems = !twoRows ? groups.length : (back ? 3 : groups.length - 3);
-      const col = twoRows && !back ? k - 3 : k;
-      const rowW = rowItems * nw + (rowItems - 1) * 8;
-      g.x = (area - rowW) / 2 + col * (nw + 8);
-      g.bottom = 4 + (back ? nh * 0.72 : 0);
-      g.z = back ? 10 : 30;
-      g.tilt = [-5, 3, -2, 4, -4, 2][k % 6];
-      g.placed = 0;
-    });
-
-    const char = add('img', 'ms-char', { left: charLeft + 'px', height: charH + 'px', width: charW + 'px', zIndex: 40 });
-    char.src = 'majstor-fist.webp';
-    char.alt = '';
-    const handNote = add('img', 'ms-note ms-hand-note', {
-      width: nw * 0.7 + 'px', height: nh * 0.7 + 'px',
-      left: (grip.x - nw * 0.7 * 0.88) + 'px', top: (grip.y - nh * 0.35) + 'px',
-      transform: 'rotate(-28deg)', opacity: 0, zIndex: 45
-    });
-    handNote.alt = '';
-    const glove = add('img', 'ms-glove', { left: charLeft + 'px', height: charH + 'px', width: charW + 'px', zIndex: 50 });
-    glove.src = 'majstor-fist.webp';
-    glove.alt = '';
-
-    // oblačić sa brojanjem, levo od glave
-    const bubble = add('div', 'ms-bubble', {
-      right: (W - headX + charH * 0.13) + 'px',
-      top: Math.max(0, SH - charH + charH * 0.02) + 'px'
-    });
-    bubble.innerHTML = '<span class="ms-count">Da izbrojim…</span><svg class="bubble-tail" viewBox="0 0 20 18"><rect x="-3" y="2" width="5" height="12" fill="#fffaf0"/><path d="M1 1.5 Q 10 7 19 11 Q 9 12.5 1 14.5" fill="#fffaf0" stroke="#6b4520" stroke-width="2" stroke-linejoin="round"/></svg>';
-    const countEl = bubble.querySelector('.ms-count');
-
-    // redosled brojanja: novčanica po novčanica
-    const notes = [];
-    groups.forEach(g => { for (let i = 0; i < g.count; i++) notes.push(g); });
-    const step = notes.length <= 8 ? 640 : Math.max(200, 5200 / notes.length);
-    let counted = 0;
-
-    function placeNote(g, animate) {
-      const i = g.placed++;
-      const depth = Math.min(i, 7);                            // visina gomilice ima granicu
-      const x = g.x + depth * 1.6, b = g.bottom + depth * 2.6;
-      const top = SH - b - nh;
-      const note = add('img', 'ms-note', {
-        left: x + 'px', top: top + 'px', width: nw + 'px', height: nh + 'px',
-        zIndex: g.z + depth, transform: `rotate(${g.tilt + (i % 2 ? 1.5 : -1)}deg)`
-      });
-      note.src = `novcanica-${g.value}.jpg`;
-      note.alt = '';
-      if (animate) {
-        const fx = (grip.x - nw * 0.6) - x, fy = (grip.y - nh * 0.5) - top;
-        note.animate([
-          { transform: `translate(${fx}px, ${fy}px) rotate(-28deg) scale(0.7)` },
-          { transform: `translate(${fx * 0.5}px, ${fy * 0.5 - 34}px) rotate(${g.tilt - 160}deg) scale(0.85)`, offset: 0.5 },
-          { transform: `translate(0, -4px) rotate(${g.tilt - 350}deg) scale(1)`, offset: 0.88 },
-          { transform: `rotate(${g.tilt + (i % 2 ? 1.5 : -1)}deg)` }
-        ], { duration: 460, easing: 'cubic-bezier(0.3, 0.6, 0.4, 1)' });
-      }
-      if (g.placed > 1) {
-        if (!g.badge) {
-          g.badge = add('div', 'ms-badge', { left: (g.x + nw - 14) + 'px', top: (top - 8) + 'px' });
-        }
-        g.badge.style.top = (top - 8) + 'px';
-        g.badge.textContent = '×' + g.placed;
-        g.badge.classList.add('show');
+    const H = parseFloat(getComputedStyle(root).getPropertyValue('--fig-h')) || root.clientHeight;
+    const P = PALM_POSE;
+    // na telefonu kartica sa uplatom prelazi preko njega: okvir se završi na vrhu kartice,
+    // pa izgleda kao da stoji iza nje i vidi se do pola
+    root.style.height = '';
+    if (window.innerWidth <= 700) {
+      const card = root.parentElement.querySelector('.payment-card');
+      if (card) {
+        const cut = card.getBoundingClientRect().top - root.getBoundingClientRect().top + 2;
+        if (cut > 80 && cut < H) root.style.height = cut + 'px';
       }
     }
+    const W = H * P.w / P.h;
 
-    function finish() {
-      handNote.style.opacity = 0;
-      countEl.textContent = `Tačno ${fmt(amount)} din!`;
-      bubble.classList.add('done');
+    // figura: centar tela tačno na ivici ekrana, nagnuta ka sadržaju
+    const fig = document.createElement('div');
+    fig.className = 'mp-figure';
+    fig.style.width = W + 'px';
+    fig.style.height = H + 'px';
+    fig.style.left = (root.clientWidth - P.headX * W + H * 0.02) + 'px';
+    root.appendChild(fig);
+
+    const char = document.createElement('img');
+    char.className = 'mp-char';
+    char.src = 'majstor-palm.webp';
+    char.alt = '';
+    fig.appendChild(char);
+
+    const LEAN = -12;
+    fig.animate([
+      { transform: `translateX(${W * 0.55}px) rotate(0deg)` },
+      { transform: `translateX(0) rotate(${LEAN - 2}deg)`, offset: 0.8 },
+      { transform: `rotate(${LEAN}deg)` }
+    ], { duration: reduceMotion ? 0 : 700, easing: 'cubic-bezier(0.3, 0.7, 0.4, 1)', fill: 'both' });
+
+    // novčanice u dlanu: od najveće ka najmanjoj, svaka malo pomerena u stranu
+    const nw = H * 0.26, nh = nw * 0.475;
+    const palmX = P.palmX * W, palmY = P.palmY * H;
+    const notes = [];
+    splitIntoNotes(amount).forEach(g => { for (let i = 0; i < g.count; i++) notes.push(g.value); });
+
+    const count = document.createElement('div');
+    count.className = 'mp-count';
+    count.style.right = (W - palmX + nw * 0.15) + 'px';
+    count.style.top = (palmY + H * 0.035) + 'px';          // ispod novčanica, da ne smeta naslovu
+    fig.appendChild(count);
+
+    function placeNote(value, i, animate) {
+      const k = Math.min(i, 9);                                // posle 10 komada se slažu u mestu
+      const note = document.createElement('img');
+      note.className = 'mp-note';
+      note.src = `novcanica-${value}.jpg`;
+      note.alt = '';
+      const rot = -8 + (i % 2 ? 2.5 : -1.5);
+      Object.assign(note.style, {
+        width: nw + 'px',
+        height: nh + 'px',
+        left: (palmX - nw * 0.62 - k * 4.5) + 'px',
+        top: (palmY - nh * 0.8 - k * 3) + 'px',
+        transform: `rotate(${rot}deg)`,
+        zIndex: 10 + i
+      });
+      fig.appendChild(note);
+      if (animate) {
+        note.animate([
+          { transform: `translateY(${-H * 0.38}px) rotate(${rot - 22}deg)`, opacity: 0 },
+          { opacity: 1, offset: 0.3 },
+          { transform: `translateY(${H * 0.012}px) rotate(${rot + 3}deg)`, offset: 0.82 },
+          { transform: `rotate(${rot}deg)` }
+        ], { duration: 460, easing: 'cubic-bezier(0.35, 0.1, 0.45, 1)' });
+      }
     }
 
     if (reduceMotion || !notes.length) {
-      notes.forEach(g => placeNote(g, false));
-      finish();
+      notes.forEach((v, i) => placeNote(v, i, false));
+      count.textContent = `✓ ${fmt(amount)} din`;
+      count.classList.add('done');
       return;
     }
 
-    notes.forEach((g, j) => {
-      const t0 = 500 + j * step;
-      later(() => {                                           // novčanica se pojavi u šaci
-        handNote.src = `novcanica-${g.value}.jpg`;
-        handNote.style.opacity = 1;
-      }, t0);
-      later(() => {                                           // baci je na gomilicu
-        handNote.style.opacity = 0;
-        [char, glove].forEach(el => el.animate([
-          { transform: 'translateY(0)' },
-          { transform: 'translateY(-3px) rotate(-1deg)' },
-          { transform: 'translateY(0)' }
-        ], { duration: 260, easing: 'ease-out' }));
-        placeNote(g, true);
-      }, t0 + Math.min(160, step * 0.3));
-      later(() => {                                           // i doda na zbir
-        counted += g.value;
-        countEl.textContent = `${fmt(counted)}…`;
-        if (j === notes.length - 1) later(finish, 450);
-      }, t0 + Math.min(160, step * 0.3) + 420);
+    const step = notes.length <= 8 ? 560 : Math.max(180, 4800 / notes.length);
+    let sum = 0;
+    notes.forEach((value, i) => {
+      const t = 800 + i * step;
+      later(() => placeNote(value, i, true), t);
+      later(() => {
+        sum += value;
+        count.textContent = i === notes.length - 1 ? `✓ ${fmt(sum)} din` : `${fmt(sum)}…`;
+        if (i === notes.length - 1) count.classList.add('done');
+      }, t + 380);
     });
   }
+
+  // Vokativ imena (srpski pravopis), za obraćanje kupcu
+function vocative(rawName) {
+  let n = String(rawName || '').trim().split(/\s+/)[0] || '';
+  if (!n) return '';
+  n = n.charAt(0).toUpperCase() + n.slice(1);
+  const low = n.toLowerCase();
+  if (/[aeiou]$/.test(low)) {
+    if (/ica$/.test(low)) return n.slice(0, -1) + 'e';          // Milica → Milice, Ivica → Ivice
+    return n;                                                    // Marko, Ana, Nikola, Đorđe, Jelena
+  }
+  if (/[td]ar$/.test(low) && low.length > 4) return n.slice(0, -2) + 're'; // Petar → Petre, Aleksandar → Aleksandre
+  if (/(j|č|ć|đ|š|ž)$/.test(low)) return n + 'u';               // Miloš → Milošu, Andrej → Andreju (i lj, nj, dž)
+  if (/k$/.test(low)) return n.slice(0, -1) + 'če';             // Vuk → Vuče
+  if (/g$/.test(low)) return n.slice(0, -1) + 'že';             // Miodrag → Miodraže
+  if (/h$/.test(low)) return n.slice(0, -1) + 'še';
+  if (/c$/.test(low)) return n.slice(0, -1) + 'če';
+  return n + 'e';                                                // Goran → Gorane, Milan → Milane
+}
 
   // Init
   loadData();
