@@ -1230,20 +1230,20 @@
   }
 
   /* ============================
-     PLIVAJUĆA KESA (floating cart)
+     PLIVAJUĆA KESA — puni se lešnicima
      ============================ */
   .floating-bag {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    width: 80px;
-    height: 92px;
+    width: 100px;
+    height: 120px;
     z-index: 150;
     pointer-events: none;
     opacity: 0;
     transform: translateY(20px) scale(0.8);
     transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    filter: drop-shadow(0 8px 20px rgba(107, 69, 32, 0.25));
+    filter: drop-shadow(0 8px 18px rgba(107, 69, 32, 0.28));
   }
 
   .floating-bag.show {
@@ -1251,51 +1251,79 @@
     transform: translateY(0) scale(1);
   }
 
-  .floating-bag.pulse {
-    animation: bagPulse 0.5s ease-out;
-  }
+  .floating-bag.pulse { animation: bagPulse 0.5s ease-out; }
 
   @keyframes bagPulse {
     0% { transform: translateY(0) scale(1); }
-    30% { transform: translateY(-4px) scale(1.08); }
+    30% { transform: translateY(-4px) scale(1.06); }
     100% { transform: translateY(0) scale(1); }
   }
 
-  .floating-bag svg {
+  /* Tri sloja: zadnja strana kese, lešnici, prednja mreža */
+  .bag-layer {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     overflow: visible;
   }
 
-  .bag-count {
+  .bag-nuts {
     position: absolute;
-    top: 44%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Fraunces', serif;
-    font-size: 18px;
-    font-weight: 600;
-    color: #4a2f16;
-    text-align: center;
-    line-height: 1;
-    pointer-events: none;
+    inset: 0;
   }
 
-  .bag-count .num {
-    display: block;
-    font-size: 22px;
+  .bag-nut {
+    position: absolute;
+    width: 23%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    transform: rotate(var(--rot, 0deg));
+    transition: left 0.35s ease, top 0.35s ease;
+    filter: drop-shadow(0 1px 1px rgba(74, 47, 22, 0.35));
+  }
+
+  /* Lešnik upada u kesu i blago odskoči kad legne */
+  .bag-nut.drop {
+    animation: nutDrop 0.55s cubic-bezier(0.3, 0.7, 0.4, 1.25) 0.3s both;
+  }
+
+  @keyframes nutDrop {
+    0%   { opacity: 0; transform: translateY(-260%) rotate(calc(var(--rot, 0deg) - 120deg)); }
+    25%  { opacity: 1; }
+    80%  { transform: translateY(6%) rotate(var(--rot, 0deg)); }
+    100% { opacity: 1; transform: translateY(0) rotate(var(--rot, 0deg)); }
+  }
+
+  /* Lešnik iskače iz kese kad se oduzme */
+  .bag-nut.pop { animation: nutPop 0.4s ease-in forwards; }
+
+  @keyframes nutPop {
+    to { opacity: 0; transform: translateY(-220%) rotate(calc(var(--rot, 0deg) + 140deg)) scale(0.8); }
+  }
+
+  .bag-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Fraunces', serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 5px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+    box-shadow: 0 3px 8px rgba(42, 31, 21, 0.3);
+  }
+
+  .bag-badge strong {
+    font-size: 15px;
     font-weight: 700;
   }
 
-  .bag-count .unit {
-    display: block;
-    font-size: 10px;
-    font-family: 'Caveat', cursive;
-    color: #6b4520;
-    margin-top: 2px;
-  }
-
-  /* Animirani lešnik koji pada u kesu */
+  /* Lešnik koji leti od proizvoda do kese */
   .flying-nut {
     position: fixed;
     width: 40px;
@@ -1305,35 +1333,19 @@
     opacity: 0;
   }
 
-  .flying-nut.animate-in {
-    animation: flyToBag 0.7s cubic-bezier(0.4, 0, 0.6, 1) forwards;
-  }
-
-  .flying-nut.animate-out {
-    animation: flyFromBag 0.5s ease-out forwards;
-  }
-
-  @keyframes flyToBag {
-    0% { opacity: 1; transform: scale(1) rotate(0deg); }
-    70% { opacity: 1; transform: scale(0.6) rotate(180deg); }
-    100% { opacity: 0; transform: scale(0.3) rotate(360deg); }
-  }
-
-  @keyframes flyFromBag {
-    0% { opacity: 0; transform: scale(0.3) rotate(0deg); }
-    30% { opacity: 1; }
-    100% { opacity: 0; transform: scale(1) rotate(-180deg) translateY(-80px); }
-  }
-
   @media (max-width: 700px) {
     .floating-bag {
       bottom: 16px;
       right: 16px;
-      width: 68px;
-      height: 78px;
+      width: 84px;
+      height: 100px;
     }
-    .bag-count .num { font-size: 18px; }
-    .bag-count .unit { font-size: 9px; }
+    .bag-badge { font-size: 11px; padding: 4px 8px; }
+    .bag-badge strong { font-size: 13px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bag-nut.drop, .bag-nut.pop { animation: none; }
   }
 
 
@@ -1566,36 +1578,38 @@
   </div>
 </div>
 
-<!-- Plivajuća kesa (prikazuje količinu u korpi) -->
+<!-- Plivajuća kesa: za svaki poručeni kg u njoj se pojavi po jedan lešnik -->
 <div class="floating-bag" id="floatingBag" aria-live="polite" aria-label="Količina u korpi">
-  <svg viewBox="0 0 80 92" xmlns="http://www.w3.org/2000/svg">
-    <!-- Drške kese -->
-    <path d="M 24 20 Q 24 8 32 6 Q 40 5 40 18"
-          fill="none" stroke="#8b6332" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M 40 18 Q 40 5 48 6 Q 56 8 56 20"
-          fill="none" stroke="#8b6332" stroke-width="2.5" stroke-linecap="round"/>
-    
-    <!-- Telo kese (platneno smeđe) -->
-    <path d="M 14 22 L 66 22 L 70 86 Q 70 90 66 90 L 14 90 Q 10 90 10 86 Z"
-          fill="#d4b88a" stroke="#8b6332" stroke-width="1.5" stroke-linejoin="round"/>
-    
-    <!-- Teksture / "nabor" kese -->
-    <path d="M 22 22 L 24 86" stroke="#b89968" stroke-width="0.8" opacity="0.6" fill="none"/>
-    <path d="M 36 22 L 36 86" stroke="#b89968" stroke-width="0.8" opacity="0.5" fill="none"/>
-    <path d="M 50 22 L 50 86" stroke="#b89968" stroke-width="0.8" opacity="0.5" fill="none"/>
-    <path d="M 58 22 L 60 86" stroke="#b89968" stroke-width="0.8" opacity="0.6" fill="none"/>
-    
-    <!-- Gornji rub kese -->
-    <path d="M 14 22 L 66 22" stroke="#8b6332" stroke-width="2" fill="none"/>
-    
-    <!-- "Highlight" senka -->
-    <ellipse cx="22" cy="40" rx="4" ry="18" fill="#e8d4a8" opacity="0.5"/>
+  <!-- Zadnja strana kese -->
+  <svg class="bag-layer" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M 16 30 L 84 30 L 90 108 Q 90 114 84 114 L 16 114 Q 10 114 10 108 Z" fill="#f1e3c4"/>
+    <ellipse cx="50" cy="108" rx="34" ry="6" fill="#d9c196" opacity="0.6"/>
   </svg>
-  
-  <div class="bag-count">
-    <span class="num" id="bagCountNum">0</span>
-    <span class="unit">kg</span>
-  </div>
+
+  <!-- Lešnici (dodaje ih JavaScript) -->
+  <div class="bag-nuts" id="bagNuts"></div>
+
+  <!-- Prednja strana: mreža, ivica, rub i drška -->
+  <svg class="bag-layer" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <clipPath id="bagBodyClip">
+        <path d="M 16 30 L 84 30 L 90 108 Q 90 114 84 114 L 16 114 Q 10 114 10 108 Z"/>
+      </clipPath>
+      <pattern id="bagMesh" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <path d="M 0 0 L 0 7 M 0 0 L 7 0" stroke="#8b6332" stroke-width="0.8" opacity="0.55"/>
+      </pattern>
+    </defs>
+    <rect x="0" y="28" width="100" height="92" fill="url(#bagMesh)" clip-path="url(#bagBodyClip)"/>
+    <path d="M 16 30 L 84 30 L 90 108 Q 90 114 84 114 L 16 114 Q 10 114 10 108 Z"
+          fill="none" stroke="#8b6332" stroke-width="1.6" stroke-linejoin="round"/>
+    <!-- Drška od kanapa -->
+    <path d="M 32 28 Q 30 4 50 4 Q 70 4 68 28" fill="none" stroke="#8b6332" stroke-width="2.6" stroke-linecap="round"/>
+    <!-- Platneni rub -->
+    <rect x="13" y="25" width="74" height="9" rx="2" fill="#c8a678" stroke="#8b6332" stroke-width="1.2"/>
+    <path d="M 17 29.5 L 83 29.5" stroke="#8b6332" stroke-width="0.6" stroke-dasharray="2 2" opacity="0.7"/>
+  </svg>
+
+  <div class="bag-badge"><strong id="bagCountNum">0</strong> kg</div>
 </div>
 
 <div class="toast" id="toast">
@@ -1650,6 +1664,7 @@
         products.forEach(p => { cart[p.id] = 0; });
         
         renderProducts();
+        updateBag(false);
         renderOrders();
       } else {
         showError('Greška pri učitavanju: ' + (data.error || 'nepoznato'));
@@ -1736,83 +1751,123 @@
     return Object.values(cart).reduce((sum, qty) => sum + (Number(qty) || 0), 0);
   }
 
-  // Ažuriraj prikaz kese (broj + vidljivost)
-  function updateBag() {
+  // ---------- Kesa koja se puni ----------
+  // Mesta za lešnike u kesi (koordinate u crtežu kese 100x120),
+  // redom od dna nagore; poslednja tri su gomilica preko ruba
+  const BAG_SLOTS = (() => {
+    const slots = [];
+    [100, 86, 72, 58, 44].forEach((y, row) => {
+      const xs = row % 2 === 0 ? [27, 50, 73] : [38.5, 61.5];
+      xs.forEach(x => slots.push([x, y]));
+    });
+    slots.push([40, 31], [60, 31], [50, 19]);
+    return slots;
+  })();
+
+  let bagNuts = []; // [{ pid, el }] redom kojim su dodati
+
+  function nutImageFor(productId) {
+    return productId === 'sirovi' ? 'product-sirovi.png' : 'product-peceni.png';
+  }
+
+  function layoutBagNuts() {
+    bagNuts.forEach((nut, i) => {
+      const slot = BAG_SLOTS[i];
+      if (!slot) { nut.el.style.display = 'none'; return; } // kesa je puna, broj u bedžu i dalje raste
+      nut.el.style.display = '';
+      nut.el.style.left = (slot[0] - 11.5) + '%';           // 11.5 = pola širine lešnika
+      nut.el.style.top = ((slot[1] - 11.5) / 120 * 100) + '%';
+      nut.el.style.zIndex = i + 1;
+    });
+  }
+
+  // Uskladi lešnike u kesi sa korpom: po jedan lešnik za svaki kg
+  function syncBagNuts(animate) {
+    const layer = document.getElementById('bagNuts');
+
+    // Višak: ukloni poslednje dodate lešnike tog proizvoda
+    products.forEach(p => {
+      const want = Number(cart[p.id]) || 0;
+      let have = bagNuts.filter(n => n.pid === p.id).length;
+      while (have > want) {
+        let idx = -1;
+        for (let i = bagNuts.length - 1; i >= 0; i--) {
+          if (bagNuts[i].pid === p.id) { idx = i; break; }
+        }
+        const [gone] = bagNuts.splice(idx, 1);
+        if (animate) {
+          gone.el.classList.remove('drop');
+          gone.el.classList.add('pop');
+          setTimeout(() => gone.el.remove(), 400);
+        } else {
+          gone.el.remove();
+        }
+        have--;
+      }
+    });
+
+    // Manjak: dodaj nove lešnike na vrh gomile
+    products.forEach(p => {
+      const want = Number(cart[p.id]) || 0;
+      let have = bagNuts.filter(n => n.pid === p.id).length;
+      while (have < want) {
+        const el = document.createElement('img');
+        el.src = nutImageFor(p.id);
+        el.alt = '';
+        el.className = 'bag-nut' + (animate ? ' drop' : '');
+        el.style.setProperty('--rot', (((bagNuts.length * 47) % 60) - 30) + 'deg');
+        layer.appendChild(el);
+        bagNuts.push({ pid: p.id, el });
+        have++;
+      }
+    });
+
+    layoutBagNuts();
+  }
+
+  // Ažuriraj prikaz kese (broj, vidljivost i lešnike unutra)
+  function updateBag(animate = true) {
     const bag = document.getElementById('floatingBag');
     const total = totalKg();
     document.getElementById('bagCountNum').textContent = total;
-    
-    if (total > 0) {
-      bag.classList.add('show');
-    } else {
-      bag.classList.remove('show');
-    }
+    bag.classList.toggle('show', total > 0);
+    syncBagNuts(animate);
   }
 
-  // Animacija lešnika koji "leti" u/iz kese
+  // Lešnik leti od proizvoda do otvora kese (vraćanje rešava "pop" u kesi)
   function animateBag(productId, delta) {
-    // Pulse na samoj kesi
     const bag = document.getElementById('floatingBag');
     bag.classList.remove('pulse');
-    void bag.offsetWidth; // trigger reflow da restarta animaciju
+    void bag.offsetWidth; // restart animacije
     bag.classList.add('pulse');
-    
-    // Pronađi poziciju proizvoda i kese
+
+    if (delta <= 0) return;
+
     const productIcon = document.querySelector(`#qty-${productId}`)?.closest('.product')?.querySelector('.product-icon');
     if (!productIcon) return;
-    
+
     const productRect = productIcon.getBoundingClientRect();
     const bagRect = bag.getBoundingClientRect();
-    
-    // Kreiraj flying nut element
+
+    const startX = productRect.left + productRect.width / 2 - 20;
+    const startY = productRect.top + productRect.height / 2 - 20;
+    const endX = bagRect.left + bagRect.width / 2 - 20;
+    const endY = bagRect.top + bagRect.height * 0.2 - 20;
+
     const flyNut = document.createElement('img');
-    flyNut.src = productId === 'sirovi' ? 'product-sirovi.png' : 'product-peceni.png';
+    flyNut.src = nutImageFor(productId);
     flyNut.className = 'flying-nut';
     flyNut.alt = '';
-    
-    const isAdding = delta > 0;
-    
-    if (isAdding) {
-      // Krene od proizvoda, završi u kesi
-      flyNut.style.left = (productRect.left + productRect.width / 2 - 20) + 'px';
-      flyNut.style.top = (productRect.top + productRect.height / 2 - 20) + 'px';
-      
-      // Postavi CSS varijable za end poziciju (centar kese)
-      const endX = bagRect.left + bagRect.width / 2 - 20;
-      const endY = bagRect.top + bagRect.height / 2 - 20;
-      const deltaX = endX - (productRect.left + productRect.width / 2 - 20);
-      const deltaY = endY - (productRect.top + productRect.height / 2 - 20);
-      
-      flyNut.style.setProperty('--dx', deltaX + 'px');
-      flyNut.style.setProperty('--dy', deltaY + 'px');
-      
-      document.body.appendChild(flyNut);
-      
-      // Pokreni animaciju - lešnik ide do kese
-      requestAnimationFrame(() => {
-        flyNut.style.transition = 'transform 0.6s cubic-bezier(0.5, -0.3, 0.7, 0.5), opacity 0.6s ease-in';
-        flyNut.style.opacity = '1';
-        flyNut.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.3) rotate(360deg)`;
-      });
-      
-      setTimeout(() => flyNut.remove(), 700);
-    } else {
-      // Lešnik "izleće" iz kese nagore
-      flyNut.style.left = (bagRect.left + bagRect.width / 2 - 20) + 'px';
-      flyNut.style.top = (bagRect.top + bagRect.height / 2 - 20) + 'px';
+    flyNut.style.left = startX + 'px';
+    flyNut.style.top = startY + 'px';
+    document.body.appendChild(flyNut);
+
+    requestAnimationFrame(() => {
+      flyNut.style.transition = 'transform 0.45s cubic-bezier(0.5, -0.3, 0.7, 0.5), opacity 0.45s ease-in';
       flyNut.style.opacity = '1';
-      flyNut.style.transform = 'scale(0.3)';
-      
-      document.body.appendChild(flyNut);
-      
-      requestAnimationFrame(() => {
-        flyNut.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
-        flyNut.style.transform = 'translateY(-80px) scale(1) rotate(-180deg)';
-        flyNut.style.opacity = '0';
-      });
-      
-      setTimeout(() => flyNut.remove(), 500);
-    }
+      flyNut.style.transform = `translate(${endX - startX}px, ${endY - startY}px) scale(0.45) rotate(300deg)`;
+    });
+    setTimeout(() => flyNut.remove(), 480);
   }
 
   function updateSummary() {
