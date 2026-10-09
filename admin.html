@@ -1673,6 +1673,13 @@
   .bubble-delete:hover { color: var(--red); }
   @media (hover: none) { .bubble-delete { opacity: 0.6; } }
 
+  .bubble.action .bubble-title { font-weight: 600; }
+  .bubble.action .bubble-sub {
+    font-size: 12px;
+    color: rgba(31, 42, 32, 0.65);
+    margin-top: 1px;
+  }
+
   .chat-system {
     align-self: center;
     font-size: 11px;
@@ -2396,6 +2403,9 @@
     document.getElementById('addCommentBtn').disabled = true;
     
     document.getElementById('commentsModal').classList.add('show');
+    // skroluj na poslednju poruku tek kad je prozor vidljiv
+    const list = document.getElementById('commentsList');
+    requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
     
     // Focus na textarea
     setTimeout(() => document.getElementById('commentInput').focus(), 100);
@@ -2430,8 +2440,16 @@
     
     container.innerHTML = sorted.map(c => {
       if (isSystem(c)) {
-        const label = String(c.text).replace(/^📧\s*Poslat mejl:\s*/, '').replace(/^📧\s*/, '');
-        return `<div class="chat-system">Poslat mejl „${escapeHtml(label.charAt(0).toUpperCase() + label.slice(1))}" · ${escapeHtml(shortDate(c))} ${del(c)}</div>`;
+        // tvoja akcija (poslat mejl) prikazana kao tvoja poruka: desno, zeleno
+        const isArrived = /stigli su le/i.test(String(c.text));
+        const title = isArrived ? 'Stigli su lešnici! 🌰' : String(c.text).replace(/^📧\s*/, '');
+        const sub = isArrived ? 'Javio sam mejlom da mogu da preuzmu' : 'Poslato mejlom';
+        return `
+        <div class="bubble mine action">
+          <div class="bubble-title">${escapeHtml(title)}</div>
+          <div class="bubble-sub">${sub}</div>
+          <div class="bubble-meta">${del(c)}<span>${escapeHtml(shortDate(c))}</span></div>
+        </div>`;
       }
       const theirs = isReply(c);
       const text = theirs ? replyText(c) : String(c.text);
