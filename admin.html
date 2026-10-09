@@ -1594,6 +1594,96 @@
     max-width: 260px;
   }
   .col-name .reply-small em { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 400; color: var(--ink-3); font-style: normal; }
+
+  /* ============================
+     PREGLEDNIJA TABELA + PREPISKA KAO NA VIBERU
+     ============================ */
+  .col-name .contact-small {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--ink-3);
+    margin-top: 2px;
+    word-break: break-all;
+  }
+
+  /* dugme za poruke: braon samo kad ima nepročitanih odgovora, inače providno */
+  .comment-btn.has-comments {
+    background: transparent;
+    color: var(--accent);
+    border-color: var(--husk);
+  }
+  .comment-btn.has-comments:hover { background: var(--cream-2); color: var(--accent); }
+  .comment-btn.unread,
+  .comment-btn.unread:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .comments-list {
+    background: #f4efe4;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bubble {
+    max-width: 78%;
+    padding: 8px 12px 6px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.38;
+    color: #1f2a20;
+    box-shadow: 0 1px 1px rgba(42, 31, 21, 0.08);
+    word-wrap: break-word;
+  }
+  .bubble.mine {                          /* tvoje beleške: desno, zeleno */
+    align-self: flex-end;
+    background: #d9f2c9;
+    border-bottom-right-radius: 4px;
+  }
+  .bubble.theirs {                        /* odgovori kupca: levo, plavo */
+    align-self: flex-start;
+    background: #dbeafe;
+    color: #172554;
+    border-bottom-left-radius: 4px;
+  }
+  .bubble-meta {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    font-size: 10.5px;
+    color: rgba(31, 42, 32, 0.55);
+    margin-top: 2px;
+  }
+  .bubble-delete {
+    border: none;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .bubble:hover .bubble-delete,
+  .chat-system:hover .bubble-delete { opacity: 1; }
+  .bubble-delete:hover { color: var(--red); }
+  @media (hover: none) { .bubble-delete { opacity: 0.6; } }
+
+  .chat-system {
+    align-self: center;
+    font-size: 11px;
+    color: var(--ink-3);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--husk);
+    border-radius: 999px;
+    padding: 3px 12px;
+    text-align: center;
+  }
+  .chat-system .bubble-delete { margin-left: 6px; }
 </style>
 </head>
 <body>
@@ -1829,17 +1919,17 @@
   <div class="modal comments-modal">
     <div class="comments-header">
       <div>
-        <h3>Komentari <em id="commentsCount"></em></h3>
+        <h3>Prepiska <em id="commentsCount"></em></h3>
         <div class="comments-subject" id="commentsSubject"></div>
       </div>
       <button class="close-modal-btn" onclick="closeCommentsModal()">×</button>
     </div>
     <div class="comments-list" id="commentsList"></div>
     <div class="comments-input-area">
-      <textarea id="commentInput" placeholder="Dodaj komentar... (npr. javljeno preko telefona, poseban zahtev, itd.)" maxlength="500" oninput="updateCharCount()"></textarea>
+      <textarea id="commentInput" placeholder="Tvoja beleška... (npr. javio se telefonom, preuzima u ponedeljak)" maxlength="500" oninput="updateCharCount()"></textarea>
       <div class="comments-input-actions">
         <span class="char-count"><span id="charCount">0</span>/500</span>
-        <button class="add-comment-btn" id="addCommentBtn" onclick="addComment()" disabled>Dodaj komentar</button>
+        <button class="add-comment-btn" id="addCommentBtn" onclick="addComment()" disabled>Dodaj</button>
       </div>
     </div>
   </div>
@@ -2099,7 +2189,8 @@
       const commentCount = (o.comments && o.comments.length) || 0;
       const hasComments = commentCount > 0;
       const commentBadge = hasComments ? `<span class="comment-badge">${commentCount}</span>` : '';
-      const commentBtn = `<button class="comment-btn ${hasComments ? 'has-comments' : ''}" onclick="event.stopPropagation(); openComments(${o.id})" title="${hasComments ? 'Pogledaj komentare' : 'Dodaj komentar'}">${commentIcon}${commentBadge}</button>`;
+      const unread = hasUnread(o);
+      const commentBtn = `<button class="comment-btn ${hasComments ? 'has-comments' : ''} ${unread ? 'unread' : ''}" onclick="event.stopPropagation(); openComments(${o.id})" title="${unread ? 'Nova poruka od kupca' : (hasComments ? 'Prepiska' : 'Dodaj komentar')}">${commentIcon}${commentBadge}</button>`;
 
       if (isMobile) {
         return `
@@ -2288,6 +2379,8 @@
     if (!order) return;
     
     commentsOpenOrderId = orderId;
+    markSeen(order);
+    renderOrdersTable();
     
     // Setuj header
     const count = (order.comments || []).length;
@@ -2313,26 +2406,42 @@
     commentsOpenOrderId = null;
   }
 
+  // "09.10.2026 10:39" → broj za redosled
+  function commentTime(c) {
+    const m = String(c.date || '').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})\s+(\d{1,2}):(\d{2})/);
+    return m ? new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5]).getTime() : Number(c.id) || 0;
+  }
+  function shortDate(c) {
+    const m = String(c.date || '').match(/(\d{1,2})\.(\d{1,2})\.\d{4}\s+(\d{1,2}:\d{2})/);
+    return m ? `${m[1]}.${m[2]}. ${m[3]}` : String(c.date || '');
+  }
+
   function renderCommentsList(comments) {
     const container = document.getElementById('commentsList');
     
     if (!comments || comments.length === 0) {
-      container.innerHTML = '<div class="comments-empty">~ još nema komentara ~</div>';
+      container.innerHTML = '<div class="comments-empty">~ još nema poruka ~</div>';
       return;
     }
     
-    // Sortiraj: najnoviji na vrhu
-    const sorted = [...comments].sort((a, b) => Number(b.id) - Number(a.id));
+    // kao u četu: najstarije gore, najnovije dole
+    const sorted = [...comments].sort((a, b) => commentTime(a) - commentTime(b) || Number(a.id) - Number(b.id));
+    const del = c => `<button class="bubble-delete" onclick="deleteComment(${c.id})" title="Obriši">obriši</button>`;
     
-    container.innerHTML = sorted.map(c => `
-      <div class="comment-item">
-        <div class="comment-meta">
-          <span>${c.date}</span>
-          <button class="comment-delete" onclick="deleteComment(${c.id})">obriši</button>
-        </div>
-        <div class="comment-text">${escapeHtml(c.text)}</div>
-      </div>
-    `).join('');
+    container.innerHTML = sorted.map(c => {
+      if (isSystem(c)) {
+        const label = String(c.text).replace(/^📧\s*Poslat mejl:\s*/, '').replace(/^📧\s*/, '');
+        return `<div class="chat-system">Poslat mejl „${escapeHtml(label.charAt(0).toUpperCase() + label.slice(1))}" · ${escapeHtml(shortDate(c))} ${del(c)}</div>`;
+      }
+      const theirs = isReply(c);
+      const text = theirs ? replyText(c) : String(c.text);
+      return `
+        <div class="bubble ${theirs ? 'theirs' : 'mine'}">
+          <div class="bubble-text">${escapeHtml(text)}</div>
+          <div class="bubble-meta">${del(c)}<span>${escapeHtml(shortDate(c))}</span></div>
+        </div>`;
+    }).join('');
+    container.scrollTop = container.scrollHeight;            // otvori na poslednjoj poruci
   }
 
   function escapeHtml(text) {
@@ -2788,20 +2897,41 @@
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  // poslednji odgovor kupca na mejl (upisuje ga Apps Script kao komentar "✉️ Odgovor: ...")
-  function replyLine(o) {
-    const replies = (o.comments || []).filter(c => String(c.text).startsWith('✉️ Odgovor:'));
-    if (!replies.length) return '';
-    const last = replies[replies.length - 1];
-    const text = String(last.text).replace(/^✉️ Odgovor:\s*/, '');
-    const short = text.length > 90 ? text.slice(0, 88) + '…' : text;
-    const day = String(last.date || '').slice(0, 6);
-    return `<span class="reply-small" title="${escapeHtml(text)}">💬 „${escapeHtml(short)}"${day ? ` <em>· ${escapeHtml(day)}</em>` : ''}</span>`;
+  // vrste komentara: odgovor kupca (stiže iz Gmail-a), sistemska oznaka (poslat mejl) ili tvoj komentar
+  const REPLY_PREFIX = '✉️ Odgovor:';
+  const isReply = c => String(c.text).startsWith(REPLY_PREFIX);
+  const isSystem = c => String(c.text).startsWith('📧');
+  const replyText = c => cleanReplyText(String(c.text).slice(REPLY_PREFIX.length));
+  function replyLine() { return ''; }      // odgovori se čitaju u prepisci (dugme za poruke)
+
+// Iz odgovora izbaci zaglavlje citiranog mejla (latinica, ćirilica, engleski; i kad je u dva reda)
+function cleanReplyText(t) {
+  let s = String(t || '').replace(/\s+/g, ' ');
+  s = s.replace(/\s*\bOn\s[\s\S]*?wrote:[\s\S]*$/i, '');                                   // On Thu, Oct 9, 2026 … wrote:
+  s = s.replace(/\s*(\S+,\s*)?\d{1,2}\.?\s*\S+\.?,?\s*\d{4}\.?[\s\S]*?(wrote|napisao|napisala|написао|написала|schrieb)[^:]*:[\s\S]*$/i, ''); // pet, 9. okt 2026. u 10:34 … je napisao/la:
+  s = s.replace(/\s*(Poslato (sa|iz)|Послато (са|из)|Sent from)\b[\s\S]*$/i, '');          // Poslato sa mog iPhone-a
+  return s.trim();
+}
+
+  // ---------- pročitano / nepročitano (pamti se na ovom uređaju) ----------
+  const SEEN_KEY = 'lesnici_procitani_odgovori';
+  function seenMap() {
+    try { return JSON.parse(localStorage.getItem(SEEN_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function hasUnread(o) {
+    const replies = (o.comments || []).filter(isReply).length;
+    return replies > (seenMap()[o.id] || 0);
+  }
+  function markSeen(o) {
+    const map = seenMap();
+    map[o.id] = (o.comments || []).filter(isReply).length;
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(map)); } catch (e) {}
   }
 
   function announceReplies(list) {
     if (!list || !list.length) return;
     const r = list[0];
+    r.text = cleanReplyText(r.text);
     const who = vocativeless(r.name);
     showToast(list.length === 1 ? `✉️ ${who}: „${r.text.slice(0, 60)}${r.text.length > 60 ? '…' : ''}"`
                                  : `✉️ Novi odgovori kupaca: ${list.length}`);
@@ -2812,10 +2942,10 @@
 
   // kontakt ispod imena u tabeli: mejl, a kod starih porudžbina telefon
   function contactLine(o) {
-    const parts = [];
-    if (o.email) parts.push(`✉️ ${escapeHtml(o.email)}`);
-    if (o.phone) parts.push(`📞 ${escapeHtml(String(o.phone))}`);
-    return parts.length ? `<span class="phone-small">${parts.join(' · ')}</span>` : '';
+    let out = '';
+    if (o.email) out += `<span class="contact-small">${escapeHtml(o.email)}</span>`;
+    if (o.phone) out += `<span class="contact-small">tel. ${escapeHtml(String(o.phone))}</span>`;
+    return out;
   }
 
   function renderArrivedList() {
