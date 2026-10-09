@@ -1889,7 +1889,7 @@
     error.textContent = '';
 
     try {
-      const response = await fetch(API_URL + '?action=getAdminData&password=' + encodeURIComponent(attemptedPassword));
+      const response = await fetch(API_URL + '?action=getAdminData&password=' + encodeURIComponent(attemptedPassword) + '&force=1');
       const data = await response.json();
       
       if (data.success) {
@@ -1941,7 +1941,8 @@
     refreshIcon.classList.add('spinner-small');
 
     try {
-      const response = await fetch(API_URL + '?action=getAdminData&password=' + encodeURIComponent(password));
+      // na "Osveži" skripta odmah proverava i odgovore kupaca u Gmail-u (force=1)
+      const response = await fetch(API_URL + '?action=getAdminData&password=' + encodeURIComponent(password) + (manual ? '&force=1' : ''));
       const data = await response.json();
       
       if (data.success) {
