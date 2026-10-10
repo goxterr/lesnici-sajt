@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="prica-img/01-vocnjak.webp">
+<link rel="preload" as="image" href="/prica-img/01-vocnjak.webp">
 <style>
   :root {
     --ink: #1b130c;          /* tamna kora leske */
@@ -466,26 +466,26 @@
 
     <!-- 1. Voćnjak -->
     <div class="scene" id="s1">
-      <img class="bg" src="prica-img/01-vocnjak.webp" alt="Voćnjak leske u zoru, magla među redovima">
+      <img class="bg" src="/prica-img/01-vocnjak.webp" alt="Voćnjak leske u zoru, magla među redovima">
       <div class="mist" style="left:-10vw; top:38vh"></div>
       <div class="mist" style="left:30vw; top:30vh"></div>
     </div>
 
     <!-- 2–3. Grana, leto prolazi -->
     <div class="scene s-hidden" id="s2">
-      <img class="bg" id="granaZelena" src="prica-img/02-grana-zelena.webp" alt="Grozd mladih lešnika u zelenim košuljicama">
-      <img class="bg s-hidden" id="granaZrela" src="prica-img/03-grana-zrela.webp" alt="Isti grozd krajem leta: košuljice suve, lešnici zreli">
+      <img class="bg" id="granaZelena" src="/prica-img/02-grana-zelena.webp" alt="Grozd mladih lešnika u zelenim košuljicama">
+      <img class="bg s-hidden" id="granaZrela" src="/prica-img/03-grana-zrela.webp" alt="Isti grozd krajem leta: košuljice suve, lešnici zreli">
     </div>
 
     <!-- 4. Berba -->
     <div class="scene s-hidden" id="s4">
-      <img class="bg" src="prica-img/04-zemlja.webp" alt="Jesenje lišće na zemlji ispod leske">
+      <img class="bg" src="/prica-img/04-zemlja.webp" alt="Jesenje lišće na zemlji ispod leske">
       <div id="fallNuts"></div>
     </div>
 
     <!-- 5. Sušenje -->
     <div class="scene s-hidden" id="s5">
-      <img class="bg" src="prica-img/05-susenje.webp" alt="Lešnici u ljusci na drvenim lesama za sušenje">
+      <img class="bg" src="/prica-img/05-susenje.webp" alt="Lešnici u ljusci na drvenim lesama za sušenje">
       <div class="morning" id="morning"></div>
       <div class="sunwash" id="sunwash"></div>
     </div>
@@ -493,16 +493,16 @@
     <!-- 6. Krckanje -->
     <div class="scene s-krc s-hidden" id="s6">
       <div class="nut-stage" id="nutStage">
-        <img class="nut-half l" id="halfL" src="prica-img/iso-lesnik.webp" alt="">
-        <img class="nut-half r" id="halfR" src="prica-img/iso-lesnik.webp" alt="">
+        <img class="nut-half l" id="halfL" src="/prica-img/iso-lesnik.webp" alt="">
+        <img class="nut-half r" id="halfR" src="/prica-img/iso-lesnik.webp" alt="">
       </div>
       <div class="krc-word" id="krcWord" aria-hidden="true">Krc.</div>
     </div>
 
     <!-- 7. Pečenje (otvara se kroz pukotinu) -->
     <div class="scene s-hidden" id="s7">
-      <img class="bg" src="prica-img/06-tiganj-sirovi.webp" alt="Sirova jezgra lešnika u gvozdenom tiganju">
-      <img class="bg s-hidden" id="peceni" src="prica-img/07-tiganj-peceni.webp" alt="Pečena jezgra, opna popucala i ljušti se">
+      <img class="bg" src="/prica-img/06-tiganj-sirovi.webp" alt="Sirova jezgra lešnika u gvozdenom tiganju">
+      <img class="bg s-hidden" id="peceni" src="/prica-img/07-tiganj-peceni.webp" alt="Pečena jezgra, opna popucala i ljušti se">
       <div class="heat" id="heat"></div>
       <svg class="steam" id="steam" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
         <path d="M430 760 C 400 680, 470 620, 440 540 S 470 420, 445 360"/>
@@ -513,7 +513,7 @@
 
     <!-- 8. Pakovanje -->
     <div class="scene s-hidden" id="s8">
-      <img class="bg" src="prica-img/08-sto.webp" alt="Drveni sto u radionici, toplo svetlo kroz prozor">
+      <img class="bg" src="/prica-img/08-sto.webp" alt="Drveni sto u radionici, toplo svetlo kroz prozor">
       <div class="bag" id="bag">
         <svg class="bag-back" viewBox="0 0 270 330" aria-hidden="true">
           <defs>
@@ -611,7 +611,7 @@
   const nuts = [];
   for (let i = 0; i < 11; i++) {
     const img = document.createElement('img');
-    img.src = i % 3 === 0 ? 'prica-img/iso-lesnik.webp' : 'prica-img/iso-lesnik-2.webp';
+    img.src = i % 3 === 0 ? '/prica-img/iso-lesnik.webp' : '/prica-img/iso-lesnik-2.webp';
     img.alt = '';
     img.className = 'sprite fall-nut';
     const size = 34 + rnd() * 40;                       // bliži su veći
@@ -645,7 +645,7 @@
   const kernels = [];
   for (let i = 0; i < 16; i++) {
     const k = document.createElement('img');
-    k.src = 'prica-img/iso-jezgro.webp';
+    k.src = '/prica-img/iso-jezgro.webp';
     k.alt = '';
     k.className = 'sprite kernel';
     k.style.width = (26 + rnd() * 14) + 'px';
