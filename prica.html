@@ -320,21 +320,23 @@
   }
 
   /* pakovanje */
-  .bag {
+  .cover-box {
     position: absolute;
     left: 50%;
-    bottom: 9%;
-    width: clamp(210px, 23vw, 330px);
-    aspect-ratio: 270 / 330;
-    transform: translateX(-50%);
-    z-index: 25;
+    top: 50%;
+    width: max(100vw, 150vh);
+    width: max(100vw, 150svh);
+    aspect-ratio: 3 / 2;
+    pointer-events: none;
   }
-  .bag svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-  .bag .bag-front { z-index: 3; }
-  .bag .bag-back { z-index: 1; }
-  .bag-kernels { position: absolute; inset: 0; z-index: 2; }
-  .kernel { filter: drop-shadow(0 3px 3px rgba(40, 20, 0, 0.4)); }
-  .flap { transform-origin: 50% 0%; transform-box: fill-box; }
+  .kernel { width: 3.4%; filter: drop-shadow(0 3px 3px rgba(40, 20, 0, 0.35)); }
+  .seal-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(40% 50% at 50% 45%, rgba(255, 250, 235, 0.9), rgba(255, 250, 235, 0) 70%);
+    opacity: 0;
+    pointer-events: none;
+  }
   .grams {
     position: absolute;
     right: clamp(20px, 6vw, 96px);
@@ -459,7 +461,6 @@
     .hero-title { bottom: 120px; }
     .caption { bottom: 34px; }
     .season, .timer, .grams { top: 76px; }
-    .bag { bottom: 24%; width: 58vw; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -534,56 +535,13 @@
       </svg>
     </div>
 
-    <!-- 8. Pakovanje -->
+    <!-- 8. Pakovanje: prava kesa, pa vakum -->
     <div class="scene s-hidden" id="s8">
-      <img class="bg" src="/prica-08-sto.webp" alt="Drveni sto u radionici, toplo svetlo kroz prozor">
-      <div class="bag" id="bag">
-        <svg class="bag-back" viewBox="0 0 270 330" aria-hidden="true">
-          <defs>
-            <filter id="paper" x="0" y="0" width="100%" height="100%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="n"/>
-              <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.35  0 0 0 0 0.22  0 0 0 0 0.1  0 0 0 0.16 0" result="grain"/>
-              <feComposite in="grain" in2="SourceGraphic" operator="in" result="g2"/>
-              <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="g2"/></feMerge>
-            </filter>
-          </defs>
-          <!-- unutrašnjost otvorene kese (zadnja strana) -->
-          <path d="M26 74 Q 30 44 52 38 Q 135 26 218 38 Q 240 44 244 74 Z" fill="#6f4f2f" filter="url(#paper)"/>
-          <path d="M40 72 Q 135 58 230 72" stroke="#4e361f" stroke-width="3" fill="none" opacity="0.5"/>
-        </svg>
-        <div class="bag-kernels" id="bagKernels"></div>
-        <svg class="bag-front" viewBox="0 0 270 330" aria-hidden="true">
-          <defs>
-            <linearGradient id="kraft" x1="0" x2="1">
-              <stop offset="0" stop-color="#b08455"/>
-              <stop offset="0.45" stop-color="#c79a66"/>
-              <stop offset="1" stop-color="#a87a4b"/>
-            </linearGradient>
-          </defs>
-          <!-- telo kese -->
-          <!-- telo papirne kese: blago ispupčeno, sa naborima i bočnim senkama -->
-          <path d="M20 74 Q 135 84 250 74 L 258 300 Q 262 324 238 326 L 32 326 Q 8 324 12 300 Z" fill="url(#kraft)" filter="url(#paper)"/>
-          <path d="M20 74 Q 135 84 250 74 L 251 90 Q 135 100 19 90 Z" fill="#a37549" opacity="0.75"/>
-          <path d="M20 74 L 12 300 Q 9 322 32 326 L 46 326 Q 30 300 34 90 Z" fill="#7f5732" opacity="0.28"/>
-          <path d="M250 74 L 258 300 Q 261 322 238 326 L 226 326 Q 240 300 236 90 Z" fill="#7f5732" opacity="0.22"/>
-          <path d="M70 96 Q 64 210 72 322 M200 96 Q 208 210 198 322" stroke="#8d6239" stroke-width="1.2" fill="none" opacity="0.3"/>
-          <path d="M18 300 Q 135 314 252 300" stroke="#7f5732" stroke-width="1.5" fill="none" opacity="0.35"/>
-          <!-- preklop koji zatvara kesu -->
-          <g class="flap" id="flap">
-            <path d="M20 40 Q 135 30 250 40 L 252 112 Q 135 124 18 112 Z" fill="#b98c5b" filter="url(#paper)"/>
-            <path d="M18 112 Q 135 124 252 112" stroke="#7f5732" stroke-width="2.2" fill="none" opacity="0.6"/>
-            <path d="M20 76 Q 135 86 250 76" stroke="#8d6239" stroke-width="1.2" fill="none" opacity="0.4"/>
-          </g>
-          <!-- etiketa -->
-          <g id="label">
-            <rect x="52" y="150" width="166" height="112" rx="6" fill="#f6ecd8" stroke="#7f5732" stroke-width="1.5"/>
-            <rect x="58" y="156" width="154" height="100" rx="4" fill="none" stroke="#c9a77a" stroke-width="1" stroke-dasharray="3 3"/>
-            <text x="135" y="196" text-anchor="middle" font-family="Fraunces, serif" font-weight="700" font-size="21" fill="#2a1f15">Goranovi</text>
-            <text x="135" y="220" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="21" fill="#9c4a1b">lešnici</text>
-            <text x="135" y="246" text-anchor="middle" font-family="Caveat, cursive" font-weight="700" font-size="19" fill="#4d6030">pečeni · 1 kg</text>
-          </g>
-        </svg>
-      </div>
+      <img class="bg" id="kesaPuni" src="/prica-10-kesa-puni.webp" alt="Prozirna kesa na drvenom stolu, do trećine puna pečenih lešnika">
+      <img class="bg s-hidden" id="kesaVakum" src="/prica-11-kesa-vakum.webp" alt="Puna vakumirana kesa sa etiketom Goranovi lešnici, pečeni, 1 kg">
+      <!-- okvir iste veličine i položaja kao fotografija (object-fit: cover), da jezgra pogode otvor kese -->
+      <div class="cover-box" id="coverBox"><div id="bagKernels"></div></div>
+      <div class="seal-flash" id="sealFlash"></div>
     </div>
 
     <!-- lišće pada preko berbe -->
@@ -608,7 +566,7 @@
     <div class="caption" data-cap="5"><h2>Polako, <em>na suncu</em></h2><p>Nekoliko dana na drvenim lesama. Sunce izvuče vlagu, ljuska zazvoni kad ih protreseš.</p></div>
     <div class="caption" data-cap="6"><h2>Ljuska puca, <em>jezgro izlazi</em></h2><p>Svaki lešnik prođe kroz krckalicu. Ono što ostane je ono zbog čega smo krenuli.</p></div>
     <div class="caption" data-cap="7"><h2>Pečemo <em>dok ne zamiriše</em></h2><p>Petnaestak minuta na 160°. Opna popuca i sama se ljušti, a cela kuća miriše na lešnik.</p></div>
-    <div class="caption" data-cap="8"><h2>Kilogram <em>po kilogram</em></h2><p>Ohlađeni, očišćeni i izmereni idu u kesu. Zatvoreno, potpisano, spremno za tebe.</p></div>
+    <div class="caption" data-cap="8"><h2>Kilogram <em>po kilogram</em></h2><p>Ohlađeni, očišćeni i izmereni idu u kesu. Vakumirano, potpisano, spremno za tebe.</p></div>
   </section>
 
   <section class="finale" id="finale">
@@ -671,9 +629,9 @@
     k.src = i % 2 ? '/prica-iso-jezgro-2.webp' : '/prica-iso-jezgro.webp';   // dve vrste jezgara
     k.alt = '';
     k.className = 'sprite kernel';
-    k.style.width = (30 + rnd() * 14) + 'px';
-    k.style.left = (22 + rnd() * 50) + '%';
-    k.style.top = '6%';
+    k.style.width = (2.9 + rnd() * 1.0) + '%';
+    k.style.left = (41 + rnd() * 15) + '%';         // otvor kese: ~38–62% širine fotografije
+    k.style.top = '46%';                            // vrh gomile u kesi: ~46% visine fotografije
     k.style.opacity = 0;
     kBox.appendChild(k);
     kernels.push(k);
@@ -820,24 +778,29 @@
     hide(tl, caps(7), 16.9);
     tl.to(['#timer', '#steam'], { autoAlpha: 0, duration: 0.4 }, 17.0);
 
-    // ===== 8. PAKOVANJE: kesa, jezgra upadaju, zatvaranje =====
+    // ===== 8. PAKOVANJE: jezgra upadaju u pravu kesu, pa vakum =====
     tl.addLabel('pakovanje', 17.3);
+    gsap.set('#coverBox', { xPercent: -50, yPercent: -50 });
+    const boxH = () => document.getElementById('coverBox').offsetHeight;
     tl.to('#s7', { autoAlpha: 0, duration: 0.6 }, 17.2)
       .fromTo('#s8', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 17.2)
-      .fromTo('#s8 .bg', { scale: 1.12 }, { scale: 1.0, duration: 2.8, ease: 'power1.out' }, 17.2)
-      .fromTo('#bag', { yPercent: 70, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out' }, 17.5)
-      .set('#flap', { scaleY: 0 }, 17.2)
+      .fromTo(['#s8 .bg', '#coverBox'], { scale: 1.1 }, { scale: 1.0, duration: 0.7, ease: 'power2.out' }, 17.2)
       .to('#grams', { autoAlpha: 1, duration: 0.3 }, 17.8);
     const grams = { g: 0 };
     tl.to(grams, { g: 1000, duration: 1.8, onUpdate: () => { $('#gramsNum').textContent = Math.round(grams.g / 10) * 10; } }, 17.9);
     kernels.forEach((k, i) => {
       const at = 17.9 + i * 0.1;
-      tl.fromTo(k, { y: () => -window.innerHeight * 0.75, x: (rnd() - 0.5) * 120, rotation: rnd() * 360, autoAlpha: 1 },
-                   { y: 8 + rnd() * 26, x: 0, rotation: '+=180', duration: 0.5, ease: 'power2.in' }, at);   // gomilica viri iz otvora
+      // odozgo do otvora kese (≈20% visine slike), pa "upadne" u gomilu i nestane u kesi
+      tl.fromTo(k, { y: () => -boxH() * 0.62, rotation: rnd() * 360, autoAlpha: 1 },
+                   { y: () => -boxH() * 0.26, rotation: '+=160', duration: 0.32, ease: 'power2.in' }, at)
+        .to(k, { y: 0, rotation: '+=60', autoAlpha: 0, duration: 0.22, ease: 'power1.in' }, at + 0.32);
     });
-    tl.to('#flap', { scaleY: 1, duration: 0.5, ease: 'back.out(1.4)' }, 19.9)
-      .fromTo('#label', { scale: 1.25, rotation: -6, transformOrigin: '50% 50%' }, { scale: 1, rotation: -2, duration: 0.4, ease: 'back.out(2)' }, 20.2)
-      .to('#bag', { y: -6, duration: 0.2, yoyo: true, repeat: 1 }, 20.2);
+    // vakum: kesa se stegne, blesne, i postane puna vakumirana kesa sa etiketom
+    tl.to(['#kesaPuni', '#kesaVakum'], { scaleX: 0.985, scaleY: 1.012, duration: 0.18, ease: 'power2.in' }, 19.75)
+      .to('#sealFlash', { autoAlpha: 0.55, duration: 0.15 }, 19.8)
+      .to('#kesaVakum', { autoAlpha: 1, duration: 0.3 }, 19.85)
+      .to(['#kesaPuni', '#kesaVakum'], { scaleX: 1, scaleY: 1, duration: 0.35, ease: 'back.out(2)' }, 19.93)
+      .to('#sealFlash', { autoAlpha: 0, duration: 0.45 }, 19.95);
     show(tl, caps(8), 18.2);
     tl.to({}, { duration: 0.8 }, 20.6);      // kratka pauza na kraju pre poziva na porudžbinu
 

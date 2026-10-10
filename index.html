@@ -1696,21 +1696,24 @@
     .success-title br { display: none; }
   }
 
-  /* dugme ka priči "Od leske do kese" */
+  /* dugme ka priči "Od leske do kese": gore desno, kao "Poruči" na stranici priče */
   .story-link {
+    position: fixed;
+    top: 16px;
+    right: clamp(14px, 2.4vw, 32px);
+    z-index: 120;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 16px;
-    padding: 9px 18px 9px 12px;
+    padding: 8px 16px 8px 9px;
     border-radius: 999px;
-    background: #2a1f15;
-    color: #f8f1e4;
+    background: #f2c27a;
+    color: #1b130c;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
-    box-shadow: 0 6px 16px rgba(42, 31, 21, 0.22);
+    box-shadow: 0 6px 18px rgba(42, 31, 21, 0.25);
     transition: transform 0.2s, background 0.2s;
   }
   .story-link svg {
@@ -1718,13 +1721,13 @@
     height: 22px;
     padding: 5px;
     border-radius: 50%;
-    background: #f2c27a;
-    color: #2a1f15;
+    background: #1b130c;
+    color: #f2c27a;
   }
-  .story-link:hover { background: #9c4a1b; transform: translateY(-1px); }
+  .story-link:hover { background: #f7d39b; transform: translateY(-1px); }
   .story-link:focus-visible { outline: 2px solid #9c4a1b; outline-offset: 3px; }
   @media (max-width: 700px) {
-    .story-link { margin-top: 8px; font-size: 12.5px; padding: 6px 14px 6px 8px; }
+    .story-link { top: 10px; right: 10px; font-size: 12px; padding: 6px 12px 6px 6px; gap: 6px; }
     .story-link svg { width: 18px; height: 18px; padding: 4px; }
   }
 </style>
@@ -1770,7 +1773,7 @@
       <h1 aria-label="Goranovi lešnici"><span aria-hidden="true"><span class="gw">Goranov<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span> <em><span class="gw">le<span class="gl">s<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span>n<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span>c<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span></em></span></h1>
       <a class="story-link" href="/prica">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg>
-        Priča: od leske do kese
+        Od leske do kese
       </a>
     </div>
   </header>
