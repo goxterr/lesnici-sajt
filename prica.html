@@ -235,8 +235,8 @@
   .nut-shadow {
     position: absolute;
     left: 50%;
-    top: calc(46% + clamp(70px, 11vw, 135px));
-    width: clamp(150px, 22vw, 270px);
+    top: calc(46% + clamp(88px, 13vw, 168px));
+    width: clamp(170px, 25vw, 320px);
     height: clamp(22px, 3vw, 38px);
     transform: translate(-50%, -50%);
     border-radius: 50%;
@@ -248,8 +248,8 @@
     position: absolute;
     left: 50%;
     top: 46%;
-    width: clamp(180px, 28vw, 340px);
-    aspect-ratio: 291 / 257;
+    width: clamp(200px, 30vw, 380px);
+    aspect-ratio: 900 / 835;
     transform: translate(-50%, -50%);
     z-index: 40;
   }
@@ -668,10 +668,10 @@
   const kernels = [];
   for (let i = 0; i < 16; i++) {
     const k = document.createElement('img');
-    k.src = '/prica-iso-jezgro.webp';
+    k.src = i % 2 ? '/prica-iso-jezgro-2.webp' : '/prica-iso-jezgro.webp';   // dve vrste jezgara
     k.alt = '';
     k.className = 'sprite kernel';
-    k.style.width = (26 + rnd() * 14) + 'px';
+    k.style.width = (30 + rnd() * 14) + 'px';
     k.style.left = (22 + rnd() * 50) + '%';
     k.style.top = '6%';
     k.style.opacity = 0;
