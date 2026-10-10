@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Od leske do kese — Goranovi lešnici</title>
+<meta name="description" content="Priča o lešniku: od voćnjaka u zoru, preko berbe, sušenja i pečenja, do kese od jednog kilograma.">
+<meta property="og:title" content="Od leske do kese 🌰">
+<meta property="og:description" content="Skroluj kroz jednu jesen: od voćnjaka do kese Goranovih lešnika.">
+<meta property="og:image" content="https://lesnici-sajt.vercel.app/prica-img/01-vocnjak.webp">
+<meta name="theme-color" content="#1b130c">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="prica-img/01-vocnjak.webp">
+<style>
+  :root {
+    --ink: #1b130c;          /* tamna kora leske */
+    --cream: #f8f1e4;
+    --husk: #e6d6b8;
+    --shell: #a0582c;        /* ljuska lešnika */
+    --shell-hi: #d98a4e;
+    --leaf: #7a9150;
+    --leaf-dark: #4d6030;
+    --gold: #f2c27a;
+    --scrim: rgba(20, 12, 6, 0.72);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scrollbar-color: var(--shell) var(--ink); }
+  ::selection { background: var(--shell-hi); color: var(--ink); }
+  body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+
+  /* ---------- gornja traka ---------- */
+  .topbar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px clamp(16px, 3vw, 36px);
+    pointer-events: none;
+  }
+  .topbar > * { pointer-events: auto; }
+  .brand {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 17px;
+    text-decoration: none;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+  }
+  .brand em { font-style: italic; font-weight: 400; color: var(--gold); }
+  .order-btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--gold);
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .order-btn:hover { background: #f7d39b; transform: translateY(-1px); }
+
+  /* ---------- priča: jedan zakačen ekran ---------- */
+  .story { position: relative; height: 100vh; height: 100svh; overflow: hidden; }
+  .scene { position: absolute; inset: 0; overflow: hidden; }
+  .scene img.bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    will-change: transform, opacity;
+  }
+  .s-hidden { opacity: 0; visibility: hidden; }
+
+  /* donji tamni prelaz da se tekst uvek čita */
+  .scrim {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 55%;
+    background: linear-gradient(to top, var(--scrim) 0%, rgba(20, 12, 6, 0.35) 45%, transparent 100%);
+    pointer-events: none;
+    z-index: 30;
+  }
+
+  /* naslov na početku */
+  .hero-title {
+    position: absolute;
+    left: clamp(20px, 6vw, 96px);
+    bottom: clamp(90px, 16vh, 170px);
+    z-index: 35;
+    max-width: min(92vw, 1100px);
+  }
+  .hero-title h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(54px, 10vw, 136px);
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+    text-shadow: 0 4px 40px rgba(0, 0, 0, 0.35);
+  }
+  .hero-title h1 em { font-style: italic; font-weight: 400; color: var(--gold); }
+  .hero-title p {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(24px, 2.6vw, 34px);
+    margin-top: 14px;
+    color: var(--husk);
+  }
+  .scroll-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%);
+    z-index: 36;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--husk);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .scroll-hint span {
+    width: 1px;
+    height: 34px;
+    background: linear-gradient(var(--husk), transparent);
+    animation: hint 1.8s ease-in-out infinite;
+    transform-origin: top;
+  }
+  @keyframes hint { 0% { transform: scaleY(0); } 60% { transform: scaleY(1); opacity: 1; } 100% { opacity: 0; } }
+
+  /* natpisi poglavlja */
+  .caption {
+    position: absolute;
+    left: clamp(20px, 6vw, 96px);
+    bottom: clamp(40px, 9vh, 96px);
+    z-index: 35;
+    max-width: min(34rem, 86vw);
+    opacity: 0;
+    visibility: hidden;
+  }
+  .caption h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(30px, 4.2vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  .caption h2 em { font-style: italic; font-weight: 400; color: var(--gold); }
+  .caption p {
+    font-size: clamp(15px, 1.25vw, 18px);
+    line-height: 1.55;
+    margin-top: 12px;
+    color: #efe3cc;
+    max-width: 44ch;
+  }
+
+  /* meseci u uglu */
+  .season {
+    position: absolute;
+    right: clamp(20px, 6vw, 96px);
+    top: clamp(84px, 14vh, 140px);
+    z-index: 35;
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: clamp(40px, 6vw, 84px);
+    line-height: 1;
+    color: var(--cream);
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
+    height: 1em;
+    width: 5.5em;
+    text-align: right;
+  }
+  .season span { position: absolute; right: 0; top: 0; opacity: 0; }
+
+  /* magla u voćnjaku */
+  .mist {
+    position: absolute;
+    width: 90vw;
+    height: 50vh;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255, 236, 205, 0.55), rgba(255, 236, 205, 0));
+    filter: blur(10px);
+    pointer-events: none;
+  }
+
+  /* lešnici koji padaju i lišće */
+  .sprite { position: absolute; will-change: transform; pointer-events: none; }
+  .fall-nut { filter: drop-shadow(0 6px 6px rgba(20, 10, 0, 0.45)); }
+  .leaf { width: 46px; height: 46px; opacity: 0.95; }
+
+  /* sunce koje prelazi preko sušenja */
+  .sunwash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 70% at 15% 10%, rgba(255, 214, 140, 0.55), transparent 60%);
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+  .morning {
+    position: absolute;
+    inset: 0;
+    background: rgba(110, 140, 175, 0.28);
+    mix-blend-mode: color;
+    pointer-events: none;
+  }
+
+  /* krckanje */
+  .s-krc { background: radial-gradient(60% 60% at 50% 48%, #3a2616 0%, #1b130c 70%); }
+  .nut-stage {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: clamp(180px, 28vw, 340px);
+    aspect-ratio: 291 / 257;
+    transform: translate(-50%, -50%);
+    z-index: 40;
+  }
+  .nut-half {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.55));
+    will-change: transform;
+  }
+  .nut-half.l { clip-path: polygon(0 0, 52% 0, 47% 14%, 54% 27%, 46% 41%, 53% 55%, 45% 69%, 51% 84%, 47% 100%, 0 100%); }
+  .nut-half.r { clip-path: polygon(52% 0, 100% 0, 100% 100%, 47% 100%, 51% 84%, 45% 69%, 53% 55%, 46% 41%, 54% 27%, 47% 14%); }
+  .krc-word {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%);
+    z-index: 45;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: clamp(90px, 16vw, 220px);
+    letter-spacing: -0.04em;
+    color: var(--gold);
+    opacity: 0;
+    pointer-events: none;
+    text-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+  }
+
+  /* pečenje */
+  .heat {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(45% 55% at 46% 52%, rgba(255, 130, 40, 0.75), rgba(255, 90, 20, 0) 70%);
+    mix-blend-mode: soft-light;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .timer {
+    position: absolute;
+    right: clamp(20px, 6vw, 96px);
+    top: clamp(84px, 14vh, 140px);
+    z-index: 35;
+    text-align: right;
+    font-family: 'Caveat', cursive;
+    color: var(--cream);
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+  }
+  .timer b { display: block; font-size: clamp(48px, 7vw, 96px); line-height: 0.9; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .timer small { font-size: clamp(20px, 2vw, 28px); color: var(--husk); }
+  .steam { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 20; }
+  .steam path {
+    fill: none;
+    stroke: rgba(255, 250, 240, 0.55);
+    stroke-width: 14;
+    stroke-linecap: round;
+    filter: blur(9px);
+    animation: rise 5s ease-in infinite;
+  }
+  .steam path:nth-child(2) { animation-delay: 1.6s; }
+  .steam path:nth-child(3) { animation-delay: 3.1s; }
+  @keyframes rise {
+    0%   { transform: translateY(40px); opacity: 0; }
+    25%  { opacity: 0.9; }
+    100% { transform: translateY(-260px); opacity: 0; }
+  }
+
+  /* pakovanje */
+  .bag {
+    position: absolute;
+    left: 50%;
+    bottom: 9%;
+    width: clamp(210px, 23vw, 330px);
+    aspect-ratio: 270 / 330;
+    transform: translateX(-50%);
+    z-index: 25;
+  }
+  .bag svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .bag .bag-front { z-index: 3; }
+  .bag .bag-back { z-index: 1; }
+  .bag-kernels { position: absolute; inset: 0; z-index: 2; }
+  .kernel { filter: drop-shadow(0 3px 3px rgba(40, 20, 0, 0.4)); }
+  .flap { transform-origin: 50% 0%; transform-box: fill-box; }
+  .grams {
+    position: absolute;
+    right: clamp(20px, 6vw, 96px);
+    top: clamp(84px, 14vh, 140px);
+    z-index: 35;
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 0.9;
+    color: var(--cream);
+    text-align: right;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+  }
+  .grams small { display: block; font-size: 0.32em; color: var(--husk); font-weight: 600; }
+
+  /* poglavlja sa strane */
+  .chapters {
+    position: fixed;
+    right: clamp(14px, 2vw, 28px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 48;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .chapters button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    background: none;
+    border: none;
+    color: rgba(248, 241, 228, 0.55);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color 0.25s;
+  }
+  .chapters button::after {
+    content: '';
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: width 0.3s;
+  }
+  .chapters button .lbl { opacity: 0; transform: translateX(6px); transition: opacity 0.25s, transform 0.25s; }
+  .chapters:hover .lbl, .chapters button.on .lbl { opacity: 1; transform: none; }
+  .chapters button.on { color: var(--gold); }
+  .chapters button.on::after { width: 34px; }
+  .progress { display: none; }
+
+  /* kraj: poziv na porudžbinu */
+  .finale {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    background:
+      radial-gradient(70% 60% at 50% 0%, rgba(160, 88, 44, 0.35), transparent 70%),
+      var(--ink);
+  }
+  .finale h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(44px, 8vw, 112px);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+  .finale h2 em { font-style: italic; font-weight: 400; color: var(--gold); }
+  .finale p {
+    font-size: clamp(16px, 1.4vw, 19px);
+    color: #e9dcc4;
+    margin: 22px auto 34px;
+    max-width: 44ch;
+    line-height: 1.55;
+  }
+  .finale .order-btn { font-size: 17px; padding: 16px 30px; }
+  .finale .note {
+    margin-top: 70px;
+    font-size: 12px;
+    color: rgba(233, 220, 196, 0.5);
+  }
+
+  /* učitavanje */
+  .loader {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--ink);
+    display: grid;
+    place-items: center;
+    font-family: 'Caveat', cursive;
+    font-size: 30px;
+    color: var(--husk);
+    transition: opacity 0.6s, visibility 0.6s;
+  }
+  .loader.done { opacity: 0; visibility: hidden; }
+
+  @media (max-width: 760px) {
+    .chapters { display: none; }
+    .progress {
+      display: block;
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 3px;
+      z-index: 60;
+      background: rgba(248, 241, 228, 0.15);
+    }
+    .progress i { display: block; height: 100%; width: 100%; background: var(--gold); transform-origin: left; transform: scaleX(0); }
+    .brand { font-size: 15px; }
+    .order-btn { font-size: 13px; padding: 8px 14px; }
+    .hero-title { bottom: 120px; }
+    .caption { bottom: 34px; }
+    .season, .timer, .grams { top: 76px; }
+    .bag { bottom: 24%; width: 58vw; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-hint span, .steam path { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader">~ berem lešnike ~</div>
+<div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+
+<header class="topbar">
+  <a class="brand" href="/">Goranovi <em>lešnici</em></a>
+  <a class="order-btn" href="/">Poruči</a>
+</header>
+
+<nav aria-label="Poglavlja priče">
+  <ul class="chapters" id="chapters"></ul>
+</nav>
+
+<main>
+  <section class="story" id="story" aria-label="Od leske do kese, priča u slikama">
+
+    <!-- 1. Voćnjak -->
+    <div class="scene" id="s1">
+      <img class="bg" src="prica-img/01-vocnjak.webp" alt="Voćnjak leske u zoru, magla među redovima">
+      <div class="mist" style="left:-10vw; top:38vh"></div>
+      <div class="mist" style="left:30vw; top:30vh"></div>
+    </div>
+
+    <!-- 2–3. Grana, leto prolazi -->
+    <div class="scene s-hidden" id="s2">
+      <img class="bg" id="granaZelena" src="prica-img/02-grana-zelena.webp" alt="Grozd mladih lešnika u zelenim košuljicama">
+      <img class="bg s-hidden" id="granaZrela" src="prica-img/03-grana-zrela.webp" alt="Isti grozd krajem leta: košuljice suve, lešnici zreli">
+    </div>
+
+    <!-- 4. Berba -->
+    <div class="scene s-hidden" id="s4">
+      <img class="bg" src="prica-img/04-zemlja.webp" alt="Jesenje lišće na zemlji ispod leske">
+      <div id="fallNuts"></div>
+    </div>
+
+    <!-- 5. Sušenje -->
+    <div class="scene s-hidden" id="s5">
+      <img class="bg" src="prica-img/05-susenje.webp" alt="Lešnici u ljusci na drvenim lesama za sušenje">
+      <div class="morning" id="morning"></div>
+      <div class="sunwash" id="sunwash"></div>
+    </div>
+
+    <!-- 6. Krckanje -->
+    <div class="scene s-krc s-hidden" id="s6">
+      <div class="nut-stage" id="nutStage">
+        <img class="nut-half l" id="halfL" src="prica-img/iso-lesnik.webp" alt="">
+        <img class="nut-half r" id="halfR" src="prica-img/iso-lesnik.webp" alt="">
+      </div>
+      <div class="krc-word" id="krcWord" aria-hidden="true">Krc.</div>
+    </div>
+
+    <!-- 7. Pečenje (otvara se kroz pukotinu) -->
+    <div class="scene s-hidden" id="s7">
+      <img class="bg" src="prica-img/06-tiganj-sirovi.webp" alt="Sirova jezgra lešnika u gvozdenom tiganju">
+      <img class="bg s-hidden" id="peceni" src="prica-img/07-tiganj-peceni.webp" alt="Pečena jezgra, opna popucala i ljušti se">
+      <div class="heat" id="heat"></div>
+      <svg class="steam" id="steam" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M430 760 C 400 680, 470 620, 440 540 S 470 420, 445 360"/>
+        <path d="M520 780 C 560 700, 490 640, 530 560 S 500 440, 535 380"/>
+        <path d="M600 760 C 580 690, 640 630, 610 550 S 640 430, 615 370"/>
+      </svg>
+    </div>
+
+    <!-- 8. Pakovanje -->
+    <div class="scene s-hidden" id="s8">
+      <img class="bg" src="prica-img/08-sto.webp" alt="Drveni sto u radionici, toplo svetlo kroz prozor">
+      <div class="bag" id="bag">
+        <svg class="bag-back" viewBox="0 0 270 330" aria-hidden="true">
+          <defs>
+            <filter id="paper" x="0" y="0" width="100%" height="100%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="n"/>
+              <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.35  0 0 0 0 0.22  0 0 0 0 0.1  0 0 0 0.16 0" result="grain"/>
+              <feComposite in="grain" in2="SourceGraphic" operator="in" result="g2"/>
+              <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="g2"/></feMerge>
+            </filter>
+          </defs>
+          <!-- unutrašnjost otvorene kese (zadnja strana) -->
+          <path d="M26 74 Q 30 44 52 38 Q 135 26 218 38 Q 240 44 244 74 Z" fill="#6f4f2f" filter="url(#paper)"/>
+          <path d="M40 72 Q 135 58 230 72" stroke="#4e361f" stroke-width="3" fill="none" opacity="0.5"/>
+        </svg>
+        <div class="bag-kernels" id="bagKernels"></div>
+        <svg class="bag-front" viewBox="0 0 270 330" aria-hidden="true">
+          <defs>
+            <linearGradient id="kraft" x1="0" x2="1">
+              <stop offset="0" stop-color="#b08455"/>
+              <stop offset="0.45" stop-color="#c79a66"/>
+              <stop offset="1" stop-color="#a87a4b"/>
+            </linearGradient>
+          </defs>
+          <!-- telo kese -->
+          <!-- telo papirne kese: blago ispupčeno, sa naborima i bočnim senkama -->
+          <path d="M20 74 Q 135 84 250 74 L 258 300 Q 262 324 238 326 L 32 326 Q 8 324 12 300 Z" fill="url(#kraft)" filter="url(#paper)"/>
+          <path d="M20 74 Q 135 84 250 74 L 251 90 Q 135 100 19 90 Z" fill="#a37549" opacity="0.75"/>
+          <path d="M20 74 L 12 300 Q 9 322 32 326 L 46 326 Q 30 300 34 90 Z" fill="#7f5732" opacity="0.28"/>
+          <path d="M250 74 L 258 300 Q 261 322 238 326 L 226 326 Q 240 300 236 90 Z" fill="#7f5732" opacity="0.22"/>
+          <path d="M70 96 Q 64 210 72 322 M200 96 Q 208 210 198 322" stroke="#8d6239" stroke-width="1.2" fill="none" opacity="0.3"/>
+          <path d="M18 300 Q 135 314 252 300" stroke="#7f5732" stroke-width="1.5" fill="none" opacity="0.35"/>
+          <!-- preklop koji zatvara kesu -->
+          <g class="flap" id="flap">
+            <path d="M20 40 Q 135 30 250 40 L 252 112 Q 135 124 18 112 Z" fill="#b98c5b" filter="url(#paper)"/>
+            <path d="M18 112 Q 135 124 252 112" stroke="#7f5732" stroke-width="2.2" fill="none" opacity="0.6"/>
+            <path d="M20 76 Q 135 86 250 76" stroke="#8d6239" stroke-width="1.2" fill="none" opacity="0.4"/>
+          </g>
+          <!-- etiketa -->
+          <g id="label">
+            <rect x="52" y="150" width="166" height="112" rx="6" fill="#f6ecd8" stroke="#7f5732" stroke-width="1.5"/>
+            <rect x="58" y="156" width="154" height="100" rx="4" fill="none" stroke="#c9a77a" stroke-width="1" stroke-dasharray="3 3"/>
+            <text x="135" y="196" text-anchor="middle" font-family="Fraunces, serif" font-weight="700" font-size="21" fill="#2a1f15">Goranovi</text>
+            <text x="135" y="220" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="21" fill="#9c4a1b">lešnici</text>
+            <text x="135" y="246" text-anchor="middle" font-family="Caveat, cursive" font-weight="700" font-size="19" fill="#4d6030">pečeni · 1 kg</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- lišće pada preko berbe -->
+    <div id="leaves" aria-hidden="true"></div>
+
+    <div class="scrim"></div>
+
+    <div class="hero-title" id="heroTitle">
+      <h1>Od leske<br><em>do kese</em></h1>
+      <p>jedna jesen, jedan kilogram</p>
+    </div>
+    <div class="scroll-hint" id="scrollHint">skroluj<span></span></div>
+
+    <div class="season" id="season" aria-hidden="true"><span>jun</span><span>jul</span><span>avgust</span><span>septembar</span></div>
+    <div class="timer" id="timer" aria-hidden="true"><b id="timerNum">0:00</b><small>u rerni, 160°</small></div>
+    <div class="grams" id="grams" aria-hidden="true"><span id="gramsNum">0</span> g<small>do punog kilograma</small></div>
+
+    <div class="caption" data-cap="1"><h2>Sve počinje <em>u voćnjaku</em></h2><p>U zoru, između redova leske. Ona ne žuri: rodi jednom godišnje i za to joj treba celo leto.</p></div>
+    <div class="caption" data-cap="2"><h2>Mlad lešnik <em>raste skriven</em></h2><p>Zelena košuljica ga čuva od sunca i ptica. Iznutra je još mek i mlečan.</p></div>
+    <div class="caption" data-cap="3"><h2>Leto prolazi, <em>košuljica se suši</em></h2><p>Krajem avgusta ljuska tamni i tvrdne. Lešnik postaje težak i sprema se da padne.</p></div>
+    <div class="caption" data-cap="4"><h2>Berba: <em>padaju sami</em></h2><p>Zreli lešnici se sami otkače sa grane. Mi ih samo skupimo sa jesenjeg lišća, jedan po jedan.</p></div>
+    <div class="caption" data-cap="5"><h2>Polako, <em>na suncu</em></h2><p>Nekoliko dana na drvenim lesama. Sunce izvuče vlagu, ljuska zazvoni kad ih protreseš.</p></div>
+    <div class="caption" data-cap="6"><h2>Ljuska puca, <em>jezgro izlazi</em></h2><p>Svaki lešnik prođe kroz krckalicu. Ono što ostane je ono zbog čega smo krenuli.</p></div>
+    <div class="caption" data-cap="7"><h2>Pečemo <em>dok ne zamiriše</em></h2><p>Petnaestak minuta na 160°. Opna popuca i sama se ljušti, a cela kuća miriše na lešnik.</p></div>
+    <div class="caption" data-cap="8"><h2>Kilogram <em>po kilogram</em></h2><p>Ohlađeni, očišćeni i izmereni idu u kesu. Zatvoreno, potpisano, spremno za tebe.</p></div>
+  </section>
+
+  <section class="finale" id="finale">
+    <div>
+      <h2>Tvoja kesa <em>te čeka</em></h2>
+      <p>Poruči za par klikova, plati QR kodom i javiću ti čim lešnici budu spremni za preuzimanje.</p>
+      <a class="order-btn" href="/">Poruči lešnike</a>
+      <div class="note">Fotografije u priči su ilustrativne. Lešnici su pravi.</div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  gsap.registerPlugin(ScrollTrigger);
+  const $ = s => document.querySelector(s);
+  const rnd = (() => { let x = 7; return () => (x = (x * 16807) % 2147483647) / 2147483647; })(); // isti raspored svaki put
+
+  // ---------- lešnici koji padaju (berba) ----------
+  const fallBox = $('#fallNuts');
+  const nuts = [];
+  for (let i = 0; i < 11; i++) {
+    const img = document.createElement('img');
+    img.src = i % 3 === 0 ? 'prica-img/iso-lesnik.webp' : 'prica-img/iso-lesnik-2.webp';
+    img.alt = '';
+    img.className = 'sprite fall-nut';
+    const size = 34 + rnd() * 40;                       // bliži su veći
+    img.style.width = size + 'px';
+    img.style.left = (18 + rnd() * 62) + '%';
+    img.style.top = (52 + (size - 34) / 40 * 24) + '%';  // veći = bliže = niže na slici
+    fallBox.appendChild(img);
+    nuts.push(img);
+  }
+
+  // ---------- lišće ----------
+  const leafBox = $('#leaves');
+  const leafColors = [['#d9a441', '#8a5a1c'], ['#c27b2c', '#6e3f12'], ['#b9b14a', '#5d5a1d'], ['#e0b257', '#93641f']];
+  const leaves = [];
+  for (let i = 0; i < 12; i++) {
+    const [c1, c2] = leafColors[i % leafColors.length];
+    const d = document.createElement('div');
+    d.className = 'sprite leaf';
+    d.style.left = (rnd() * 96) + '%';
+    d.style.top = '-12%';
+    d.style.zIndex = 33;
+    d.style.transform = `scale(${0.6 + rnd() * 0.9})`;
+    d.innerHTML = `<svg viewBox="0 0 40 40"><path d="M20 2 C 30 10, 36 22, 20 38 C 4 22, 10 10, 20 2 Z" fill="${c1}"/><path d="M20 4 L20 36 M20 14 L28 10 M20 20 L30 18 M20 14 L12 10 M20 20 L10 18 M20 27 L27 26 M20 27 L13 26" stroke="${c2}" stroke-width="1.1" fill="none" opacity="0.7"/></svg>`;
+    d.style.opacity = 0;
+    leafBox.appendChild(d);
+    leaves.push(d);
+  }
+
+  // ---------- jezgra koja upadaju u kesu ----------
+  const kBox = $('#bagKernels');
+  const kernels = [];
+  for (let i = 0; i < 16; i++) {
+    const k = document.createElement('img');
+    k.src = 'prica-img/iso-jezgro.webp';
+    k.alt = '';
+    k.className = 'sprite kernel';
+    k.style.width = (26 + rnd() * 14) + 'px';
+    k.style.left = (22 + rnd() * 50) + '%';
+    k.style.top = '6%';
+    k.style.opacity = 0;
+    kBox.appendChild(k);
+    kernels.push(k);
+  }
+
+  // ---------- poglavlja ----------
+  const CHAPTERS = [['vocnjak', 'Voćnjak'], ['leto', 'Leto'], ['berba', 'Berba'], ['susenje', 'Sušenje'], ['krckanje', 'Krckanje'], ['pecenje', 'Pečenje'], ['pakovanje', 'Pakovanje']];
+  const list = $('#chapters');
+  CHAPTERS.forEach(([id, name]) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<button type="button" data-ch="${id}"><span class="lbl">${name}</span></button>`;
+    list.appendChild(li);
+  });
+
+  const caps = n => document.querySelector(`.caption[data-cap="${n}"]`);
+  const show = (tl, el, at) => tl.fromTo(el, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, at);
+  const hide = (tl, el, at) => tl.to(el, { autoAlpha: 0, y: -20, duration: 0.5, ease: 'power1.in' }, at);
+  const season = [...document.querySelectorAll('#season span')];
+
+  const mm = gsap.matchMedia();
+  // "all" uvek važi: matchMedia pokreće kod samo kad bar jedan uslov važi
+  mm.add({ all: 'all', reduce: '(prefers-reduced-motion: reduce)', mobile: '(max-width: 760px)' }, ctx => {
+    const { reduce, mobile } = ctx.conditions;
+
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: '#story',
+        start: 'top top',
+        end: () => '+=' + window.innerHeight * 11,
+        pin: true,
+        scrub: reduce ? true : 0.9,
+        anticipatePin: 1,
+        onUpdate: self => {
+          $('#progressBar').style.transform = `scaleX(${self.progress})`;
+          const t = self.progress * tl.duration();
+          let active = CHAPTERS[0][0];
+          CHAPTERS.forEach(([id]) => { if (tl.labels[id] !== undefined && t >= tl.labels[id] - 0.01) active = id; });
+          document.querySelectorAll('.chapters button').forEach(b => b.classList.toggle('on', b.dataset.ch === active));
+        }
+      }
+    });
+
+    // ===== 1. VOĆNJAK: let kroz red leske =====
+    tl.addLabel('vocnjak', 0);
+    tl.to('#heroTitle', { autoAlpha: 0, y: -60, duration: 1 }, 0.3)
+      .to('#scrollHint', { autoAlpha: 0, duration: 0.3 }, 0.1)
+      .fromTo('#s1 .bg', { scale: 1.06 }, { scale: 1.55, yPercent: -4, transformOrigin: '55% 58%', duration: 3.2 }, 0)
+      .to('#s1 .mist', { xPercent: 18, autoAlpha: 0, duration: 2.4, stagger: 0.3 }, 0.2);
+    show(tl, caps(1), 1.0);
+    hide(tl, caps(1), 2.4);
+
+    // ===== 2–3. GRANA: zum u granu, pa leto prolazi =====
+    tl.addLabel('leto', 2.9);
+    tl.to('#s1 .bg', { scale: 2.3, autoAlpha: 0, filter: 'blur(6px)', duration: 0.9, ease: 'power1.in' }, 2.9)
+      .fromTo('#s2', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 3.1)
+      .fromTo('#s2 .bg', { scale: 1.35 }, { scale: 1.0, duration: 1.6, ease: 'power2.out' }, 3.1);
+    show(tl, caps(2), 3.5);
+    tl.to(season[0], { autoAlpha: 1, duration: 0.3 }, 3.5);
+    hide(tl, caps(2), 4.8);
+    tl.to(season[0], { autoAlpha: 0, duration: 0.3 }, 5.0)
+      .to(season[1], { autoAlpha: 1, duration: 0.3 }, 5.1)
+      .to('#granaZrela', { autoAlpha: 1, duration: 1.6 }, 5.0)          // ista grana: zeleno → zrelo
+      .to('#s2 .bg', { scale: 1.07, duration: 2.0 }, 5.0)
+      .to(season[1], { autoAlpha: 0, duration: 0.3 }, 6.0)
+      .to(season[2], { autoAlpha: 1, duration: 0.3 }, 6.1);
+    show(tl, caps(3), 5.6);
+    hide(tl, caps(3), 6.9);
+
+    // ===== 4. BERBA: zum u grozd, lešnici padaju na lišće =====
+    tl.addLabel('berba', 7.2);
+    tl.to('#s2 .bg', { scale: 2.4, transformOrigin: '52% 46%', filter: 'blur(4px)', duration: 0.8, ease: 'power2.in' }, 7.0)
+      .to('#s2', { autoAlpha: 0, duration: 0.4 }, 7.5)
+      .to(season[2], { autoAlpha: 0, duration: 0.3 }, 7.4)
+      .to(season[3], { autoAlpha: 1, duration: 0.3 }, 7.6)
+      .fromTo('#s4', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, 7.5)
+      .fromTo('#s4 .bg', { scale: 1.15 }, { scale: 1.02, duration: 2.6, ease: 'power1.out' }, 7.5);
+    nuts.forEach((n, i) => {
+      const at = 7.8 + i * 0.13;
+      tl.fromTo(n, { y: () => -window.innerHeight * 0.9, rotation: -120 + rnd() * 80, autoAlpha: 1 },
+                   { y: 0, rotation: rnd() * 60 - 30, duration: 0.7, ease: 'bounce.out' }, at);
+    });
+    leaves.forEach((l, i) => {
+      const at = 7.3 + i * 0.16;
+      tl.fromTo(l, { y: 0, x: 0, rotation: 0, autoAlpha: 0 },
+                   { y: () => window.innerHeight * 1.2, x: (rnd() - 0.5) * 220, rotation: (rnd() - 0.5) * 540, autoAlpha: 1, duration: 2.2, ease: 'sine.inOut' }, at);
+      tl.to(l, { autoAlpha: 0, duration: 0.3 }, at + 1.9);
+    });
+    show(tl, caps(4), 8.0);
+    hide(tl, caps(4), 9.6);
+    tl.to(season[3], { autoAlpha: 0, duration: 0.3 }, 9.6);
+
+    // ===== 5. SUŠENJE: sunce prelazi preko lesa =====
+    tl.addLabel('susenje', 9.9);
+    tl.to('#s4', { autoAlpha: 0, duration: 0.6 }, 9.9)
+      .fromTo('#s5', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 9.9)
+      .fromTo('#s5 .bg', { scale: 1.12, xPercent: -3 }, { scale: 1.04, xPercent: 3, duration: 2.6 }, 9.9)
+      .fromTo('#morning', { autoAlpha: 1 }, { autoAlpha: 0, duration: 1.8 }, 10.1)      // jutro → podne
+      .fromTo('#sunwash', { autoAlpha: 0, backgroundPosition: '0% 0%' }, { autoAlpha: 1, duration: 1.8 }, 10.3);
+    show(tl, caps(5), 10.2);
+    hide(tl, caps(5), 11.7);
+
+    // ===== 6. KRCKANJE: lešnik pukne, kroz pukotinu se otvara tiganj =====
+    tl.addLabel('krckanje', 12.0);
+    tl.to('#s5 .bg', { scale: 1.35, filter: 'blur(8px)', duration: 0.6, ease: 'power2.in' }, 11.9)
+      .to('#s5', { autoAlpha: 0, duration: 0.5 }, 12.1)
+      .fromTo('#s6', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, 12.1)
+      .fromTo('#nutStage', { scale: 0.45, rotation: -25 }, { scale: 1, rotation: 0, duration: 0.9, ease: 'back.out(1.6)' }, 12.2);
+    show(tl, caps(6), 12.4);
+    // drhtaj pred pucanje
+    [5, -5, 4, -4, 3, 0].forEach((x, i) => tl.to('#nutStage', { x, duration: 0.05 }, 13.2 + i * 0.05));
+    tl.fromTo('#krcWord', { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2)' }, 13.5)
+      .to('#krcWord', { autoAlpha: 0, scale: 1.3, duration: 0.5 }, 13.85)
+      .to('#halfL', { xPercent: -55, yPercent: 8, rotation: -24, duration: 0.9, ease: 'power3.out' }, 13.5)
+      .to('#halfR', { xPercent: 55, yPercent: -6, rotation: 22, duration: 0.9, ease: 'power3.out' }, 13.5);
+    // pukotina se širi u celu sledeću scenu
+    const crackNarrow = 'polygon(49.6% -5%, 50.4% -5%, 46.4% 14%, 53.4% 27%, 45.4% 41%, 52.4% 55%, 44.4% 69%, 50.4% 84%, 46.4% 105%, 45.6% 105%, 49.6% 84%, 43.6% 69%, 51.6% 55%, 44.6% 41%, 52.6% 27%, 45.6% 14%)';
+    const crackWide   = 'polygon(-60% -5%, 160% -5%, 156% 14%, 163% 27%, 155% 41%, 162% 55%, 154% 69%, 160% 84%, 156% 105%, -64% 105%, -60% 84%, -66% 69%, -58% 55%, -65% 41%, -57% 27%, -64% 14%)';
+    tl.set('#s7', { autoAlpha: 1, clipPath: crackNarrow }, 13.55)
+      .fromTo('#s7', { clipPath: crackNarrow }, { clipPath: crackWide, duration: 1.0, ease: 'power2.inOut' }, 13.6)
+      .fromTo('#s7 .bg', { scale: 1.25 }, { scale: 1.02, duration: 1.4, ease: 'power2.out' }, 13.6)
+      .to(['#halfL', '#halfR'], { autoAlpha: 0, scale: 1.4, duration: 0.6 }, 14.0)
+      .to('#s6', { autoAlpha: 0, duration: 0.4 }, 14.5);
+    hide(tl, caps(6), 14.0);
+
+    // ===== 7. PEČENJE: sirovo → zlatno, para i vreme =====
+    tl.addLabel('pecenje', 14.7);
+    const timer = { m: 0 };
+    tl.set('#s7', { clipPath: 'none' }, 14.7)
+      .to('#timer', { autoAlpha: 1, duration: 0.3 }, 14.8)
+      .to(timer, { m: 15, duration: 2.4, onUpdate: () => {
+        const total = Math.round(timer.m * 60);
+        $('#timerNum').textContent = Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0');
+      } }, 14.8)
+      .to('#heat', { autoAlpha: 1, duration: 1.2 }, 14.9)
+      .to('#peceni', { autoAlpha: 1, duration: 1.6 }, 15.5)
+      .to('#steam', { autoAlpha: 1, duration: 0.8 }, 15.6)
+      .to('#s7 .bg', { scale: 1.1, duration: 2.6 }, 14.7)
+      .to('#heat', { autoAlpha: 0.35, duration: 0.8 }, 16.6);
+    show(tl, caps(7), 15.0);
+    hide(tl, caps(7), 16.9);
+    tl.to(['#timer', '#steam'], { autoAlpha: 0, duration: 0.4 }, 17.0);
+
+    // ===== 8. PAKOVANJE: kesa, jezgra upadaju, zatvaranje =====
+    tl.addLabel('pakovanje', 17.3);
+    tl.to('#s7', { autoAlpha: 0, duration: 0.6 }, 17.2)
+      .fromTo('#s8', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 17.2)
+      .fromTo('#s8 .bg', { scale: 1.12 }, { scale: 1.0, duration: 2.8, ease: 'power1.out' }, 17.2)
+      .fromTo('#bag', { yPercent: 70, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.7, ease: 'power3.out' }, 17.5)
+      .set('#flap', { scaleY: 0 }, 17.2)
+      .to('#grams', { autoAlpha: 1, duration: 0.3 }, 17.8);
+    const grams = { g: 0 };
+    tl.to(grams, { g: 1000, duration: 1.8, onUpdate: () => { $('#gramsNum').textContent = Math.round(grams.g / 10) * 10; } }, 17.9);
+    kernels.forEach((k, i) => {
+      const at = 17.9 + i * 0.1;
+      tl.fromTo(k, { y: () => -window.innerHeight * 0.75, x: (rnd() - 0.5) * 120, rotation: rnd() * 360, autoAlpha: 1 },
+                   { y: 8 + rnd() * 26, x: 0, rotation: '+=180', duration: 0.5, ease: 'power2.in' }, at);   // gomilica viri iz otvora
+    });
+    tl.to('#flap', { scaleY: 1, duration: 0.5, ease: 'back.out(1.4)' }, 19.9)
+      .fromTo('#label', { scale: 1.25, rotation: -6, transformOrigin: '50% 50%' }, { scale: 1, rotation: -2, duration: 0.4, ease: 'back.out(2)' }, 20.2)
+      .to('#bag', { y: -6, duration: 0.2, yoyo: true, repeat: 1 }, 20.2);
+    show(tl, caps(8), 18.2);
+    tl.to({}, { duration: 0.8 }, 20.6);      // kratka pauza na kraju pre poziva na porudžbinu
+
+    // poglavlja: klik vodi na početak poglavlja
+    list.onclick = e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      const st = tl.scrollTrigger;
+      const y = st.start + (st.end - st.start) * (tl.labels[b.dataset.ch] + 0.2) / tl.duration();
+      window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+    };
+
+    return () => { list.onclick = null; };
+  });
+
+  // ---------- učitavanje: sačekaj prve slike ----------
+  const first = [...document.querySelectorAll('#s1 img, #s2 img')];
+  Promise.all(first.map(img => img.decode ? img.decode().catch(() => {}) : Promise.resolve()))
+    .then(() => {
+      document.getElementById('loader').classList.add('done');
+      ScrollTrigger.refresh();
+    });
+  setTimeout(() => document.getElementById('loader').classList.add('done'), 4000);   // nikad ne zaglavi
+})();
+</script>
+</body>
+</html>
