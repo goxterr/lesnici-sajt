@@ -223,7 +223,27 @@
   }
 
   /* krckanje */
-  .s-krc { background: radial-gradient(60% 60% at 50% 48%, #3a2616 0%, #1b130c 70%); }
+  .s-krc { background: #1b130c; }
+  /* tamnije ivice, svetlo na sredini stola: pogled ide na lešnik */
+  .krc-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(55% 60% at 52% 50%, transparent 30%, rgba(20, 12, 6, 0.55) 100%);
+    pointer-events: none;
+  }
+  /* senka lešnika na stolu */
+  .nut-shadow {
+    position: absolute;
+    left: 50%;
+    top: calc(46% + clamp(70px, 11vw, 135px));
+    width: clamp(150px, 22vw, 270px);
+    height: clamp(22px, 3vw, 38px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(15, 8, 2, 0.6), transparent);
+    filter: blur(4px);
+    z-index: 39;
+  }
   .nut-stage {
     position: absolute;
     left: 50%;
@@ -492,6 +512,9 @@
 
     <!-- 6. Krckanje -->
     <div class="scene s-krc s-hidden" id="s6">
+      <img class="bg" id="krcBg" src="/prica-09-krckanje.webp" alt="Stara krckalica i polomljene ljuske na drvenom radnom stolu">
+      <div class="krc-vignette"></div>
+      <div class="nut-shadow" id="nutShadow"></div>
       <div class="nut-stage" id="nutStage">
         <img class="nut-half l" id="halfL" src="/prica-iso-lesnik.webp" alt="">
         <img class="nut-half r" id="halfR" src="/prica-iso-lesnik.webp" alt="">
@@ -758,7 +781,9 @@
     tl.to('#s5 .bg', { scale: 1.35, filter: 'blur(8px)', duration: 0.6, ease: 'power2.in' }, 11.9)
       .to('#s5', { autoAlpha: 0, duration: 0.5 }, 12.1)
       .fromTo('#s6', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, 12.1)
-      .fromTo('#nutStage', { scale: 0.45, rotation: -25 }, { scale: 1, rotation: 0, duration: 0.9, ease: 'back.out(1.6)' }, 12.2);
+      .fromTo('#krcBg', { scale: 1.12 }, { scale: 1.0, duration: 2.4, ease: 'power1.out' }, 12.1)
+      .fromTo('#nutStage', { scale: 0.45, rotation: -25 }, { scale: 1, rotation: 0, duration: 0.9, ease: 'back.out(1.6)' }, 12.2)
+      .fromTo('#nutShadow', { scale: 0.4, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.9, ease: 'back.out(1.6)' }, 12.2);
     show(tl, caps(6), 12.4);
     // drhtaj pred pucanje
     [5, -5, 4, -4, 3, 0].forEach((x, i) => tl.to('#nutStage', { x, duration: 0.05 }, 13.2 + i * 0.05));
@@ -773,6 +798,7 @@
       .fromTo('#s7', { clipPath: crackNarrow }, { clipPath: crackWide, duration: 1.0, ease: 'power2.inOut' }, 13.6)
       .fromTo('#s7 .bg', { scale: 1.25 }, { scale: 1.02, duration: 1.4, ease: 'power2.out' }, 13.6)
       .to(['#halfL', '#halfR'], { autoAlpha: 0, scale: 1.4, duration: 0.6 }, 14.0)
+      .to('#nutShadow', { scaleX: 1.8, autoAlpha: 0, duration: 0.6 }, 13.6)
       .to('#s6', { autoAlpha: 0, duration: 0.4 }, 14.5);
     hide(tl, caps(6), 14.0);
 
