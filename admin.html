@@ -339,6 +339,7 @@
     letter-spacing: 0.08em;
     color: var(--ink-2);
     align-items: center;
+    gap: 6px;                 /* isti razmak kao u redovima: naslovi stoje tačno iznad kolona */
   }
 
   .order-row {
@@ -1691,6 +1692,62 @@
     text-align: center;
   }
   .chat-system .bubble-delete { margin-left: 6px; }
+
+  /* ---------- sortiranje klikom na naslov kolone ---------- */
+  .sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    padding: 4px 0;
+    font: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .sort-btn.right { justify-content: flex-end; width: 100%; }
+  .sort-btn[data-sort="paid"], .sort-btn[data-sort="picked"] { margin-left: 12px; }   /* poravnato sa tekstom u polju ispod */
+  .sort-btn::after {
+    content: '↕';
+    font-size: 11px;
+    opacity: 0.3;
+    letter-spacing: 0;
+  }
+  .sort-btn:hover { color: var(--accent); }
+  .sort-btn:hover::after { opacity: 0.7; }
+  .sort-btn.asc::after { content: '▲'; opacity: 1; font-size: 9px; }
+  .sort-btn.desc::after { content: '▼'; opacity: 1; font-size: 9px; }
+  .sort-btn.asc, .sort-btn.desc { color: var(--accent); }
+  .sort-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  /* proizvodi: jedna vrsta po redu */
+  .col-items .item-line { display: block; white-space: nowrap; }
+
+  /* sortiranje na telefonu: padajući meni iznad liste */
+  .mobile-sort { display: none; }
+  @media (max-width: 800px) {
+    .mobile-sort {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--ink-2);
+    }
+    .mobile-sort select {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid var(--husk);
+      border-radius: 10px;
+      background: white;
+      font: inherit;
+      color: var(--ink);
+    }
+  }
 </style>
 </head>
 <body>
@@ -1773,18 +1830,30 @@
       </div>
 
       <div class="orders-table">
-        <div class="table-head">
+        <div class="table-head" id="tableHead">
           <div></div>
-          <div>Datum</div>
-          <div>Ime</div>
-          <div>Biznis</div>
-          <div>Proizvodi</div>
-          <div style="text-align:right">Iznos</div>
-          <div>Plaćeno</div>
-          <div>Preuzeto</div>
+          <button type="button" class="sort-btn" data-sort="date">Datum</button>
+          <button type="button" class="sort-btn" data-sort="name">Ime</button>
+          <button type="button" class="sort-btn" data-sort="office">Biznis</button>
+          <button type="button" class="sort-btn" data-sort="items">Proizvodi</button>
+          <button type="button" class="sort-btn right" data-sort="total">Iznos</button>
+          <button type="button" class="sort-btn" data-sort="paid">Plaćeno</button>
+          <button type="button" class="sort-btn" data-sort="picked">Preuzeto</button>
           <div></div>
           <div></div>
         </div>
+        <label class="mobile-sort">Sortiraj:
+          <select id="mobileSort" onchange="setSortFromSelect(this.value)">
+            <option value="">najnovije prvo</option>
+            <option value="date:asc">najstarije prvo</option>
+            <option value="name:asc">ime A–Ž</option>
+            <option value="office:asc">biznis A–Ž</option>
+            <option value="items:desc">najviše kg</option>
+            <option value="total:desc">najveći iznos</option>
+            <option value="paid:asc">neplaćeno prvo</option>
+            <option value="picked:asc">nepreuzeto prvo</option>
+          </select>
+        </label>
         <div id="ordersBody">
           <div class="loading-placeholder">učitavanje</div>
         </div>
@@ -1907,7 +1976,7 @@
     <div class="product-modal-body">
       <div class="product-form-group">
         <label for="arrivedMessage">Poruka</label>
-        <textarea id="arrivedMessage" rows="4" maxlength="600" oninput="saveArrivedTemplate()"></textarea>
+        <textarea id="arrivedMessage" rows="8" maxlength="600" oninput="saveArrivedTemplate()"></textarea>
         <div class="form-hint">{ime} se menja imenom kupca u obliku za obraćanje (Gorane, Milice), {porudzbina} onim što je poručio. Tekst se pamti za sledeći put.</div>
       </div>
       <div class="arrived-list" id="arrivedList"></div>
@@ -2106,9 +2175,83 @@
     renderOrdersTable();
   }
 
+  // ---------- sortiranje ----------
+  let sortKey = null, sortDir = 'desc';
+  const SORT_DEFAULT_DIR = { date: 'desc', name: 'asc', office: 'asc', items: 'desc', total: 'desc', paid: 'asc', picked: 'asc' };
+  const PAID_ORDER = { '': 0, 'P': 1, 'eP': 2 };
+  function dateValue(d) {
+    const m = String(d || '').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0)).getTime();
+    const t = Date.parse(d);
+    return isNaN(t) ? 0 : t;
+  }
+  function kgTotal(items) { return parseItems(items).reduce((s, it) => s + it.qty, 0); }
+  function sortValue(o, key) {
+    switch (key) {
+      case 'date': return dateValue(o.date);
+      case 'name': return String(o.name || '').toLocaleLowerCase('sr');
+      case 'office': return String(o.office || '').toLocaleLowerCase('sr');
+      case 'items': return kgTotal(o.items);
+      case 'total': return Number(o.total) || 0;
+      case 'paid': return PAID_ORDER[o.paid] ?? 0;
+      case 'picked': return o.picked ? 1 : 0;
+    }
+    return 0;
+  }
+  function applySort(list) {
+    if (!sortKey) return list;
+    const dir = sortDir === 'asc' ? 1 : -1;
+    return [...list].sort((a, b) => {
+      const va = sortValue(a, sortKey), vb = sortValue(b, sortKey);
+      const c = typeof va === 'string' ? va.localeCompare(vb, 'sr') : va - vb;
+      return c * dir || (dateValue(b.date) - dateValue(a.date));     // isti iznos/ime: novije prvo
+    });
+  }
+  function setSort(key) {
+    if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    else { sortKey = key; sortDir = SORT_DEFAULT_DIR[key] || 'asc'; }
+    paintSortHeaders();
+    renderOrdersTable();
+  }
+  function setSortFromSelect(v) {
+    if (!v) { sortKey = null; } else { const [k, d] = v.split(':'); sortKey = k; sortDir = d; }
+    paintSortHeaders();
+    renderOrdersTable();
+  }
+  function paintSortHeaders() {
+    document.querySelectorAll('.sort-btn').forEach(b => {
+      b.classList.remove('asc', 'desc');
+      if (b.dataset.sort === sortKey) b.classList.add(sortDir);
+      b.setAttribute('aria-sort', b.dataset.sort === sortKey ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none');
+    });
+  }
+  document.getElementById('tableHead').addEventListener('click', e => {
+    const b = e.target.closest('.sort-btn');
+    if (b) setSort(b.dataset.sort);
+  });
+
+  // ---------- proizvodi: "2 kg pečeni / 1 kg sirovi", pečeni uvek prvi ----------
+  function parseItems(str) {
+    const order = ['pečeni', 'sirovi'];
+    return String(str || '').split(',').map(part => {
+      const m = part.trim().match(/^(.*?)\s*(\d+(?:[.,]\d+)?)\s*kg$/i);
+      return m ? { key: m[1].trim().toLowerCase(), qty: Number(m[2].replace(',', '.')) } : null;
+    }).filter(Boolean).sort((a, b) => {
+      const ia = order.indexOf(a.key), ib = order.indexOf(b.key);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+  }
+  function itemLines(str) {
+    const items = parseItems(str);
+    return items.length ? items.map(it => `${it.qty} kg ${it.key}`) : [String(str || '')];
+  }
+  function itemsHtml(str) {
+    return itemLines(str).map(l => `<span class="item-line">${escapeHtml(l)}</span>`).join('');
+  }
+
   function getFilteredOrders() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    return orders.filter(o => {
+    return applySort(orders.filter(o => {
       if (currentFilter === 'unpaid' && o.paid !== '') return false;
       if (currentFilter === 'not-picked' && o.picked) return false;
       if (currentFilter === 'done' && !(o.paid !== '' && o.picked)) return false;
@@ -2119,7 +2262,7 @@
         if (!match) return false;
       }
       return true;
-    });
+    }));
   }
 
   function renderStats() {
@@ -2215,7 +2358,7 @@
                 <div class="col-date" style="margin-top:4px">${formatShortDate(o.date)}</div>
               </div>
             </div>
-            <div class="col-items">${o.items}</div>
+            <div class="col-items">${itemsHtml(o.items)}</div>
             <div class="mobile-actions">
               ${paidSelect}
               ${pickedToggle}
@@ -2233,7 +2376,7 @@
             <div class="col-date">${formatShortDate(o.date)}</div>
             <div class="col-name">${o.name}${contactLine(o)}${replyLine(o)}</div>
             <div class="col-office">${o.office}</div>
-            <div class="col-items">${o.items}</div>
+            <div class="col-items">${itemsHtml(o.items)}</div>
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
             <div>${paidSelect}</div>
             <div>${pickedToggle}</div>
@@ -2442,8 +2585,10 @@
       if (isSystem(c)) {
         // tvoja akcija (poslat mejl) prikazana kao tvoja poruka: desno, zeleno
         const isArrived = /stigli su le/i.test(String(c.text));
-        const title = isArrived ? 'Stigli su lešnici! 🌰' : String(c.text).replace(/^📧\s*/, '');
-        const sub = isArrived ? 'Javio sam mejlom da mogu da preuzmu' : 'Poslato mejlom';
+        const isConfirm = /potvrda porud/i.test(String(c.text));
+        const title = isArrived ? 'Stigli su lešnici! 🌰' : (isConfirm ? 'Porudžbina primljena' : String(c.text).replace(/^📧\s*/, ''));
+        const sub = isArrived ? 'Javio sam mejlom da mogu da preuzmu'
+                  : (isConfirm ? 'Poslat pregled porudžbine i QR kod za uplatu' : 'Poslato mejlom');
         return `
         <div class="bubble mine action">
           <div class="bubble-title">${escapeHtml(title)}</div>
@@ -2858,8 +3003,9 @@
   // ============================================
   // STIGLO — WhatsApp obaveštenje izabranim kupcima
   // ============================================
-  const ARRIVED_DEFAULT = 'Ćao, {ime}! 🌰 Stigli su lešnici — tvoja porudžbina ({porudzbina}) te čeka. Javi kad ti odgovara da preuzmeš. Pozdrav, Goran';
-  const ARRIVED_KEY = 'lesnici_stiglo_poruka';
+  // obična lična poruka: bez emotikona i dugih crta, da ne liči na reklamu
+  const ARRIVED_DEFAULT = 'Ćao, {ime},\n\nstigli su lešnici. Tvoja porudžbina ({porudzbina}) je spremna za preuzimanje.\n\nJavi mi kad ti odgovara da svratiš.\n\nPozdrav,\nGoran';
+  const ARRIVED_KEY = 'lesnici_stiglo_poruka_v2';   // nov ključ: stara zapamćena poruka sa emotikonom se ne učitava
 
   // Pretvara broj iz forme (063/869-0881, +381 63..., 638690881) u format za WhatsApp (381638690881)
   function toWhatsAppNumber(raw) {
@@ -2896,7 +3042,7 @@
     const template = document.getElementById('arrivedMessage').value || ARRIVED_DEFAULT;
     return template
       .replace(/\{ime\}/g, vocative(order.name))      // obraćanje: Gorane, Milice, Petre...
-      .replace(/\{porudzbina\}/g, order.items || '');
+      .replace(/\{porudzbina\}/g, itemLines(order.items).join(', '));
   }
 
   function openArrivedModal() {
@@ -3007,7 +3153,7 @@ function cleanReplyText(t) {
         action: 'notifyArrived',
         ids: chosen.map(o => o.id),
         message,
-        subject: '🌰 Stigli su lešnici!'
+        subject: 'Stigli su lešnici'
       });
       if (!result.success) {
         showToast('Greška: ' + (result.error || 'nepoznato'), true);

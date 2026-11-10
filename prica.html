@@ -329,8 +329,8 @@
     aspect-ratio: 3 / 2;
     pointer-events: none;
   }
-  .kernel { width: 3.5%; filter: drop-shadow(0 2px 2px rgba(40, 20, 0, 0.35)); }
-  .kernel.back { width: 3.3%; filter: brightness(0.78) saturate(1.05); }   /* zadnji sloj popunjava rupe */
+  .kernel { filter: drop-shadow(0 2px 2px rgba(40, 20, 0, 0.35)); }
+  .kernel.back { filter: brightness(0.8) saturate(1.05); }   /* zadnji sloj popunjava rupe */
   #bagKernels { position: absolute; inset: 0; }
   .plastic {
     position: absolute;
@@ -405,39 +405,13 @@
   .progress { display: none; }
 
   /* kraj: poziv na porudžbinu */
-  .finale {
-    position: relative;
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
+  .story-foot {
+    padding: 22px 20px 30px;
     text-align: center;
-    padding: 120px 24px 80px;
-    background:
-      radial-gradient(70% 60% at 50% 0%, rgba(160, 88, 44, 0.35), transparent 70%),
-      var(--ink);
-  }
-  .finale h2 {
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: clamp(44px, 8vw, 112px);
-    line-height: 0.95;
-    letter-spacing: -0.035em;
-    text-wrap: balance;
-  }
-  .finale h2 em { font-style: italic; font-weight: 400; color: var(--gold); }
-  .finale p {
-    font-size: clamp(16px, 1.4vw, 19px);
-    color: #e9dcc4;
-    margin: 22px auto 34px;
-    max-width: 44ch;
-    line-height: 1.55;
-  }
-  .finale .order-btn { font-size: 17px; padding: 16px 30px; }
-  .finale .note {
-    margin-top: 70px;
     font-size: 12px;
-    color: rgba(233, 220, 196, 0.5);
+    color: rgba(233, 220, 196, 0.55);
   }
+  .story-foot a { color: var(--gold); text-decoration: none; }
 
   /* učitavanje */
   .loader {
@@ -474,6 +448,198 @@
 
   @media (prefers-reduced-motion: reduce) {
     .scroll-hint span, .steam path { animation: none; }
+  }
+
+  /* ---------- kesa koja odlazi ---------- */
+  .bag-cut { position: absolute; height: auto; opacity: 0; visibility: hidden; will-change: transform; }
+
+  /* ---------- formular: list papira na kuhinjskom stolu ---------- */
+  .order-wrap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(10px, 4vh, 40px);
+    z-index: 45;
+    display: flex;
+    justify-content: center;
+    padding: 0 12px;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .order-card {
+    position: relative;
+    pointer-events: auto;
+    width: min(800px, 100%);
+    max-height: calc(100vh - 96px);
+    max-height: calc(100svh - 96px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 26px 30px 24px;
+    border-radius: 6px;
+    color: #2a1f15;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.32 0 0 0 0 0.18 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+      linear-gradient(170deg, #fdf8ec 0%, #f6ecd6 100%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.8) inset,
+      0 28px 50px -12px rgba(20, 10, 2, 0.6),
+      0 6px 14px rgba(20, 10, 2, 0.25);
+    transform: rotate(-0.6deg);
+    font-family: 'Inter', sans-serif;
+  }
+  .order-card .tape {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    width: 120px;
+    height: 26px;
+    transform: translateX(-50%) rotate(2deg);
+    background: rgba(214, 186, 140, 0.75);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  }
+  .oc-head { text-align: center; margin-bottom: 18px; }
+  .oc-head h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(26px, 3.2vw, 38px);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .oc-head h2 em { font-style: italic; font-weight: 400; color: #9c4a1b; }
+  .oc-head p { margin-top: 6px; font-size: 14px; color: #6e5a43; }
+  .oc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .oc-label, .oc-field label {
+    display: block;
+    font-family: 'Caveat', cursive;
+    font-weight: 600;
+    font-size: 19px;
+    color: #4d6030;
+    margin-bottom: 4px;
+  }
+  .oc-label small { font-size: 15px; color: #8a7a62; margin-left: 6px; }
+  .oc-products { border-top: 1px dashed #cdb48a; }
+  .oc-loading { padding: 18px 0; text-align: center; font-family: 'Caveat', cursive; font-size: 19px; color: #8a7a62; }
+  .oc-prod {
+    display: grid;
+    grid-template-columns: 46px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed #cdb48a;
+  }
+  .oc-prod img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 3px 4px rgba(60, 30, 5, 0.2)); }
+  .oc-prod .nm { font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px; line-height: 1.15; }
+  .oc-prod .pr { font-size: 13px; color: #9c4a1b; font-weight: 600; margin-top: 2px; }
+  .oc-prod .pr span { color: #8a7a62; font-weight: 400; }
+  .oc-prod.off { opacity: 0.45; }
+  .oc-step { display: inline-flex; align-items: center; gap: 4px; }
+  .oc-step button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid #b89a6e;
+    background: transparent;
+    color: #6e3a14;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .oc-step button:hover:not(:disabled) { background: #efe2c6; }
+  .oc-step button:disabled { opacity: 0.35; cursor: default; }
+  .oc-step output { min-width: 26px; text-align: center; font-family: 'Fraunces', serif; font-weight: 700; font-size: 17px; }
+  .oc-summary {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border: 1.5px dashed #c9a877;
+    border-radius: 8px;
+    font-family: 'Caveat', cursive;
+    font-size: 19px;
+    text-align: center;
+    color: #8a7a62;
+  }
+  .oc-summary.has { font-family: 'Inter', sans-serif; font-size: 14px; color: #2a1f15; text-align: left; }
+  .oc-summary .row { display: flex; justify-content: space-between; gap: 10px; }
+  .oc-summary .tot { margin-top: 6px; padding-top: 6px; border-top: 1px solid #e0cfae; font-weight: 700; font-family: 'Fraunces', serif; font-size: 17px; }
+  .oc-field { margin-bottom: 12px; }
+  .oc-field input {
+    width: 100%;
+    padding: 8px 2px 7px;
+    border: none;
+    border-bottom: 1.5px dashed #b89a6e;
+    background: transparent;
+    font: 400 16px 'Inter', sans-serif;      /* 16px: telefon ne zumira pri kucanju */
+    color: #2a1f15;
+    border-radius: 0;
+  }
+  .oc-field input::placeholder { color: #b4a184; }
+  .oc-field input:focus { outline: none; border-bottom: 1.5px solid #9c4a1b; }
+  .oc-submit, .oc-again {
+    width: 100%;
+    margin-top: 6px;
+    padding: 13px 18px;
+    border: none;
+    border-radius: 10px;
+    background: #2a1f15;
+    color: #f8f1e4;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 17px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #120c07;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .oc-submit:hover:not(:disabled), .oc-again:hover { background: #9c4a1b; }
+  .oc-submit:active { transform: translateY(2px); box-shadow: 0 2px 0 #120c07; }
+  .oc-submit:disabled { opacity: 0.6; cursor: wait; }
+  .oc-error { min-height: 18px; margin-top: 8px; font-size: 13px; color: #b3261e; text-align: center; }
+  .oc-pay { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; }
+  .oc-qr-box { text-align: center; }
+  .oc-qr { width: 170px; height: 170px; background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(60, 30, 5, 0.15); }
+  .oc-qr img { width: 100%; height: 100%; image-rendering: pixelated; }
+  .oc-qr-box small { display: block; margin-top: 8px; font-family: 'Caveat', cursive; font-size: 17px; line-height: 1.1; color: #4d6030; }
+  .oc-pay-data { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 14px; }
+  .oc-pay-data dt { color: #8a7a62; }
+  .oc-pay-data dd { font-weight: 600; word-break: break-word; }
+  .oc-again { margin-top: 18px; background: transparent; color: #2a1f15; border: 1.5px solid #2a1f15; box-shadow: none; }
+  .oc-again:hover { color: #f8f1e4; }
+
+  /* "i" pored mejla (isto kao na naslovnoj) */
+  .label-with-info { display: flex; align-items: center; gap: 6px; }
+  .label-with-info label { margin-bottom: 4px; }
+  .info-wrap { position: relative; display: inline-flex; margin-bottom: 4px; }
+  .info-btn {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid #9c4a1b; background: transparent; color: #9c4a1b;
+    font: italic 700 12px/1 'Fraunces', Georgia, serif; padding: 0; cursor: pointer;
+    display: inline-grid; place-items: center;
+  }
+  .info-btn:hover, .info-wrap.open .info-btn { background: #9c4a1b; color: #fffaf0; }
+  .info-pop {
+    position: absolute; bottom: calc(100% + 10px); right: -14px; z-index: 5;
+    width: max-content; max-width: min(300px, 78vw);
+    padding: 12px 14px; border-radius: 12px;
+    background: #2a1f15; color: #f8f1e4;
+    font: 400 13px/1.5 'Inter', sans-serif;
+    box-shadow: 0 10px 28px rgba(42, 31, 21, 0.3);
+    opacity: 0; visibility: hidden; transform: translateY(4px);
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s; pointer-events: none;
+  }
+  .info-pop::after { content: ''; position: absolute; top: 100%; right: var(--arrow-right, 18px); border: 7px solid transparent; border-top-color: #2a1f15; }
+  @media (hover: hover) { .info-wrap:hover .info-pop { opacity: 1; visibility: visible; transform: none; } }
+  .info-wrap.open .info-pop { opacity: 1; visibility: visible; transform: none; }
+
+  @media (max-width: 760px) {
+    .order-card { padding: 20px 16px 16px; max-height: calc(100vh - 70px); max-height: calc(100svh - 70px); transform: none; }
+    .oc-head { margin-bottom: 10px; }
+    .oc-head p { font-size: 13px; }
+    .oc-grid { grid-template-columns: 1fr; gap: 10px; }
+    .oc-prod { padding: 7px 0; grid-template-columns: 38px 1fr auto; }
+    .oc-prod img { width: 38px; height: 38px; }
+    .oc-summary { margin-top: 10px; padding: 8px 10px; }
+    .oc-field { margin-bottom: 8px; }
+    .oc-pay { grid-template-columns: 1fr; justify-items: center; gap: 14px; }
+    .oc-qr { width: 150px; height: 150px; }
   }
 </style>
 </head>
@@ -544,17 +710,84 @@
       </svg>
     </div>
 
-    <!-- 8. Pakovanje: prava kesa, pa vakum -->
+    <!-- 8. Pakovanje: prazna kesa se puni od nule, vakum, pa kesa odlazi i na sto izlazi formular -->
     <div class="scene s-hidden" id="s8">
-      <img class="bg" id="kesaPuni" src="/prica-10-kesa-puni.webp" alt="Prozirna kesa na drvenom stolu, do trećine puna pečenih lešnika">
+      <img class="bg" id="kesaPrazna" src="/prica-10-kesa-prazna.webp" alt="Prazna prozirna kesa na drvenom stolu">
       <img class="bg s-hidden" id="kesaVakum" src="/prica-11-kesa-vakum.webp" alt="Puna vakumirana kesa sa etiketom Goranovi lešnici, pečeni, 1 kg">
-      <!-- okvir iste veličine i položaja kao fotografija (object-fit: cover), da jezgra pogode otvor kese -->
+      <img class="bg s-hidden" id="stoBg" src="/prica-08-sto.webp" alt="" aria-hidden="true">
+      <!-- okvir iste veličine i položaja kao fotografija (object-fit: cover), da jezgra pogode kesu -->
       <div class="cover-box" id="coverBox">
         <div id="bagKernels"></div>
         <!-- odsjaji nabora plastike (izvučeni iz fotografije), preko jezgara: jezgra su "u" kesi -->
         <img class="plastic" src="/prica-12-kesa-odsjaj.webp" alt="" aria-hidden="true">
+        <!-- isečena vakumirana kesa: stoji tačno na mestu kese sa fotografije, pa odlazi gore -->
+        <img class="bag-cut" id="bagCut" src="/prica-13-kesa-isecak.webp" alt="" aria-hidden="true"
+             style="left:36.458%; top:19.141%; width:26.562%">
       </div>
       <div class="seal-flash" id="sealFlash"></div>
+
+      <!-- formular za porudžbinu, kao list papira na stolu -->
+      <div class="order-wrap" id="orderWrap" inert>
+        <form class="order-card" id="orderCard" novalidate>
+          <span class="tape" aria-hidden="true"></span>
+          <div id="ocForm">
+            <div class="oc-head">
+              <h2 id="porucivanje">Tvoja kesa <em>te čeka</em></h2>
+              <p>Izaberi koliko hoćeš, upiši se i javiću ti kad bude spremno.</p>
+            </div>
+            <div class="oc-grid">
+              <div class="oc-col">
+                <div class="oc-label">Lešnici <small>pakovanje 1 kg</small></div>
+                <div class="oc-products" id="ocProducts"><div class="oc-loading">~ učitavam ponudu ~</div></div>
+                <div class="oc-summary" id="ocSummary">~ još ništa nisi izabrao ~</div>
+              </div>
+              <div class="oc-col">
+                <div class="oc-field">
+                  <label for="ocName">Ime i prezime</label>
+                  <input id="ocName" autocomplete="name" placeholder="npr. Marko Petrović" maxlength="80">
+                </div>
+                <div class="oc-field">
+                  <label for="ocOffice">Biznis</label>
+                  <input id="ocOffice" placeholder="npr. Infostud, Polovnjaci, 4zida" maxlength="60">
+                </div>
+                <div class="oc-field">
+                  <div class="label-with-info">
+                    <label for="ocEmail">Email (za info o isporuci)</label>
+                    <span class="info-wrap">
+                      <button type="button" class="info-btn" aria-label="Zašto mejl?" aria-expanded="false" aria-controls="ocEmailInfo">i</button>
+                      <span class="info-pop" id="ocEmailInfo" role="tooltip">Upiši mejl na koji mogu da ti javim informacije o lešnicima.<br>Na mejl mi možeš slobodno odgovoriti ako imaš pitanja.<br>Proveri spam, da ti ne promakne :)</span>
+                    </span>
+                  </div>
+                  <input id="ocEmail" type="email" inputmode="email" autocomplete="email" placeholder="npr. marko@gmail.com" maxlength="120">
+                </div>
+                <button type="submit" class="oc-submit" id="ocSubmit">Pošalji porudžbinu</button>
+                <div class="oc-error" id="ocError" role="alert"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="oc-success" id="ocSuccess" hidden>
+            <div class="oc-head">
+              <h2>Hvala, <em id="ocThanksName"></em></h2>
+              <p>Porudžbina <b id="ocOrderNo"></b> je primljena. <span id="ocMailNote"></span></p>
+            </div>
+            <div class="oc-pay">
+              <div class="oc-qr-box">
+                <div class="oc-qr" id="ocQR"></div>
+                <small>skeniraj u m-banking aplikaciji,<br>iznos je već upisan</small>
+              </div>
+              <dl class="oc-pay-data">
+                <dt>Primalac</dt><dd>Goran Bilić</dd>
+                <dt>Broj računa</dt><dd>325-9300706871370-70</dd>
+                <dt>Iznos</dt><dd id="ocPayAmount"></dd>
+                <dt>Poziv na broj</dt><dd id="ocPayRef"></dd>
+                <dt>Svrha</dt><dd>Lešnici</dd>
+              </dl>
+            </div>
+            <button type="button" class="oc-again" id="ocAgain">Nova porudžbina</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- lišće pada preko berbe -->
@@ -582,21 +815,16 @@
     <div class="caption" data-cap="8"><h2>Kilogram <em>po kilogram</em></h2><p>Ohlađeni, očišćeni i izmereni idu u kesu. Vakumirano, potpisano, spremno za tebe.</p></div>
   </section>
 
-  <section class="finale" id="finale">
-    <div>
-      <h2>Tvoja kesa <em>te čeka</em></h2>
-      <p>Poruči za par klikova, plati QR kodom i javiću ti čim lešnici budu spremni za preuzimanje.</p>
-      <a class="order-btn" href="/">Poruči lešnike</a>
-      <div class="note">Fotografije u priči su ilustrativne. Lešnici su pravi.</div>
-    </div>
-  </section>
+  <footer class="story-foot">Fotografije u priči su ilustrativne. Lešnici su pravi. · <a href="/">Goranovi lešnici</a></footer>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script>
 (function () {
   gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.config({ ignoreMobileResize: true });
   const $ = s => document.querySelector(s);
   const rnd = (() => { let x = 7; return () => (x = (x * 16807) % 2147483647) / 2147483647; })(); // isti raspored svaki put
 
@@ -634,27 +862,35 @@
     leaves.push(d);
   }
 
-  // ---------- jezgra koja pune kesu: red po red, od gomile do vrha ----------
-  // Koordinate su u % fotografije (1536×1024): unutrašnjost kese je ~38.5–61.5% širine,
-  // postojeća gomila počinje na ~51% visine, a otvor je na ~19%.
+  // ---------- jezgra koja pune kesu: od praznog dna do vrha ----------
+  // Koordinate su u % fotografije (1536×1024): unutrašnjost kese je ~37.4–61.4% širine,
+  // dno je na ~71% visine, a vrh punjenja na ~23%.
   const kBox = $('#bagKernels');
   const kernels = [];
-  const ROWS = 8, ROW_TOP = 49.5, ROW_STEP = 3.5;     // u % visine fotografije
-  const SPAN = 21.4, X0 = 38.7;                       // unutrašnja širina kese
+  const KW = 4.1;                                      // širina jezgra u % širine fotografije (kao u vakumiranoj kesi)
+  const ROWS = 11, ROW_BOTTOM = 64.9, ROW_STEP = 4.3;  // vrh najnižeg reda i korak naviše (u % visine)
+  const X0 = 37.3, SPAN = 24.2, PER_ROW = 6;
+  // jezgra 2 i 6 imaju veliku braon opnu: ređe se pojavljuju, kao u pravoj kesi
+  const KERNEL_WEIGHTS = [3, 0.8, 3, 2, 3, 0.5];
+  const pickKernel = () => {
+    let x = rnd() * KERNEL_WEIGHTS.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < 6; i++) { x -= KERNEL_WEIGHTS[i]; if (x <= 0) return i + 1; }
+    return 1;
+  };
   for (let r = 0; r < ROWS; r++) {
-    // u svakom redu: zadnji sloj (6, tamniji, između) pa prednji (7)
-    [['back', 6, SPAN / 12 + 0.4], ['front', 7, 0]].forEach(([layer, perRow, shift]) => {
+    // u svakom redu: zadnji sloj (5, tamniji, u procepima) pa prednji (6)
+    [['back', PER_ROW - 1, SPAN / (PER_ROW * 2)], ['front', PER_ROW, 0]].forEach(([layer, perRow, shift]) => {
       const order = [...Array(perRow).keys()].sort(() => rnd() - 0.5);
       order.forEach(c => {
         const k = document.createElement('img');
-        k.src = (r + c) % 2 ? '/prica-iso-jezgro-2.webp' : '/prica-iso-jezgro.webp';
+        k.src = '/prica-jezgro-' + pickKernel() + '.webp';                    // šest različitih jezgara
         k.alt = '';
         k.className = 'sprite kernel' + (layer === 'back' ? ' back' : '');
-        k.style.left = (X0 + shift + c * (SPAN / 7) + (rnd() - 0.5) * 0.8) + '%';
-        k.style.top = (ROW_TOP - r * ROW_STEP + (layer === 'back' ? -1.4 : 0) + (rnd() - 0.5) * 1.0) + '%';
+        k.style.width = (KW + (rnd() - 0.5) * 0.5) + '%';
+        k.style.left = (X0 + shift + c * (SPAN / PER_ROW) + (rnd() - 0.5) * 0.6) + '%';
+        k.style.top = (ROW_BOTTOM - r * ROW_STEP + (layer === 'back' ? -1.3 : 0) + (rnd() - 0.5) * 0.9) + '%';
         k.style.transform = `rotate(${Math.round(rnd() * 360)}deg)`;
         k.style.opacity = 0;
-        k.dataset.layer = layer;
         kBox.appendChild(k);
         kernels.push(k);
       });
@@ -662,7 +898,7 @@
   }
 
   // ---------- poglavlja ----------
-  const CHAPTERS = [['vocnjak', 'Voćnjak'], ['leto', 'Leto'], ['berba', 'Berba'], ['susenje', 'Sušenje'], ['krckanje', 'Krckanje'], ['pecenje', 'Pečenje'], ['pakovanje', 'Pakovanje']];
+  const CHAPTERS = [['vocnjak', 'Voćnjak'], ['leto', 'Leto'], ['berba', 'Berba'], ['susenje', 'Sušenje'], ['krckanje', 'Krckanje'], ['pecenje', 'Pečenje'], ['pakovanje', 'Pakovanje'], ['porudzbina', 'Poruči']];
   const list = $('#chapters');
   CHAPTERS.forEach(([id, name]) => {
     const li = document.createElement('li');
@@ -685,7 +921,7 @@
       scrollTrigger: {
         trigger: '#story',
         start: 'top top',
-        end: () => '+=' + window.innerHeight * 11,
+        end: () => '+=' + window.innerHeight * 12.4,
         pin: true,
         scrub: reduce ? true : 0.9,
         anticipatePin: 1,
@@ -695,6 +931,7 @@
           let active = CHAPTERS[0][0];
           CHAPTERS.forEach(([id]) => { if (tl.labels[id] !== undefined && t >= tl.labels[id] - 0.01) active = id; });
           document.querySelectorAll('.chapters button').forEach(b => b.classList.toggle('on', b.dataset.ch === active));
+          document.getElementById('orderWrap').inert = t < 22.2;
         }
       }
     });
@@ -802,32 +1039,44 @@
     hide(tl, caps(7), 16.9);
     tl.to(['#timer', '#steam'], { autoAlpha: 0, duration: 0.4 }, 17.0);
 
-    // ===== 8. PAKOVANJE: jezgra upadaju u pravu kesu, pa vakum =====
+    // ===== 8. PAKOVANJE: prazna kesa se puni od nule, pa vakum =====
     tl.addLabel('pakovanje', 17.3);
     gsap.set('#coverBox', { xPercent: -50, yPercent: -50 });
     const boxH = () => document.getElementById('coverBox').offsetHeight;
     tl.to('#s7', { autoAlpha: 0, duration: 0.6 }, 17.2)
       .fromTo('#s8', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 17.2)
       .fromTo(['#s8 .bg', '#coverBox'], { scale: 1.1 }, { scale: 1.0, duration: 0.7, ease: 'power2.out' }, 17.2)
-      .to('#grams', { autoAlpha: 1, duration: 0.3 }, 17.8);
+      .to('#grams', { autoAlpha: 1, duration: 0.3 }, 17.8)
+      .set('#s8 .plastic', { autoAlpha: 0.55 }, 17.85);      // blagi odsjaji plastike preko jezgara
+    const FILL_FROM = 17.9, FILL_LEN = 2.3;
     const grams = { g: 0 };
-    tl.to(grams, { g: 1000, duration: 1.8, onUpdate: () => { $('#gramsNum').textContent = Math.round(grams.g / 10) * 10; } }, 17.9);
-    tl.set('#s8 .plastic', { autoAlpha: 1 }, 17.85);
+    tl.to(grams, { g: 1000, duration: FILL_LEN + 0.1, onUpdate: () => { $('#gramsNum').textContent = Math.round(grams.g / 10) * 10; } }, FILL_FROM);
     kernels.forEach((k, i) => {
-      const at = 17.9 + i * (1.75 / kernels.length);          // ~50 jezgara za 1.75 jedinica skrola
-      const fromTop = parseFloat(k.style.top) + 14;            // koliko % visine pada (iz vazduha iznad kese)
-      tl.fromTo(k, { y: () => -boxH() * fromTop / 100, x: (rnd() - 0.5) * 18, autoAlpha: 1 },
-                   { y: 0, x: 0, rotation: '+=' + Math.round(90 + rnd() * 120), duration: 0.34, ease: 'bounce.out' }, at);
+      const at = FILL_FROM + i * (FILL_LEN / kernels.length);
+      const fromTop = parseFloat(k.style.top) + 14;            // pada iz vazduha iznad kese
+      tl.fromTo(k, { y: () => -boxH() * fromTop / 100, x: (rnd() - 0.5) * 16, autoAlpha: 1 },
+                   { y: 0, x: 0, rotation: '+=' + Math.round(90 + rnd() * 120), duration: 0.3, ease: 'bounce.out' }, at);
     });
     // vakum: kesa se stegne, blesne, i postane puna vakumirana kesa sa etiketom
-    tl.to(['#kesaPuni', '#kesaVakum'], { scaleX: 0.985, scaleY: 1.012, duration: 0.18, ease: 'power2.in' }, 19.75)
-      .to('#sealFlash', { autoAlpha: 0.55, duration: 0.15 }, 19.8)
-      .to('#kesaVakum', { autoAlpha: 1, duration: 0.3 }, 19.85)
-      .to([...kernels, '#s8 .plastic'], { autoAlpha: 0, duration: 0.3 }, 19.85)
-      .to(['#kesaPuni', '#kesaVakum'], { scaleX: 1, scaleY: 1, duration: 0.35, ease: 'back.out(2)' }, 19.93)
-      .to('#sealFlash', { autoAlpha: 0, duration: 0.45 }, 19.95);
+    tl.to(['#kesaPrazna', '#kesaVakum'], { scaleX: 0.985, scaleY: 1.012, duration: 0.18, ease: 'power2.in' }, 20.35)
+      .to('#sealFlash', { autoAlpha: 0.55, duration: 0.15 }, 20.4)
+      .to('#kesaVakum', { autoAlpha: 1, duration: 0.3 }, 20.45)
+      .to([...kernels, '#s8 .plastic'], { autoAlpha: 0, duration: 0.3 }, 20.45)
+      .to(['#kesaPrazna', '#kesaVakum'], { scaleX: 1, scaleY: 1, duration: 0.35, ease: 'back.out(2)' }, 20.53)
+      .to('#sealFlash', { autoAlpha: 0, duration: 0.45 }, 20.55);
     show(tl, caps(8), 18.2);
-    tl.to({}, { duration: 0.8 }, 20.6);      // kratka pauza na kraju pre poziva na porudžbinu
+
+    // ===== 9. PORUDŽBINA: kesa odlazi gore, na sto izlazi formular =====
+    tl.addLabel('porudzbina', 21.1);
+    hide(tl, caps(8), 21.0);
+    tl.to('#grams', { autoAlpha: 0, duration: 0.3 }, 21.0)
+      .set('#bagCut', { autoAlpha: 1 }, 21.0)                                  // isečak tačno preko kese sa slike
+      .to('#stoBg', { autoAlpha: 1, duration: 0.35 }, 21.02)                   // ispod njega: prazan sto
+      .to('#bagCut', { yPercent: -140, rotation: -5, duration: 1.0, ease: 'power2.in' }, 21.35)
+      .to('#bagCut', { autoAlpha: 0, duration: 0.25 }, 22.1)
+      .set('#orderWrap', { autoAlpha: 1 }, 21.65)
+      .fromTo('#orderCard', { yPercent: 115 }, { yPercent: 0, duration: 1.0, ease: 'power3.out' }, 21.7);
+    tl.to({}, { duration: 1.1 }, 22.7);      // formular ostaje na stolu dok se popunjava
 
     // poglavlja: klik vodi na početak poglavlja
     list.onclick = e => {
@@ -838,8 +1087,167 @@
       window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
     };
 
-    return () => { list.onclick = null; };
+    const toOrder = e => {
+      e.preventDefault();
+      const st = tl.scrollTrigger;
+      window.scrollTo({ top: st.start + (st.end - st.start) * 22.75 / tl.duration(), behavior: reduce ? 'auto' : 'smooth' });
+    };
+    const topOrder = document.querySelector('.topbar .order-btn');
+    topOrder.addEventListener('click', toOrder);
+
+    return () => { list.onclick = null; topOrder.removeEventListener('click', toOrder); };
   });
+
+
+  // ---------- FORMULAR ZA PORUDŽBINU (isti Sheet i admin kao naslovna) ----------
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyHOmZR1m4d2IlfdNVJCB-X0IPN-6Lbsp4vnIOYsq2_xZ7yCtA6bI7WfWovfJpV3YhxSw/exec';
+  let ocProducts = [];
+  const ocCart = {};
+  const din = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' din';
+  const esc = t => String(t).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  const prodImg = p => /sirov/i.test(p.id + ' ' + p.name) ? '/product-sirovi.png' : '/product-peceni.png';
+  const shortName = p => String(p.name).split(' ')[0];
+
+function vocative(rawName) {
+  let n = String(rawName || '').trim().split(/\s+/)[0] || '';
+  if (!n) return '';
+  n = n.charAt(0).toUpperCase() + n.slice(1);
+  const low = n.toLowerCase();
+  if (/[aeiou]$/.test(low)) {
+    if (/ica$/.test(low)) return n.slice(0, -1) + 'e';          // Milica → Milice, Ivica → Ivice
+    return n;                                                    // Marko, Ana, Nikola, Đorđe, Jelena
+  }
+  if (/[td]ar$/.test(low) && low.length > 4) return n.slice(0, -2) + 're'; // Petar → Petre, Aleksandar → Aleksandre
+  if (/(j|č|ć|đ|š|ž)$/.test(low)) return n + 'u';               // Miloš → Milošu, Andrej → Andreju (i lj, nj, dž)
+  if (/k$/.test(low)) return n.slice(0, -1) + 'če';             // Vuk → Vuče
+  if (/g$/.test(low)) return n.slice(0, -1) + 'že';             // Miodrag → Miodraže
+  if (/h$/.test(low)) return n.slice(0, -1) + 'še';
+  if (/c$/.test(low)) return n.slice(0, -1) + 'če';
+  return n + 'e';                                                // Goran → Gorane, Milan → Milane
+}
+
+  async function ocLoad() {
+    try {
+      const res = await fetch(API_URL + '?action=getData');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'greška');
+      // pečeni uvek prvi, pa sirovi
+      ocProducts = data.products.slice().sort((a, b) => (/sirov/i.test(a.name) ? 1 : 0) - (/sirov/i.test(b.name) ? 1 : 0));
+      ocProducts.forEach(p => { ocCart[p.id] = 0; });
+      ocRenderProducts();
+    } catch (err) {
+      $('#ocProducts').innerHTML = '<div class="oc-loading">Ponuda trenutno nije dostupna. <a href="/" style="color:#9c4a1b">Poruči na sajtu</a></div>';
+    }
+  }
+
+  function ocRenderProducts() {
+    $('#ocProducts').innerHTML = ocProducts.map(p => `
+      <div class="oc-prod ${p.available ? '' : 'off'}">
+        <img src="${prodImg(p)}" alt="">
+        <div>
+          <div class="nm">${esc(p.name)}</div>
+          <div class="pr">${p.available ? din(p.price) + ' <span>/ kg</span>' : '<span>trenutno nema</span>'}</div>
+        </div>
+        <div class="oc-step">
+          <button type="button" data-id="${esc(p.id)}" data-d="-1" aria-label="Manje: ${esc(p.name)}" ${p.available ? '' : 'disabled'}>−</button>
+          <output id="q-${esc(p.id)}">${ocCart[p.id] || 0}</output>
+          <button type="button" data-id="${esc(p.id)}" data-d="1" aria-label="Više: ${esc(p.name)}" ${p.available ? '' : 'disabled'}>+</button>
+        </div>
+      </div>`).join('');
+    ocSummary();
+  }
+
+  $('#ocProducts').addEventListener('click', e => {
+    const b = e.target.closest('button[data-id]');
+    if (!b) return;
+    const id = b.dataset.id;
+    ocCart[id] = Math.max(0, Math.min(99, (ocCart[id] || 0) + Number(b.dataset.d)));
+    document.getElementById('q-' + id).textContent = ocCart[id];
+    ocSummary();
+  });
+
+  function ocTotal() { return ocProducts.reduce((s, p) => s + (ocCart[p.id] || 0) * Number(p.price), 0); }
+
+  function ocSummary() {
+    const box = $('#ocSummary');
+    const chosen = ocProducts.filter(p => ocCart[p.id] > 0);
+    if (!chosen.length) { box.className = 'oc-summary'; box.textContent = '~ još ništa nisi izabrao ~'; return; }
+    box.className = 'oc-summary has';
+    box.innerHTML = chosen.map(p => `<div class="row"><span>${ocCart[p.id]} kg ${esc(shortName(p).toLowerCase())}</span><span>${din(ocCart[p.id] * p.price)}</span></div>`).join('') +
+      `<div class="row tot"><span>Ukupno</span><span>${din(ocTotal())}</span></div>`;
+  }
+
+  // "i" pored mejla: miš na desktopu, dodir na telefonu; drži prozorčić unutar ekrana
+  (function () {
+    const wrap = $('#orderCard .info-wrap'), btn = wrap.querySelector('.info-btn'), pop = wrap.querySelector('.info-pop');
+    const place = () => {
+      pop.style.right = '-14px'; pop.style.setProperty('--arrow-right', '18px');
+      const r = pop.getBoundingClientRect();
+      const shift = r.left < 10 ? 10 - r.left : (r.right > innerWidth - 10 ? innerWidth - 10 - r.right : 0);
+      if (shift) { pop.style.right = (-14 - shift) + 'px'; pop.style.setProperty('--arrow-right', (18 + shift) + 'px'); }
+    };
+    wrap.addEventListener('mouseenter', place);
+    btn.addEventListener('click', e => {
+      e.preventDefault(); place();
+      const open = !wrap.classList.contains('open');
+      wrap.classList.toggle('open', open); btn.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', e => { if (!wrap.contains(e.target)) { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
+  })();
+
+  $('#orderCard').addEventListener('submit', async e => {
+    e.preventDefault();
+    const err = $('#ocError');
+    err.textContent = '';
+    const name = $('#ocName').value.trim(), office = $('#ocOffice').value.trim(), email = $('#ocEmail').value.trim();
+    const items = ocProducts.filter(p => ocCart[p.id] > 0).map(p => ({ name: shortName(p), qty: ocCart[p.id] }));
+    if (!items.length) { err.textContent = 'Izaberi bar jedno pakovanje.'; return; }
+    if (!name || !office) { err.textContent = 'Upiši ime i biznis.'; (name ? $('#ocOffice') : $('#ocName')).focus(); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Proveri mejl adresu.'; $('#ocEmail').focus(); return; }
+    const total = ocTotal();
+    const btn = $('#ocSubmit');
+    btn.disabled = true; btn.textContent = 'Šaljem…';
+    try {
+      const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'createOrder', name, office, email, items, total }) });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'greška');
+      ocShowSuccess(name, email, total, data.id);
+    } catch (ex) {
+      err.textContent = 'Porudžbina nije poslata. Proveri internet i pokušaj ponovo.';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Pošalji porudžbinu';
+    }
+  });
+
+  function ocShowSuccess(name, email, total, id) {
+    $('#ocThanksName').textContent = vocative(name) + '!';
+    $('#ocOrderNo').textContent = '#' + id;
+    $('#ocMailNote').textContent = email ? 'Pregled i QR kod su ti stigli i na mejl.' : '';
+    $('#ocPayAmount').textContent = din(total);
+    $('#ocPayRef').textContent = '00' + id;
+    const ips = ['K:PR', 'V:01', 'C:1', 'R:325930070687137070', 'N:Goran Bilic',
+                 'I:RSD' + Number(total).toFixed(2).replace('.', ','), 'SF:289', 'S:Lesnici', 'RO:00' + id].join('|');
+    try {
+      const qr = qrcode(0, 'M'); qr.addData(ips); qr.make();
+      $('#ocQR').innerHTML = qr.createImgTag(5, 0);
+    } catch (ex) {
+      $('#ocQR').innerHTML = '<small>QR trenutno nije dostupan, koristi podatke desno.</small>';
+    }
+    $('#ocForm').hidden = true;
+    $('#ocSuccess').hidden = false;
+    $('#orderCard').scrollTop = 0;
+  }
+
+  $('#ocAgain').addEventListener('click', () => {
+    ocProducts.forEach(p => { ocCart[p.id] = 0; });
+    ['#ocName', '#ocOffice', '#ocEmail'].forEach(sel => { $(sel).value = ''; });
+    ocRenderProducts();
+    $('#ocSuccess').hidden = true;
+    $('#ocForm').hidden = false;
+  });
+
+  ocLoad();
 
   // ---------- učitavanje: sačekaj prve slike ----------
   const first = [...document.querySelectorAll('#s1 img, #s2 img')];

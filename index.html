@@ -1730,6 +1730,70 @@
     .story-link { top: 10px; right: 10px; font-size: 12px; padding: 6px 12px 6px 6px; gap: 6px; }
     .story-link svg { width: 18px; height: 18px; padding: 4px; }
   }
+
+  /* ---------- "i" pored polja za email ---------- */
+  .label-with-info { display: flex; align-items: center; gap: 6px; }
+  .info-wrap { position: relative; display: inline-flex; }
+  .info-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid #9c4a1b;
+    background: transparent;
+    color: #9c4a1b;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    display: inline-grid;
+    place-items: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .info-btn:hover, .info-wrap.open .info-btn { background: #9c4a1b; color: #fffaf0; }
+  .info-btn:focus-visible { outline: 2px solid #9c4a1b; outline-offset: 2px; }
+  .info-pop {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    right: -14px;
+    z-index: 30;
+    width: max-content;
+    max-width: min(300px, 78vw);
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #2a1f15;
+    color: #f8f1e4;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.5;
+    box-shadow: 0 10px 28px rgba(42, 31, 21, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+    pointer-events: none;
+  }
+  .info-pop::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: var(--arrow-right, 18px);
+    border: 7px solid transparent;
+    border-top-color: #2a1f15;
+  }
+  @media (hover: hover) {
+    .info-wrap:hover .info-pop { opacity: 1; visibility: visible; transform: none; }
+  }
+  .info-wrap.open .info-pop, .info-btn:focus-visible + .info-pop { opacity: 1; visibility: visible; transform: none; }
+
+  /* proizvodi u listi porudžbina: jedna vrsta po redu */
+  .order-items .item-line { display: block; }
 </style>
 </head>
 <body>
@@ -1811,7 +1875,12 @@
           <input type="text" id="office" placeholder="npr. Infostud, Polovnjaci, 4zida">
         </div>
         <div class="form-group">
-          <label for="email">Email (za info o isporuci)</label>
+          <label for="email" class="label-with-info">Email (za info o isporuci)
+            <span class="info-wrap">
+              <button type="button" class="info-btn" aria-label="Zašto mejl?" aria-expanded="false" aria-controls="emailInfo">i</button>
+              <span class="info-pop" id="emailInfo" role="tooltip">Upiši mejl na koji mogu da ti javim informacije o lešnicima.<br>Na mejl mi možeš slobodno odgovoriti ako imaš pitanja.<br>Proveri spam, da ti ne promakne :)</span>
+            </span>
+          </label>
           <input type="email" id="email" placeholder="npr. marko@gmail.com" autocomplete="email" inputmode="email">
         </div>
       </div>
@@ -2402,6 +2471,24 @@
     renderOrders();
   }
 
+  // "Pečeni 2kg, Sirovi 1kg" → "2 kg pečeni" / "1 kg sirovi", pečeni uvek prvi
+  function parseItems(str) {
+    const order = ['pečeni', 'sirovi'];
+    return String(str || '').split(',').map(part => {
+      const m = part.trim().match(/^(.*?)\s*(\d+(?:[.,]\d+)?)\s*kg$/i);
+      return m ? { key: m[1].trim().toLowerCase(), qty: Number(m[2].replace(',', '.')) } : null;
+    }).filter(Boolean).sort((a, b) => {
+      const ia = order.indexOf(a.key), ib = order.indexOf(b.key);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+  }
+  function itemsHtml(str) {
+    const items = parseItems(str);
+    const lines = items.length ? items.map(it => `${it.qty} kg ${it.key}`) : [String(str || '')];
+    const esc = t => t.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    return lines.map(l => `<span class="item-line">${esc(l)}</span>`).join('');
+  }
+
   function renderOrders() {
     const container = document.getElementById('ordersContainer');
     document.getElementById('orderCount').textContent = orders.length + ' do sad';
@@ -2446,7 +2533,7 @@
               <span class="order-name">${o.name}</span>
               <span class="order-meta">${o.office} · ${dateShort}</span>
             </div>
-            <div class="order-items">${o.items}</div>
+            <div class="order-items">${itemsHtml(o.items)}</div>
             ${badgesDiv}
             ${qrBtn}
           </div>
@@ -2470,7 +2557,7 @@
             <span class="order-mini-name">${o.name}</span>
             <span class="order-mini-meta">${o.office} · ${dateShort}</span>
             <div class="expanded-details">
-              <div class="order-items" style="margin-top:4px">${o.items}</div>
+              <div class="order-items" style="margin-top:4px">${itemsHtml(o.items)}</div>
               <div class="order-badges">${badgesInline}</div>
             </div>
           </div>
@@ -2649,6 +2736,38 @@
     const ref = document.getElementById('payModalReference').textContent;
     copyToClipboard(ref, btn);
   }
+
+  // "i" pored polja za email: na telefonu se otvara dodirom, zatvara dodirom bilo gde van njega
+  (function () {
+    const wrap = document.querySelector('.info-wrap');
+    if (!wrap) return;
+    const btn = wrap.querySelector('.info-btn');
+    const pop = wrap.querySelector('.info-pop');
+    // drži prozorčić unutar ekrana; strelica i dalje pokazuje na "i"
+    const place = () => {
+      pop.style.right = '-14px';
+      pop.style.setProperty('--arrow-right', '18px');
+      const r = pop.getBoundingClientRect();
+      const shift = r.left < 10 ? 10 - r.left : (r.right > innerWidth - 10 ? innerWidth - 10 - r.right : 0);
+      if (shift) {
+        pop.style.right = (-14 - shift) + 'px';
+        pop.style.setProperty('--arrow-right', (18 + shift) + 'px');
+      }
+    };
+    wrap.addEventListener('mouseenter', place);
+    btn.addEventListener('focus', place);
+    btn.addEventListener('click', e => {
+      e.preventDefault();                 // ne fokusiraj polje (dugme je u labeli)
+      place();
+      const open = !wrap.classList.contains('open');
+      wrap.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', e => {
+      if (!wrap.contains(e.target)) { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') wrap.classList.remove('open'); });
+  })();
 
   // Submit handler
   document.getElementById('submitBtn').addEventListener('click', async () => {
