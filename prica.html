@@ -54,14 +54,33 @@
     pointer-events: none;
   }
   .topbar > * { pointer-events: auto; }
+  /* "Goranovi lešnici": vidljivo dugme nazad na naslovnu, isti okvir kao "Poruči" */
   .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px 7px 7px;
+    border-radius: 999px;
+    background: var(--gold);
+    color: var(--ink);
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: 17px;
+    font-size: 15px;
     text-decoration: none;
-    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    transition: background 0.2s;
   }
-  .brand em { font-style: italic; font-weight: 400; color: var(--gold); }
+  .brand em { font-style: italic; font-weight: 400; color: #9c4a1b; }
+  .brand:hover { background: #f7d39b; }
+  .brand svg {
+    width: 24px;
+    height: 24px;
+    padding: 5px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--gold);
+    display: block;
+  }
   .order-btn {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
@@ -439,7 +458,8 @@
       background: rgba(248, 241, 228, 0.15);
     }
     .progress i { display: block; height: 100%; width: 100%; background: var(--gold); transform-origin: left; transform: scaleX(0); }
-    .brand { font-size: 15px; }
+    .brand { font-size: 13px; padding: 5px 12px 5px 5px; gap: 6px; }
+    .brand svg { width: 20px; height: 20px; padding: 4px; }
     .order-btn { font-size: 13px; padding: 8px 14px; }
     .hero-title { bottom: 120px; }
     .caption { bottom: 34px; }
@@ -644,6 +664,33 @@
     .oc-pay { grid-template-columns: 1fr; justify-items: center; gap: 14px; }
     .oc-qr { width: 150px; height: 150px; }
   }
+
+  /* ---------- "kuca" kao oznaka LIVE: prsten se širi oko kružića, dugme jedva "udahne" ---------- */
+  .beat-icon { position: relative; display: inline-grid; place-items: center; flex: none; }
+  .beat-icon::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(156, 74, 27, 0.55);
+    animation: beatRing 2s ease-out infinite;
+    pointer-events: none;
+  }
+  .beat-btn { animation: beatBreath 2s ease-in-out infinite; }
+  @keyframes beatRing {
+    0%   { box-shadow: 0 0 0 0 rgba(156, 74, 27, 0.55); }
+    70%  { box-shadow: 0 0 0 11px rgba(156, 74, 27, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(156, 74, 27, 0); }
+  }
+  @keyframes beatBreath {
+    0%, 100% { transform: scale(1); }
+    12%      { transform: scale(1.035); }
+    24%      { transform: scale(1); }
+  }
+  .beat-btn:hover { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) {
+    .beat-btn, .beat-icon::after { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -652,7 +699,10 @@
 <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
 
 <header class="topbar">
-  <a class="brand" href="/">Goranovi <em>lešnici</em></a>
+  <a class="brand beat-btn" href="/" aria-label="Nazad na Goranovi lešnici">
+    <span class="beat-icon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3.5L6 8l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    Goranovi <em>lešnici</em>
+  </a>
   <a class="order-btn" href="/">Poruči</a>
 </header>
 
