@@ -493,7 +493,7 @@
     max-height: calc(100vh - 96px);
     max-height: calc(100svh - 96px);
     overflow-y: auto;
-    overscroll-behavior: contain;
+    overscroll-behavior: auto;                /* na vrhu formulara prevlačenje ide dalje, na stranicu */
     padding: 26px 30px 24px;
     border-radius: 6px;
     color: #2a1f15;
@@ -1213,10 +1213,36 @@ function vocative(rawName) {
     ocSummary();
   }
 
+
+  // Kratka vibracija na "+": Android preko navigator.vibrate; iPhone (iOS 18+) ne dozvoljava vibraciju sajtovima,
+  // ali sam kratko zadrhti kad se klikne skriveni "prekidač" (input switch), pa koristimo to.
+  const haptic = (() => {
+    let iosSwitch = null;
+    return () => {
+      try {
+        if (navigator.vibrate) { navigator.vibrate(12); return; }
+        if (!iosSwitch) {
+          const label = document.createElement('label');
+          label.setAttribute('aria-hidden', 'true');
+          label.style.cssText = 'position:fixed;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;left:-9px;top:0';
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.setAttribute('switch', '');
+          input.tabIndex = -1;
+          label.appendChild(input);
+          document.body.appendChild(label);
+          iosSwitch = label;
+        }
+        iosSwitch.click();
+      } catch (e) { /* bez vibracije, sve ostalo radi */ }
+    };
+  })();
+
   $('#ocProducts').addEventListener('click', e => {
     const b = e.target.closest('button[data-id]');
     if (!b) return;
     const id = b.dataset.id;
+    if (Number(b.dataset.d) > 0) haptic();
     ocCart[id] = Math.max(0, Math.min(99, (ocCart[id] || 0) + Number(b.dataset.d)));
     document.getElementById('q-' + id).textContent = ocCart[id];
     ocSummary();
