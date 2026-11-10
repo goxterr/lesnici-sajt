@@ -1794,6 +1794,47 @@
 
   /* proizvodi u listi porudžbina: jedna vrsta po redu */
   .order-items .item-line { display: block; }
+
+  /* ---------- izmena 1: sve za porudžbinu na prvom ekranu (desktop) ---------- */
+  @media (min-width: 960px) {
+    .container { max-width: 1120px; padding-top: 18px; }
+    header.hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      text-align: left;
+      padding: 6px 0 22px;
+    }
+    .hero-illustration { width: 104px; height: 104px; margin: 0; }
+    header.hero h1 { font-size: 54px; margin-bottom: 0; }
+    header.hero .tagline { margin-bottom: 2px; font-size: 20px; }
+    .order-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.08fr;
+      gap: 32px;
+      align-items: start;
+      margin-bottom: 40px;
+    }
+    .order-grid section { margin-bottom: 0; }
+    .order-grid .section-head { margin-bottom: 14px; }
+    .order-grid .product { padding: 15px 0; }
+    .order-grid .form-card { padding: 22px 24px; }
+    .order-grid .form-group { margin-bottom: 12px; }
+    .order-grid .summary { margin: 14px 0 14px; padding: 14px 18px; }
+    .order-grid .submit-btn { padding: 14px; }
+    /* lista porudžbina ispod ostaje uska, da se lako čita */
+    .container > section { max-width: 720px; margin-left: auto; margin-right: auto; }
+  }
+
+  /* ---------- izmena 2: obavezna polja ---------- */
+  .field-error { font-size: 12.5px; line-height: 1.35; color: #b3261e; margin-top: 5px; }
+  .field-error:empty { display: none; }
+  input.invalid { border-color: #c4553b !important; background: #fff6f3 !important; }
+
+  /* ---------- izmena 6: porudžbina otvorena iz mejla ---------- */
+  .order-item.from-link { animation: fromLink 1.2s ease-in-out 3; border-radius: 14px; }
+  @keyframes fromLink { 0%, 100% { box-shadow: 0 0 0 0 rgba(156, 74, 27, 0); } 50% { box-shadow: 0 0 0 4px rgba(156, 74, 27, 0.35); } }
 </style>
 </head>
 <body>
@@ -1842,6 +1883,8 @@
     </div>
   </header>
 
+  <!-- Proizvodi i podaci: na širokom ekranu jedno pored drugog, sve na prvom ekranu -->
+  <div class="order-grid">
   <!-- Proizvodi -->
   <section>
     <div class="section-head">
@@ -1866,22 +1909,25 @@
     <div class="form-card">
       <div class="form-group">
         <label for="name">Ime i prezime</label>
-        <input type="text" id="name" placeholder="npr. Marko Petrović">
+        <input type="text" id="name" placeholder="npr. Marko Petrović" autocomplete="name" required aria-describedby="nameErr">
+        <div class="field-error" id="nameErr" aria-live="polite"></div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
           <label for="office">Biznis</label>
-          <input type="text" id="office" placeholder="npr. Infostud, Polovnjaci, 4zida">
+          <input type="text" id="office" placeholder="npr. Infostud, Polovnjaci, 4zida" required aria-describedby="officeErr">
+          <div class="field-error" id="officeErr" aria-live="polite"></div>
         </div>
         <div class="form-group">
-          <label for="email" class="label-with-info">Email (za info o isporuci)
+          <label for="email" class="label-with-info">Email
             <span class="info-wrap">
               <button type="button" class="info-btn" aria-label="Zašto mejl?" aria-expanded="false" aria-controls="emailInfo">i</button>
               <span class="info-pop" id="emailInfo" role="tooltip">Upiši mejl na koji mogu da ti javim informacije o lešnicima.<br>Na mejl mi možeš slobodno odgovoriti ako imaš pitanja.<br>Proveri spam, da ti ne promakne :)</span>
             </span>
           </label>
-          <input type="email" id="email" placeholder="npr. marko@gmail.com" autocomplete="email" inputmode="email">
+          <input type="email" id="email" placeholder="npr. marko@gmail.com" autocomplete="email" inputmode="email" required aria-describedby="emailErr">
+          <div class="field-error" id="emailErr" aria-live="polite"></div>
         </div>
       </div>
 
@@ -1894,6 +1940,7 @@
       </button>
     </div>
   </section>
+  </div>
 
   <!-- Lista porudžbina -->
   <section>
@@ -2119,7 +2166,7 @@
       
       if (data.success) {
         products = data.products;
-        orders = data.orders;
+        orders = (data.orders || []).filter(o => String(o.name || '').trim() || String(o.items || '').trim());
         applyMajstorSettings(data.settings);
         
         // Inicijalizuj cart
@@ -2128,6 +2175,7 @@
         renderProducts();
         updateBag(false);
         renderOrders();
+        openOrderFromLink();
       } else {
         showError('Greška pri učitavanju: ' + (data.error || 'nepoznato'));
       }
@@ -2489,6 +2537,24 @@
     return lines.map(l => `<span class="item-line">${esc(l)}</span>`).join('');
   }
 
+  // Link iz mejla (…/#porudzbina-21): skroluj do porudžbine, istakni je i otvori QR ako nije plaćena
+  let orderLinkHandled = false;
+  function openOrderFromLink() {
+    const m = location.hash.match(/^#porudzbina-(\d+)$/);
+    if (!m || orderLinkHandled) return;
+    orderLinkHandled = true;
+    const id = Number(m[1]);
+    const order = orders.find(o => Number(o.id) === id);
+    const card = document.getElementById('order-' + id);
+    if (!order || !card) return;
+    if (card.classList.contains('minimized') && typeof toggleOrderCard === 'function') toggleOrderCard(id);
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.classList.add('from-link');
+    setTimeout(() => card.classList.remove('from-link'), 4000);
+    const paid = order.paid === 'eP' || order.paid === 'P';
+    if (!paid) setTimeout(() => openPaymentModal(id), 900);
+  }
+
   function renderOrders() {
     const container = document.getElementById('ordersContainer');
     document.getElementById('orderCount').textContent = orders.length + ' do sad';
@@ -2526,7 +2592,7 @@
         : '';
       
       return `
-        <div class="order-item">
+        <div class="order-item" id="order-${o.id}">
           <div class="order-avatar">${getInitials(o.name)}</div>
           <div class="order-body">
             <div class="order-head">
@@ -2769,18 +2835,33 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape') wrap.classList.remove('open'); });
   })();
 
+  function setFieldError(id, msg) {
+    const input = document.getElementById(id);
+    const box = document.getElementById(id + 'Err');
+    input.classList.toggle('invalid', !!msg);
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (box) box.textContent = msg;
+  }
+  ['name', 'office', 'email'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => setFieldError(id, ''));
+  });
+
   // Submit handler
   document.getElementById('submitBtn').addEventListener('click', async () => {
     const name = document.getElementById('name').value.trim();
     const office = document.getElementById('office').value.trim();
     const email = document.getElementById('email').value.trim();
 
-    if (!name || !office) {
-      showToast('Unesite ime i biznis', true);
-      return;
-    }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showToast('Proveri email adresu', true);
+    // sva tri polja su obavezna: greška ispod polja, kursor u prvo polje koje fali
+    const errors = [];
+    if (!name) errors.push(['name', 'Upiši ime i prezime.']);
+    if (!office) errors.push(['office', 'Upiši svoj biznis, npr. 4zida.']);
+    if (!email) errors.push(['email', 'Upiši mejl, na njega stižu pregled porudžbine i obaveštenje kad lešnici stignu.']);
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push(['email', 'Proveri mejl, nešto nije u redu sa adresom.']);
+    ['name', 'office', 'email'].forEach(id => setFieldError(id, ''));
+    if (errors.length) {
+      errors.forEach(([id, msg]) => setFieldError(id, msg));
+      document.getElementById(errors[0][0]).focus();
       return;
     }
 

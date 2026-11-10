@@ -229,8 +229,8 @@
   .tab:not(.active) .tab-count { background: var(--husk); color: var(--ink-2); }
 
   .main {
-    padding: 24px;
-    max-width: 1100px;
+    padding: 24px clamp(16px, 2.5vw, 40px);
+    max-width: 1760px;
     margin: 0 auto;
   }
 
@@ -328,7 +328,7 @@
 
   .table-head {
     display: grid;
-    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px 36px;
+    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 120px 150px 130px 40px 40px;
     padding: 12px 16px;
     background: var(--cream-2);
     border-bottom: 1px solid var(--husk);
@@ -344,7 +344,7 @@
 
   .order-row {
     display: grid;
-    grid-template-columns: 32px 110px 1.5fr 80px 1.2fr 110px 140px 120px 36px 36px;
+    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 120px 150px 130px 40px 40px;
     padding: 14px 16px;
     border-bottom: 1px solid var(--husk);
     align-items: center;
@@ -1748,6 +1748,30 @@
       color: var(--ink);
     }
   }
+
+  /* ---------- "Učitaj još" ispod tabele ---------- */
+  .load-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 18px 0 8px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .load-more[hidden] { display: none; }
+  .load-more-btn {
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 1.5px solid var(--accent);
+    background: white;
+    color: var(--accent);
+    font: 600 14px 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .load-more-btn:hover { background: var(--accent); color: white; }
+  .load-more-btn[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -1817,7 +1841,7 @@
         <button class="filter-chip" data-filter="unpaid" onclick="setFilter('unpaid')">Neplaćeno</button>
         <button class="filter-chip" data-filter="not-picked" onclick="setFilter('not-picked')">Nije preuzeto</button>
         <button class="filter-chip" data-filter="done" onclick="setFilter('done')">Završeno</button>
-        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili biznisu..." oninput="renderOrdersTable()">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili biznisu..." oninput="resetPaging(); renderOrdersTable()">
       </div>
 
       <div class="bulk-toolbar" id="bulkToolbar" style="display:none">
@@ -1857,6 +1881,10 @@
         <div id="ordersBody">
           <div class="loading-placeholder">učitavanje</div>
         </div>
+      </div>
+      <div class="load-more" id="loadMore" hidden>
+        <span id="loadMoreInfo"></span>
+        <button type="button" class="load-more-btn" id="loadMoreBtn" onclick="loadMoreOrders()"></button>
       </div>
     </div>
 
@@ -2061,7 +2089,7 @@
       if (data.success) {
         password = attemptedPassword;
         products = data.products;
-        orders = data.orders;
+        orders = (data.orders || []).filter(o => String(o.name || '').trim() || String(o.items || '').trim());   // bez praznih redova
         receiveSettings(data.settings);
         if (fromMemory || document.getElementById('rememberMe').checked) rememberLogin(password);
         else forgetLogin();
@@ -2115,7 +2143,7 @@
         const known = new Set(orders.map(o => o.id));
         const fresh = known.size ? data.orders.filter(o => !known.has(o.id)) : [];
         products = data.products;
-        orders = data.orders;
+        orders = (data.orders || []).filter(o => String(o.name || '').trim() || String(o.items || '').trim());   // bez praznih redova
         receiveSettings(data.settings);
         fresh.forEach(o => freshIds.add(o.id));
         renderAll();
@@ -2170,6 +2198,7 @@
 
   function setFilter(f) {
     currentFilter = f;
+    resetPaging();
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
     document.querySelector(`.filter-chip[data-filter="${f}"]`).classList.add('active');
     renderOrdersTable();
@@ -2295,9 +2324,31 @@
     return String(dateStr);
   }
 
+  // prikazuje se prvih 20, pa po 10 više na klik "Učitaj još"
+  const PAGE_FIRST = 20, PAGE_MORE = 10;
+  let visibleCount = PAGE_FIRST;
+  function loadMoreOrders() {
+    visibleCount += PAGE_MORE;
+    renderOrdersTable();
+  }
+  function resetPaging() { visibleCount = PAGE_FIRST; }
+  function visibleOrders() { return getFilteredOrders().slice(0, visibleCount); }
+  function paintLoadMore(total) {
+    const box = document.getElementById('loadMore');
+    const shown = Math.min(visibleCount, total);
+    const rest = total - shown;
+    box.hidden = total <= PAGE_FIRST && rest <= 0;
+    document.getElementById('loadMoreInfo').textContent = `Prikazano ${shown} od ${total}`;
+    const btn = document.getElementById('loadMoreBtn');
+    btn.hidden = rest <= 0;
+    btn.textContent = `Učitaj još ${Math.min(PAGE_MORE, rest)}`;
+  }
+
   function renderOrdersTable() {
     const container = document.getElementById('ordersBody');
-    const filtered = getFilteredOrders();
+    const allFiltered = getFilteredOrders();
+    const filtered = allFiltered.slice(0, visibleCount);
+    paintLoadMore(allFiltered.length);
     
     if (filtered.length === 0) {
       container.innerHTML = '<div class="empty-state">~ nema porudžbina po ovim kriterijumima ~</div>';
@@ -2403,7 +2454,7 @@
 
   function toggleSelectAll() {
     const checkbox = document.getElementById('selectAllCheckbox');
-    const filtered = getFilteredOrders();
+    const filtered = visibleOrders();     // samo prikazane porudžbine
     
     if (checkbox.checked) {
       filtered.forEach(o => selectedIds.add(o.id));
@@ -2431,7 +2482,7 @@
     }
 
     // Sinhronizuj "Selektuj sve"
-    const filtered = getFilteredOrders();
+    const filtered = visibleOrders();
     const selectAll = document.getElementById('selectAllCheckbox');
     if (filtered.length > 0 && filtered.every(o => selectedIds.has(o.id))) {
       selectAll.checked = true;
@@ -2588,7 +2639,7 @@
         const isConfirm = /potvrda porud/i.test(String(c.text));
         const title = isArrived ? 'Stigli su lešnici! 🌰' : (isConfirm ? 'Porudžbina primljena' : String(c.text).replace(/^📧\s*/, ''));
         const sub = isArrived ? 'Javio sam mejlom da mogu da preuzmu'
-                  : (isConfirm ? 'Poslat pregled porudžbine i QR kod za uplatu' : 'Poslato mejlom');
+                  : (isConfirm ? 'Poslat pregled porudžbine i link za uplatu' : 'Poslato mejlom');
         return `
         <div class="bubble mine action">
           <div class="bubble-title">${escapeHtml(title)}</div>
@@ -3004,8 +3055,8 @@
   // STIGLO — WhatsApp obaveštenje izabranim kupcima
   // ============================================
   // obična lična poruka: bez emotikona i dugih crta, da ne liči na reklamu
-  const ARRIVED_DEFAULT = 'Ćao, {ime},\n\nstigli su lešnici. Tvoja porudžbina ({porudzbina}) je spremna za preuzimanje.\n\nJavi mi kad ti odgovara da svratiš.\n\nPozdrav,\nGoran';
-  const ARRIVED_KEY = 'lesnici_stiglo_poruka_v2';   // nov ključ: stara zapamćena poruka sa emotikonom se ne učitava
+  const ARRIVED_DEFAULT = 'Ćao, {ime},\n\nStigli su lešnici. Tvoja porudžbina ({porudzbina}) je spremna i možeš da je pokupiš kod mene u 4zida.\n\nAko ne budem na svom mestu, samo mi pusti poruku bilo gde i javiću se.\n\nPozdrav,\nGoran';
+  const ARRIVED_KEY = 'lesnici_stiglo_poruka_v3';   // nov ključ: učitava se novi tekst, a ne stara zapamćena poruka   // nov ključ: stara zapamćena poruka sa emotikonom se ne učitava
 
   // Pretvara broj iz forme (063/869-0881, +381 63..., 638690881) u format za WhatsApp (381638690881)
   function toWhatsAppNumber(raw) {
@@ -3042,7 +3093,7 @@
     const template = document.getElementById('arrivedMessage').value || ARRIVED_DEFAULT;
     return template
       .replace(/\{ime\}/g, vocative(order.name))      // obraćanje: Gorane, Milice, Petre...
-      .replace(/\{porudzbina\}/g, itemLines(order.items).join(', '));
+      .replace(/\{porudzbina\}/g, '*' + itemLines(order.items).join(', ') + '*');   // WhatsApp: *podebljano*
   }
 
   function openArrivedModal() {

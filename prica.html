@@ -574,6 +574,9 @@
   }
   .oc-field input::placeholder { color: #b4a184; }
   .oc-field input:focus { outline: none; border-bottom: 1.5px solid #9c4a1b; }
+  .oc-field input.invalid { border-bottom: 1.5px solid #c4553b; background: rgba(196, 85, 59, 0.06); }
+  .oc-ferr { font-size: 12px; line-height: 1.35; color: #b3261e; margin-top: 4px; }
+  .oc-ferr:empty { display: none; }
   .oc-submit, .oc-again {
     width: 100%;
     margin-top: 6px;
@@ -744,21 +747,24 @@
               <div class="oc-col">
                 <div class="oc-field">
                   <label for="ocName">Ime i prezime</label>
-                  <input id="ocName" autocomplete="name" placeholder="npr. Marko Petrović" maxlength="80">
+                  <input id="ocName" autocomplete="name" placeholder="npr. Marko Petrović" maxlength="80" required aria-describedby="ocNameErr">
+                  <div class="oc-ferr" id="ocNameErr"></div>
                 </div>
                 <div class="oc-field">
                   <label for="ocOffice">Biznis</label>
-                  <input id="ocOffice" placeholder="npr. Infostud, Polovnjaci, 4zida" maxlength="60">
+                  <input id="ocOffice" placeholder="npr. Infostud, Polovnjaci, 4zida" maxlength="60" required aria-describedby="ocOfficeErr">
+                  <div class="oc-ferr" id="ocOfficeErr"></div>
                 </div>
                 <div class="oc-field">
                   <div class="label-with-info">
-                    <label for="ocEmail">Email (za info o isporuci)</label>
+                    <label for="ocEmail">Email</label>
                     <span class="info-wrap">
                       <button type="button" class="info-btn" aria-label="Zašto mejl?" aria-expanded="false" aria-controls="ocEmailInfo">i</button>
                       <span class="info-pop" id="ocEmailInfo" role="tooltip">Upiši mejl na koji mogu da ti javim informacije o lešnicima.<br>Na mejl mi možeš slobodno odgovoriti ako imaš pitanja.<br>Proveri spam, da ti ne promakne :)</span>
                     </span>
                   </div>
-                  <input id="ocEmail" type="email" inputmode="email" autocomplete="email" placeholder="npr. marko@gmail.com" maxlength="120">
+                  <input id="ocEmail" type="email" inputmode="email" autocomplete="email" placeholder="npr. marko@gmail.com" maxlength="120" required aria-describedby="ocEmailErr">
+                  <div class="oc-ferr" id="ocEmailErr"></div>
                 </div>
                 <button type="submit" class="oc-submit" id="ocSubmit">Pošalji porudžbinu</button>
                 <div class="oc-error" id="ocError" role="alert"></div>
@@ -1195,6 +1201,14 @@ function vocative(rawName) {
     document.addEventListener('click', e => { if (!wrap.contains(e.target)) { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
   })();
 
+  function ocFieldError(id, msg) {
+    const input = document.getElementById(id);
+    input.classList.toggle('invalid', !!msg);
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    document.getElementById(id + 'Err').textContent = msg;
+  }
+  ['ocName', 'ocOffice', 'ocEmail'].forEach(id => document.getElementById(id).addEventListener('input', () => ocFieldError(id, '')));
+
   $('#orderCard').addEventListener('submit', async e => {
     e.preventDefault();
     const err = $('#ocError');
@@ -1202,8 +1216,14 @@ function vocative(rawName) {
     const name = $('#ocName').value.trim(), office = $('#ocOffice').value.trim(), email = $('#ocEmail').value.trim();
     const items = ocProducts.filter(p => ocCart[p.id] > 0).map(p => ({ name: shortName(p), qty: ocCart[p.id] }));
     if (!items.length) { err.textContent = 'Izaberi bar jedno pakovanje.'; return; }
-    if (!name || !office) { err.textContent = 'Upiši ime i biznis.'; (name ? $('#ocOffice') : $('#ocName')).focus(); return; }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Proveri mejl adresu.'; $('#ocEmail').focus(); return; }
+    // sva tri polja su obavezna: greška ispod polja, kursor u prvo polje koje fali
+    const fe = [];
+    if (!name) fe.push(['ocName', 'Upiši ime i prezime.']);
+    if (!office) fe.push(['ocOffice', 'Upiši svoj biznis, npr. 4zida.']);
+    if (!email) fe.push(['ocEmail', 'Upiši mejl, na njega stižu pregled porudžbine i obaveštenje kad lešnici stignu.']);
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fe.push(['ocEmail', 'Proveri mejl, nešto nije u redu sa adresom.']);
+    ['ocName', 'ocOffice', 'ocEmail'].forEach(id => ocFieldError(id, ''));
+    if (fe.length) { fe.forEach(([id, m]) => ocFieldError(id, m)); $('#' + fe[0][0]).focus(); return; }
     const total = ocTotal();
     const btn = $('#ocSubmit');
     btn.disabled = true; btn.textContent = 'Šaljem…';
@@ -1223,7 +1243,7 @@ function vocative(rawName) {
   function ocShowSuccess(name, email, total, id) {
     $('#ocThanksName').textContent = vocative(name) + '!';
     $('#ocOrderNo').textContent = '#' + id;
-    $('#ocMailNote').textContent = email ? 'Pregled i QR kod su ti stigli i na mejl.' : '';
+    $('#ocMailNote').textContent = 'Pregled porudžbine ti stiže i na mejl.';
     $('#ocPayAmount').textContent = din(total);
     $('#ocPayRef').textContent = '00' + id;
     const ips = ['K:PR', 'V:01', 'C:1', 'R:325930070687137070', 'N:Goran Bilic',
