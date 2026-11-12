@@ -1813,6 +1813,30 @@
     .edit-total-row { flex-direction: column; align-items: stretch; }
     .edit-recalc { text-align: left; }
   }
+
+  /* ---------- statistika ---------- */
+  .stats-main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .stat-card.big { padding: 22px 26px; }
+  .stat-card.big .stat-label { font-size: 20px; }
+  .stat-card.big .stat-value { font-size: 44px; line-height: 1.05; margin: 4px 0 6px; }
+  .stat-card.due { border-left: 4px solid var(--accent); }
+  .stat-card.prep { border-left: 4px solid var(--leaf, #7a9150); }
+  .stat-split {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink-2);
+    margin-bottom: 4px;
+  }
+  .stat-value.paid { color: #3d7a4a; }
+  .stat-progress { height: 6px; border-radius: 999px; background: var(--cream-2, #f3eadb); overflow: hidden; margin: 8px 0 4px; }
+  .stat-progress i { display: block; height: 100%; width: 0; background: #3d7a4a; border-radius: 999px; transition: width 0.5s; }
+  @media (max-width: 800px) {
+    .stats-main { grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px; }
+    .stat-card.big { padding: 16px 18px; }
+    .stat-card.big .stat-value { font-size: 34px; }
+    .stat-split { font-size: 15px; }
+  }
 </style>
 </head>
 <body>
@@ -1850,26 +1874,42 @@
 
   <div class="main">
     <div class="view active" id="viewOrders">
+      <!-- najbitnije: koliko još da naplatim i koliko da spremim -->
+      <div class="stats-main">
+        <div class="stat-card big due">
+          <div class="stat-label">Za naplatu</div>
+          <div class="stat-value accent" id="statUnpaid">0 din</div>
+          <div class="stat-sub" id="statUnpaidCount">0 porudžbina nije plaćeno</div>
+        </div>
+        <div class="stat-card big prep">
+          <div class="stat-label">Za spremanje</div>
+          <div class="stat-value" id="statKg">0 kg</div>
+          <div class="stat-split" id="statKgSplit"></div>
+          <div class="stat-sub" id="statKgCount">0 porudžbina nije preuzeto</div>
+        </div>
+      </div>
       <div class="stats-bar">
         <div class="stat-card">
-          <div class="stat-label">Ukupno aktivno</div>
-          <div class="stat-value" id="statActive">0</div>
-          <div class="stat-sub">porudžbina u obradi</div>
+          <div class="stat-label">Naplaćeno</div>
+          <div class="stat-value paid" id="statPaid">0 din</div>
+          <div class="stat-sub" id="statPaidSplit">e-račun 0 · gotovina 0</div>
+          <div class="stat-progress" aria-hidden="true"><i id="statPaidBar"></i></div>
+          <div class="stat-sub" id="statPaidPct">0% ukupnog prometa</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Neplaćeno</div>
-          <div class="stat-value accent" id="statUnpaid">0 din</div>
-          <div class="stat-sub" id="statUnpaidCount">0 porudžbina</div>
+          <div class="stat-label">Ukupno prodato</div>
+          <div class="stat-value" id="statKgAll">0 kg</div>
+          <div class="stat-sub" id="statKgAllSplit">pečeni 0 · sirovi 0</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Ukupno kg</div>
-          <div class="stat-value" id="statKg">0 kg</div>
-          <div class="stat-sub">za pripremu</div>
+          <div class="stat-label">Ukupan promet</div>
+          <div class="stat-value" id="statTotal">0 din</div>
+          <div class="stat-sub" id="statTotalCount">0 porudžbina</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Završeno</div>
           <div class="stat-value" id="statDone">0</div>
-          <div class="stat-sub">plaćeno i preuzeto</div>
+          <div class="stat-sub" id="statActive">plaćeno i preuzeto · 0 u obradi</div>
         </div>
       </div>
 
@@ -2378,23 +2418,51 @@
   }
 
   function renderStats() {
-    const active = orders.filter(o => !(o.paid !== '' && o.picked)).length;
-    const unpaidOrders = orders.filter(o => o.paid === '');
-    const unpaidAmount = unpaidOrders.reduce((s, o) => s + Number(o.total), 0);
-    
-    // Extract kg from items string (e.g. "Pečeni 2kg, Sirovi 1kg")
-    const notPickedKg = orders.filter(o => !o.picked).reduce((s, o) => {
-      const matches = String(o.items).match(/(\d+(?:\.\d+)?)kg/g) || [];
-      return s + matches.reduce((ss, m) => ss + parseFloat(m), 0);
-    }, 0);
-    
-    const done = orders.filter(o => o.paid !== '' && o.picked).length;
+    const din = n => Math.round(n).toLocaleString('sr') + ' din';
+    const kgOf = (list, key) => list.reduce((sum, o) => sum + parseItems(o.items)
+      .filter(it => !key || it.key === key).reduce((s2, it) => s2 + it.qty, 0), 0);
+    const kgSplit = list => {
+      const pe = kgOf(list, 'pečeni'), si = kgOf(list, 'sirovi'), all = kgOf(list);
+      const other = all - pe - si;
+      return `pečeni ${pe} kg · sirovi ${si} kg` + (other > 0 ? ` · ostalo ${other} kg` : '');
+    };
+    const sumOf = list => list.reduce((s2, o) => s2 + (Number(o.total) || 0), 0);
+    // srpski: 1/21 porudžbina, 2–4/22–24 porudžbine, ostalo porudžbina
+    const form = (n, one, few, many) => {
+      const d = n % 10, dd = n % 100;
+      if (d === 1 && dd !== 11) return one;
+      if (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) return few;
+      return many;
+    };
 
-    document.getElementById('statActive').textContent = active;
-    document.getElementById('statUnpaid').textContent = unpaidAmount.toLocaleString('sr') + ' din';
-    document.getElementById('statUnpaidCount').textContent = unpaidOrders.length + ' porudžbina';
-    document.getElementById('statKg').textContent = notPickedKg + ' kg';
+    // za naplatu: nije plaćeno
+    const unpaid = orders.filter(o => o.paid === '');
+    // za spremanje: nije preuzeto
+    const notPicked = orders.filter(o => !o.picked);
+    // naplaćeno: e-račun (eP) ili gotovina (P)
+    const paid = orders.filter(o => o.paid !== '');
+    const paidE = sumOf(orders.filter(o => o.paid === 'eP'));
+    const paidCash = sumOf(orders.filter(o => o.paid === 'P'));
+    const turnover = sumOf(orders);
+    const done = orders.filter(o => o.paid !== '' && o.picked).length;
+    const active = orders.length - done;
+    const pct = turnover ? Math.round(sumOf(paid) / turnover * 100) : 0;
+
+    document.getElementById('statUnpaid').textContent = din(sumOf(unpaid));
+    document.getElementById('statUnpaidCount').textContent = `${unpaid.length} ${form(unpaid.length, 'porudžbina nije plaćena', 'porudžbine nisu plaćene', 'porudžbina nije plaćeno')}`;
+    document.getElementById('statKg').textContent = kgOf(notPicked) + ' kg';
+    document.getElementById('statKgSplit').textContent = kgSplit(notPicked);
+    document.getElementById('statKgCount').textContent = `${notPicked.length} ${form(notPicked.length, 'porudžbina nije preuzeta', 'porudžbine nisu preuzete', 'porudžbina nije preuzeto')}`;
+    document.getElementById('statPaid').textContent = din(sumOf(paid));
+    document.getElementById('statPaidSplit').textContent = `e-račun ${din(paidE)} · gotovina ${din(paidCash)}`;
+    document.getElementById('statPaidBar').style.width = pct + '%';
+    document.getElementById('statPaidPct').textContent = `${pct}% ukupnog prometa`;
+    document.getElementById('statKgAll').textContent = kgOf(orders) + ' kg';
+    document.getElementById('statKgAllSplit').textContent = kgSplit(orders);
+    document.getElementById('statTotal').textContent = din(turnover);
+    document.getElementById('statTotalCount').textContent = `${orders.length} ${form(orders.length, 'porudžbina', 'porudžbine', 'porudžbina')} ukupno`;
     document.getElementById('statDone').textContent = done;
+    document.getElementById('statActive').textContent = `plaćeno i preuzeto · ${active} u obradi`;
 
     document.getElementById('countOrders').textContent = orders.length;
     document.getElementById('countProducts').textContent = products.length;
