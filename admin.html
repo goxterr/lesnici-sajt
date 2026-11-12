@@ -328,7 +328,7 @@
 
   .table-head {
     display: grid;
-    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 120px 150px 130px 40px 40px;
+    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 120px 150px 130px 40px 72px;
     padding: 12px 16px;
     background: var(--cream-2);
     border-bottom: 1px solid var(--husk);
@@ -344,7 +344,7 @@
 
   .order-row {
     display: grid;
-    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 120px 150px 130px 40px 40px;
+    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 120px 150px 130px 40px 72px;
     padding: 14px 16px;
     border-bottom: 1px solid var(--husk);
     align-items: center;
@@ -1772,6 +1772,47 @@
   }
   .load-more-btn:hover { background: var(--accent); color: white; }
   .load-more-btn[hidden] { display: none; }
+
+  /* ---------- izmena porudžbine ---------- */
+  .row-tools { display: flex; gap: 4px; justify-content: flex-end; }
+  .edit-btn {
+    width: 28px; height: 28px;
+    border: 1px solid var(--husk); background: white; color: var(--ink-3);
+    border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .edit-btn:hover { background: var(--cream-2); border-color: var(--accent); color: var(--accent); }
+  .edit-btn svg { width: 14px; height: 14px; }
+  .edit-order-modal { max-width: 520px; text-align: left; }
+  .edit-order-no { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--ink-3); margin-left: 4px; }
+  .edit-items { border: 1px solid var(--husk); border-radius: 10px; overflow: hidden; }
+  .edit-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 12px; border-bottom: 1px dashed var(--husk);
+  }
+  .edit-item:last-child { border-bottom: none; }
+  .edit-item-name { font-weight: 600; }
+  .edit-item-name small { display: block; font-weight: 400; font-size: 12px; color: var(--ink-3); }
+  .edit-step { display: inline-flex; align-items: center; gap: 6px; }
+  .edit-step button {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1.5px solid var(--husk); background: white; color: var(--accent);
+    font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .edit-step button:hover { border-color: var(--accent); }
+  .edit-step output { min-width: 28px; text-align: center; font-weight: 700; font-family: 'Fraunces', serif; font-size: 16px; }
+  .edit-total-row { display: flex; gap: 10px; align-items: center; }
+  .edit-total-row input { flex: 1; }
+  .edit-recalc {
+    border: none; background: none; color: var(--accent);
+    font-size: 12.5px; text-decoration: underline; cursor: pointer; white-space: nowrap; padding: 0;
+  }
+  .edit-error { min-height: 18px; font-size: 13px; color: var(--red); margin-top: 4px; }
+  @media (max-width: 600px) {
+    .edit-total-row { flex-direction: column; align-items: stretch; }
+    .edit-recalc { text-align: left; }
+  }
 </style>
 </head>
 <body>
@@ -1945,6 +1986,48 @@
 </div>
 
 <!-- Product edit/add modal -->
+<div class="modal-overlay" id="editOrderModal">
+  <div class="modal product-modal edit-order-modal">
+    <div class="product-modal-header">
+      <h3>Izmeni <em>porudžbinu</em> <span id="editOrderNo" class="edit-order-no"></span></h3>
+      <button class="close-modal-btn" onclick="closeEditOrder()">×</button>
+    </div>
+    <div class="product-modal-body">
+      <div class="product-form-group">
+        <label for="editName">Ime i prezime</label>
+        <input type="text" id="editName" maxlength="80">
+      </div>
+      <div class="product-form-row">
+        <div class="product-form-group">
+          <label for="editOffice">Biznis</label>
+          <input type="text" id="editOffice" maxlength="60">
+        </div>
+        <div class="product-form-group">
+          <label for="editEmail">Email</label>
+          <input type="email" id="editEmail" maxlength="120">
+        </div>
+      </div>
+      <div class="product-form-group">
+        <label>Proizvodi</label>
+        <div class="edit-items" id="editItems"></div>
+      </div>
+      <div class="product-form-group">
+        <label for="editTotal">Iznos (din)</label>
+        <div class="edit-total-row">
+          <input type="number" id="editTotal" min="0" step="50" oninput="editTotalTouched = true">
+          <button type="button" class="edit-recalc" onclick="recalcEditTotal(true)">Preračunaj po trenutnim cenama</button>
+        </div>
+        <div class="form-hint" id="editTotalHint"></div>
+      </div>
+      <div class="edit-error" id="editError" role="alert"></div>
+    </div>
+    <div class="product-modal-footer">
+      <button class="product-modal-btn cancel" onclick="closeEditOrder()">Otkaži</button>
+      <button class="product-modal-btn save" id="editSaveBtn" onclick="saveEditOrder()">Sačuvaj izmene</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="productModal">
   <div class="modal product-modal">
     <div class="product-modal-header">
@@ -2385,6 +2468,7 @@
 
       const checkbox = `<input type="checkbox" class="order-select" ${checked} onchange="toggleSelection(${o.id})" onclick="event.stopPropagation()">`;
       const deleteBtn = `<button class="delete-btn" onclick="event.stopPropagation(); confirmSingleDelete(${o.id})" title="Obriši porudžbinu">${trashIcon}</button>`;
+      const editBtn = `<button class="edit-btn" onclick="event.stopPropagation(); openEditOrder(${o.id})" title="Izmeni porudžbinu" aria-label="Izmeni porudžbinu"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.2 2.6l2.2 2.2L5.6 12.6 2.6 13.4l.8-3z"/><path d="M9.8 4l2.2 2.2"/></svg></button>`;
       
       // Comment button sa badge-om
       const commentCount = (o.comments && o.comments.length) || 0;
@@ -2416,6 +2500,7 @@
             </div>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
               ${commentBtn}
+              ${editBtn}
               ${deleteBtn}
             </div>
           </div>
@@ -2432,7 +2517,7 @@
             <div>${paidSelect}</div>
             <div>${pickedToggle}</div>
             <div>${commentBtn}</div>
-            <div>${deleteBtn}</div>
+            <div class="row-tools">${editBtn}${deleteBtn}</div>
           </div>
         `;
       }
@@ -2603,6 +2688,92 @@
     
     // Focus na textarea
     setTimeout(() => document.getElementById('commentInput').focus(), 100);
+  }
+
+  // ---------- IZMENA PORUDŽBINE ----------
+  let editOrderId = null, editQty = {}, editTotalTouched = false;
+  const firstWord = name => String(name || '').trim().split(/\s+/)[0];
+  // proizvodi za izmenu: trenutni iz ponude + ono što je u porudžbini a više nije u ponudi
+  function editProductList(order) {
+    const list = products.map(p => ({ key: firstWord(p.name).toLowerCase(), label: firstWord(p.name), price: Number(p.price) || 0 }));
+    parseItems(order.items).forEach(it => {
+      if (!list.some(x => x.key === it.key)) list.push({ key: it.key, label: it.key.charAt(0).toUpperCase() + it.key.slice(1), price: 0 });
+    });
+    const order_ = ['pečeni', 'sirovi'];
+    return list.sort((a, b) => ((order_.indexOf(a.key) + 1 || 99) - (order_.indexOf(b.key) + 1 || 99)));
+  }
+  function openEditOrder(id) {
+    const order = orders.find(o => o.id == id);
+    if (!order) return;
+    editOrderId = id;
+    editTotalTouched = false;
+    document.getElementById('editOrderNo').textContent = '#' + id;
+    document.getElementById('editName').value = order.name || '';
+    document.getElementById('editOffice').value = order.office || '';
+    document.getElementById('editEmail').value = order.email || '';
+    document.getElementById('editTotal').value = Number(order.total) || 0;
+    document.getElementById('editError').textContent = '';
+    editQty = {};
+    parseItems(order.items).forEach(it => { editQty[it.key] = it.qty; });
+    renderEditItems(order);
+    document.getElementById('editTotalHint').textContent = 'Iznos se sam preračuna kad promeniš količine. Možeš ga upisati i ručno.';
+    document.getElementById('editOrderModal').classList.add('show');
+    setTimeout(() => document.getElementById('editName').focus(), 50);
+  }
+  function renderEditItems(order) {
+    const list = editProductList(order || orders.find(o => o.id == editOrderId));
+    document.getElementById('editItems').innerHTML = list.map(p => `
+      <div class="edit-item">
+        <span class="edit-item-name">${escapeHtml(p.label)} <small>${p.price ? p.price.toLocaleString('sr') + ' din/kg' : 'nije u ponudi'}</small></span>
+        <span class="edit-step">
+          <button type="button" onclick="changeEditQty('${p.key}', -1)" aria-label="Manje">−</button>
+          <output>${editQty[p.key] || 0}</output>
+          <button type="button" onclick="changeEditQty('${p.key}', 1)" aria-label="Više">+</button>
+        </span>
+      </div>`).join('');
+  }
+  function changeEditQty(key, d) {
+    editQty[key] = Math.max(0, Math.min(999, (editQty[key] || 0) + d));
+    renderEditItems();
+    recalcEditTotal(false);
+  }
+  function recalcEditTotal(force) {
+    if (editTotalTouched && !force) return;           // ručno upisan iznos se ne gazi, osim na dugme
+    const list = editProductList(orders.find(o => o.id == editOrderId));
+    const sum = list.reduce((s, p) => s + (editQty[p.key] || 0) * p.price, 0);
+    document.getElementById('editTotal').value = sum;
+    if (force) editTotalTouched = false;
+  }
+  function closeEditOrder() {
+    document.getElementById('editOrderModal').classList.remove('show');
+    editOrderId = null;
+  }
+  async function saveEditOrder() {
+    const err = document.getElementById('editError');
+    const name = document.getElementById('editName').value.trim();
+    const office = document.getElementById('editOffice').value.trim();
+    const email = document.getElementById('editEmail').value.trim();
+    const total = Number(document.getElementById('editTotal').value) || 0;
+    const list = editProductList(orders.find(o => o.id == editOrderId));
+    const items = list.filter(p => (editQty[p.key] || 0) > 0).map(p => ({ name: p.label, qty: editQty[p.key] }));
+    if (!name) { err.textContent = 'Upiši ime kupca.'; return; }
+    if (!items.length) { err.textContent = 'Porudžbina mora imati bar jedan proizvod.'; return; }
+    const btn = document.getElementById('editSaveBtn');
+    btn.disabled = true; btn.textContent = 'Čuvam…';
+    try {
+      const result = await apiCall({ action: 'editOrder', id: editOrderId, name, office, email, items, total });
+      if (!result.success) { err.textContent = result.error || 'Izmena nije sačuvana.'; return; }
+      const order = orders.find(o => o.id == editOrderId);
+      if (order && result.order) Object.assign(order, result.order);
+      closeEditOrder();
+      renderStats();
+      renderOrdersTable();
+      showToast(result.unchanged ? 'Nema promena' : 'Porudžbina izmenjena ✓');
+    } catch (e) {
+      err.textContent = 'Greška u snimanju. Proveri internet i pokušaj ponovo.';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sačuvaj izmene';
+    }
   }
 
   function closeCommentsModal() {
