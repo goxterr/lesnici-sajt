@@ -1814,28 +1814,61 @@
     .edit-recalc { text-align: left; }
   }
 
-  /* ---------- statistika ---------- */
-  .stats-main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .stat-card.big { padding: 22px 26px; }
-  .stat-card.big .stat-label { font-size: 20px; }
-  .stat-card.big .stat-value { font-size: 44px; line-height: 1.05; margin: 4px 0 6px; }
-  .stat-card.due { border-left: 4px solid var(--accent); }
-  .stat-card.prep { border-left: 4px solid var(--leaf, #7a9150); }
-  .stat-split {
-    font-family: 'Fraunces', serif;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--ink-2);
-    margin-bottom: 4px;
+  /* ---------- statistika: jedna niska traka ---------- */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: 1.25fr 1.45fr repeat(4, 1fr);
+    background: white;
+    border: 1px solid var(--husk);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
   }
-  .stat-value.paid { color: #3d7a4a; }
-  .stat-progress { height: 6px; border-radius: 999px; background: var(--cream-2, #f3eadb); overflow: hidden; margin: 8px 0 4px; }
-  .stat-progress i { display: block; height: 100%; width: 0; background: #3d7a4a; border-radius: 999px; transition: width 0.5s; }
+  .st { padding: 12px 18px; min-width: 0; border-left: 1px solid var(--husk); display: flex; flex-direction: column; justify-content: center; }
+  .st:first-child { border-left: none; }
+  .st-l { font-family: 'Caveat', cursive; font-size: 16px; line-height: 1.1; color: var(--leaf-dark); }
+  .st-v { font-family: 'Fraunces', serif; font-weight: 600; font-size: 21px; line-height: 1.15; color: var(--ink); white-space: nowrap; }
+  .st-s { font-size: 11px; line-height: 1.3; color: var(--ink-3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st.key { background: linear-gradient(180deg, #fffaf2, #fff); }
+  .st.key .st-v { font-size: 30px; }
+  .st.key .st-s { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .st.due { box-shadow: inset 4px 0 0 var(--accent); }
+  .st.due .st-v { color: var(--accent); }
+  .st.prep { box-shadow: inset 4px 0 0 #7a9150; }
+  .st-v.paid { color: #3d7a4a; }
+  .st-pct { font-family: 'Inter', sans-serif; font-style: normal; font-size: 11px; font-weight: 600; color: #3d7a4a; background: #e6f1e4; border-radius: 999px; padding: 1px 6px; vertical-align: 3px; }
+  .st-bar { height: 4px; border-radius: 999px; background: #efe6d5; overflow: hidden; margin: 4px 0 2px; }
+  .st-bar i { display: block; height: 100%; width: 0; background: #3d7a4a; border-radius: 999px; transition: width 0.5s; }
+  .st-toggle { display: none; }
+
+  @media (max-width: 1150px) {
+    .stats-strip { grid-template-columns: repeat(3, 1fr); }
+    .st { border-left: 1px solid var(--husk); border-top: 1px solid var(--husk); }
+    .st:nth-child(-n+3) { border-top: none; }
+    .st:nth-child(3n+1) { border-left: none; }
+    .st.extra { padding: 9px 16px; }
+  }
   @media (max-width: 800px) {
-    .stats-main { grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px; }
-    .stat-card.big { padding: 16px 18px; }
-    .stat-card.big .stat-value { font-size: 34px; }
-    .stat-split { font-size: 15px; }
+    .st { padding: 10px 14px; }
+    .st.key .st-v { font-size: 24px; }
+    .st-s { white-space: normal; }
+    .stats-strip { grid-template-columns: 1fr 1fr; }
+    .st:nth-child(n) { border-left: none; border-top: 1px solid var(--husk); }
+    .st:nth-child(-n+2) { border-top: none; }
+    .st:nth-child(even) { border-left: 1px solid var(--husk); }
+    .st.extra { display: none; }
+    .stats-strip.open .st.extra { display: flex; }
+    .st-toggle {
+      display: block;
+      grid-column: 1 / -1;
+      border: none;
+      border-top: 1px solid var(--husk);
+      background: #fbf6ec;
+      color: var(--accent);
+      font: 600 13px 'Inter', sans-serif;
+      padding: 9px;
+      cursor: pointer;
+    }
   }
 </style>
 </head>
@@ -1874,43 +1907,40 @@
 
   <div class="main">
     <div class="view active" id="viewOrders">
-      <!-- najbitnije: koliko još da naplatim i koliko da spremim -->
-      <div class="stats-main">
-        <div class="stat-card big due">
-          <div class="stat-label">Za naplatu</div>
-          <div class="stat-value accent" id="statUnpaid">0 din</div>
-          <div class="stat-sub" id="statUnpaidCount">0 porudžbina nije plaćeno</div>
+      <!-- statistika u jednoj traci: prva dva polja su najbitnija -->
+      <div class="stats-strip" id="statsStrip">
+        <div class="st key due">
+          <span class="st-l">Za naplatu</span>
+          <b class="st-v" id="statUnpaid">0 din</b>
+          <small class="st-s" id="statUnpaidCount"></small>
         </div>
-        <div class="stat-card big prep">
-          <div class="stat-label">Za spremanje</div>
-          <div class="stat-value" id="statKg">0 kg</div>
-          <div class="stat-split" id="statKgSplit"></div>
-          <div class="stat-sub" id="statKgCount">0 porudžbina nije preuzeto</div>
+        <div class="st key prep">
+          <span class="st-l">Za spremanje</span>
+          <b class="st-v" id="statKg">0 kg</b>
+          <small class="st-s" id="statKgSplit"></small>
         </div>
-      </div>
-      <div class="stats-bar">
-        <div class="stat-card">
-          <div class="stat-label">Naplaćeno</div>
-          <div class="stat-value paid" id="statPaid">0 din</div>
-          <div class="stat-sub" id="statPaidSplit">e-račun 0 · gotovina 0</div>
-          <div class="stat-progress" aria-hidden="true"><i id="statPaidBar"></i></div>
-          <div class="stat-sub" id="statPaidPct">0% ukupnog prometa</div>
+        <div class="st extra">
+          <span class="st-l">Naplaćeno</span>
+          <b class="st-v paid"><span id="statPaid">0 din</span> <em class="st-pct" id="statPaidPct"></em></b>
+          <div class="st-bar" id="statPaidBarWrap"><i id="statPaidBar"></i></div>
+          <small class="st-s" id="statPaidSplit"></small>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Ukupno prodato</div>
-          <div class="stat-value" id="statKgAll">0 kg</div>
-          <div class="stat-sub" id="statKgAllSplit">pečeni 0 · sirovi 0</div>
+        <div class="st extra">
+          <span class="st-l">Ukupno prodato</span>
+          <b class="st-v" id="statKgAll">0 kg</b>
+          <small class="st-s" id="statKgAllSplit"></small>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Ukupan promet</div>
-          <div class="stat-value" id="statTotal">0 din</div>
-          <div class="stat-sub" id="statTotalCount">0 porudžbina</div>
+        <div class="st extra">
+          <span class="st-l">Promet</span>
+          <b class="st-v" id="statTotal">0 din</b>
+          <small class="st-s" id="statTotalCount"></small>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Završeno</div>
-          <div class="stat-value" id="statDone">0</div>
-          <div class="stat-sub" id="statActive">plaćeno i preuzeto · 0 u obradi</div>
+        <div class="st extra">
+          <span class="st-l">Završeno</span>
+          <b class="st-v" id="statDone">0</b>
+          <small class="st-s" id="statActive"></small>
         </div>
+        <button type="button" class="st-toggle" id="statsToggle" onclick="toggleStatsMore()" aria-expanded="false">Više statistike ▾</button>
       </div>
 
       <div class="filter-bar">
@@ -2417,6 +2447,18 @@
     }));
   }
 
+  // telefon: dodatna statistika se otvara na dugme (stanje se pamti)
+  function toggleStatsMore(force) {
+    const strip = document.getElementById('statsStrip');
+    const open = typeof force === 'boolean' ? force : !strip.classList.contains('open');
+    strip.classList.toggle('open', open);
+    const btn = document.getElementById('statsToggle');
+    btn.textContent = open ? 'Manje statistike ▴' : 'Više statistike ▾';
+    btn.setAttribute('aria-expanded', open);
+    try { localStorage.setItem('lesnici_stats_more', open ? '1' : '0'); } catch (e) {}
+  }
+  try { if (localStorage.getItem('lesnici_stats_more') === '1') setTimeout(() => toggleStatsMore(true), 0); } catch (e) {}
+
   function renderStats() {
     const din = n => Math.round(n).toLocaleString('sr') + ' din';
     const kgOf = (list, key) => list.reduce((sum, o) => sum + parseItems(o.items)
@@ -2448,20 +2490,23 @@
     const active = orders.length - done;
     const pct = turnover ? Math.round(sumOf(paid) / turnover * 100) : 0;
 
+    const pe = kgOf(notPicked, 'pečeni'), si = kgOf(notPicked, 'sirovi');
     document.getElementById('statUnpaid').textContent = din(sumOf(unpaid));
-    document.getElementById('statUnpaidCount').textContent = `${unpaid.length} ${form(unpaid.length, 'porudžbina nije plaćena', 'porudžbine nisu plaćene', 'porudžbina nije plaćeno')}`;
+    document.getElementById('statUnpaidCount').textContent = `${unpaid.length} ${form(unpaid.length, 'porudžbina', 'porudžbine', 'porudžbina')}`;
     document.getElementById('statKg').textContent = kgOf(notPicked) + ' kg';
-    document.getElementById('statKgSplit').textContent = kgSplit(notPicked);
-    document.getElementById('statKgCount').textContent = `${notPicked.length} ${form(notPicked.length, 'porudžbina nije preuzeta', 'porudžbine nisu preuzete', 'porudžbina nije preuzeto')}`;
+    document.getElementById('statKgSplit').textContent = `pečeni ${pe} · sirovi ${si} · ${notPicked.length} ${form(notPicked.length, 'porudžbina', 'porudžbine', 'porudžbina')}`;
     document.getElementById('statPaid').textContent = din(sumOf(paid));
-    document.getElementById('statPaidSplit').textContent = `e-račun ${din(paidE)} · gotovina ${din(paidCash)}`;
     document.getElementById('statPaidBar').style.width = pct + '%';
-    document.getElementById('statPaidPct').textContent = `${pct}% ukupnog prometa`;
+    document.getElementById('statPaidBarWrap').title = `${pct}% ukupnog prometa`;
+    document.getElementById('statPaidPct').textContent = pct + '%';
+    const k = n => Math.round(n).toLocaleString('sr');
+    document.getElementById('statPaidSplit').textContent = `e-račun ${k(paidE)} · gotovina ${k(paidCash)}`;
+    document.getElementById('statPaidSplit').title = `e-račun ${din(paidE)} · gotovina ${din(paidCash)} · ${pct}% ukupnog prometa`;
     document.getElementById('statKgAll').textContent = kgOf(orders) + ' kg';
-    document.getElementById('statKgAllSplit').textContent = kgSplit(orders);
+    document.getElementById('statKgAllSplit').textContent = `pečeni ${kgOf(orders, 'pečeni')} · sirovi ${kgOf(orders, 'sirovi')}`;
     document.getElementById('statTotal').textContent = din(turnover);
-    document.getElementById('statTotalCount').textContent = `${orders.length} ${form(orders.length, 'porudžbina', 'porudžbine', 'porudžbina')} ukupno`;
-    document.getElementById('statDone').textContent = done;
+    document.getElementById('statTotalCount').textContent = `${orders.length} ${form(orders.length, 'porudžbina', 'porudžbine', 'porudžbina')}`;
+    document.getElementById('statDone').textContent = `${done} / ${orders.length}`;
     document.getElementById('statActive').textContent = `plaćeno i preuzeto · ${active} u obradi`;
 
     document.getElementById('countOrders').textContent = orders.length;
