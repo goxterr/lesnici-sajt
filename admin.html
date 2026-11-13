@@ -1893,6 +1893,11 @@
   .st.mama { box-shadow: inset 4px 0 0 #3d7a4a; }
   .st.mama .st-v { color: #3d7a4a; }
   .st.mama .st-s { white-space: normal; }
+
+  /* kupac bez mejla */
+  .contact-small.no-mail { font-style: italic; color: #b3a58c; }
+  .comment-btn.frozen { opacity: 0.45; cursor: not-allowed; background: #f4efe6; border-color: #e3d8c4; color: #a99b82; }
+  .comment-btn.frozen svg { width: 14px; height: 14px; }
 </style>
 </head>
 <body>
@@ -2104,7 +2109,7 @@
         </div>
         <div class="product-form-group">
           <label for="editEmail">Email</label>
-          <input type="email" id="editEmail" maxlength="120">
+          <input type="text" id="editEmail" maxlength="120" placeholder="GORAN = bez mejla" autocomplete="off">
         </div>
       </div>
       <div class="product-form-group">
@@ -2629,6 +2634,11 @@
       const commentBadge = hasComments ? `<span class="comment-badge">${commentCount}</span>` : '';
       const unread = hasUnread(o);
       const commentBtn = `<button class="comment-btn ${hasComments ? 'has-comments' : ''} ${unread ? 'unread' : ''}" onclick="event.stopPropagation(); openComments(${o.id})" title="${unread ? 'Nova poruka od kupca' : (hasComments ? 'Prepiska' : 'Dodaj komentar')}">${commentIcon}${commentBadge}</button>`;
+      // kupac bez mejla (upisan kao GORAN): ne prima poruke, prepiska je zamrznuta
+      const noMail = !o.email && !o.phone;
+      const commentBtnFinal = noMail
+        ? `<button class="comment-btn frozen" disabled title="Kupac bez mejla: ne prima poruke" aria-label="Prepiska zamrznuta: kupac bez mejla"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg></button>`
+        : commentBtn;
 
       if (isMobile) {
         return `
@@ -2653,7 +2663,7 @@
             </div>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
               ${momBtn}
-              ${commentBtn}
+              ${commentBtnFinal}
               ${editBtn}
               ${deleteBtn}
             </div>
@@ -2671,7 +2681,7 @@
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
             <div>${paidSelect}</div>
             <div>${pickedToggle}</div>
-            <div>${commentBtn}</div>
+            <div>${commentBtnFinal}</div>
             <div class="row-tools">${editBtn}${deleteBtn}</div>
           </div>
         `;
@@ -2942,6 +2952,9 @@
     const items = list.filter(p => (editQty[p.key] || 0) > 0).map(p => ({ name: p.label, qty: editQty[p.key] }));
     if (!name) { err.textContent = 'Upiši ime kupca.'; return; }
     if (!items.length) { err.textContent = 'Porudžbina mora imati bar jedan proizvod.'; return; }
+    if (email && email !== 'GORAN' && !/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[a-zA-Z]{2,}$/.test(email)) {
+      err.textContent = 'Mejl mora biti u obliku ime@nesto.domen (ili GORAN za kupca bez mejla).'; return;
+    }
     const btn = document.getElementById('editSaveBtn');
     btn.disabled = true; btn.textContent = 'Čuvam…';
     try {
@@ -3512,6 +3525,7 @@ function cleanReplyText(t) {
 
   // kontakt ispod imena u tabeli: mejl, a kod starih porudžbina telefon
   function contactLine(o) {
+    if (!o.email && !o.phone) return `<span class="contact-small no-mail">bez mejla</span>`;
     let out = '';
     if (o.email) out += `<span class="contact-small">${escapeHtml(o.email)}</span>`;
     if (o.phone) out += `<span class="contact-small">tel. ${escapeHtml(String(o.phone))}</span>`;

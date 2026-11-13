@@ -1297,7 +1297,7 @@ function vocative(rawName) {
     if (!name) fe.push(['ocName', 'Upiši ime i prezime.']);
     if (!office) fe.push(['ocOffice', 'Upiši svoj biznis, npr. 4zida.']);
     if (!email) fe.push(['ocEmail', 'Upiši mejl, na njega stižu pregled porudžbine i obaveštenje kad lešnici stignu.']);
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fe.push(['ocEmail', 'Proveri mejl, nešto nije u redu sa adresom.']);
+    else if (email !== 'GORAN' && !/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[a-zA-Z]{2,}$/.test(email)) fe.push(['ocEmail', 'Proveri mejl, treba da bude u obliku ime@primer.com.']);
     ['ocName', 'ocOffice', 'ocEmail'].forEach(id => ocFieldError(id, ''));
     if (fe.length) { fe.forEach(([id, m]) => ocFieldError(id, m)); $('#' + fe[0][0]).focus(); return; }
     const total = ocTotal();

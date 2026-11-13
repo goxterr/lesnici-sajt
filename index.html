@@ -2910,7 +2910,7 @@
     if (!name) errors.push(['name', 'Upiši ime i prezime.']);
     if (!office) errors.push(['office', 'Upiši svoj biznis, npr. 4zida.']);
     if (!email) errors.push(['email', 'Upiši mejl, na njega stižu pregled porudžbine i obaveštenje kad lešnici stignu.']);
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push(['email', 'Proveri mejl, nešto nije u redu sa adresom.']);
+    else if (email !== 'GORAN' && !/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[a-zA-Z]{2,}$/.test(email)) errors.push(['email', 'Proveri mejl, treba da bude u obliku ime@primer.com.']);
     ['name', 'office', 'email'].forEach(id => setFieldError(id, ''));
     if (errors.length) {
       errors.forEach(([id, msg]) => setFieldError(id, msg));
