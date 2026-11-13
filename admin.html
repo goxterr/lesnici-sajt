@@ -328,7 +328,7 @@
 
   .table-head {
     display: grid;
-    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 120px 150px 130px 40px 72px;
+    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 56px 120px 150px 130px 40px 72px;
     padding: 12px 16px;
     background: var(--cream-2);
     border-bottom: 1px solid var(--husk);
@@ -344,7 +344,7 @@
 
   .order-row {
     display: grid;
-    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 120px 150px 130px 40px 72px;
+    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 56px 120px 150px 130px 40px 72px;
     padding: 14px 16px;
     border-bottom: 1px solid var(--husk);
     align-items: center;
@@ -1817,7 +1817,7 @@
   /* ---------- statistika: jedna niska traka ---------- */
   .stats-strip {
     display: grid;
-    grid-template-columns: 1.25fr 1.45fr repeat(4, 1fr);
+    grid-template-columns: 1.15fr 1.35fr 1.3fr repeat(4, 1fr);
     background: white;
     border: 1px solid var(--husk);
     border-radius: 14px;
@@ -1828,7 +1828,7 @@
   .st:first-child { border-left: none; }
   .st-l { font-family: 'Caveat', cursive; font-size: 16px; line-height: 1.1; color: var(--leaf-dark); }
   .st-v { font-family: 'Fraunces', serif; font-weight: 600; font-size: 21px; line-height: 1.15; color: var(--ink); white-space: nowrap; }
-  .st-s { font-size: 11px; line-height: 1.3; color: var(--ink-3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st-s { font-size: 11px; line-height: 1.3; color: var(--ink-3); margin-top: 2px; }   /* duži tekst prelazi u drugi red, ne seče se */
   .st.key { background: linear-gradient(180deg, #fffaf2, #fff); }
   .st.key .st-v { font-size: 30px; }
   .st.key .st-s { font-size: 12px; font-weight: 600; color: var(--ink-2); }
@@ -1842,10 +1842,10 @@
   .st-toggle { display: none; }
 
   @media (max-width: 1150px) {
-    .stats-strip { grid-template-columns: repeat(3, 1fr); }
+    .stats-strip { grid-template-columns: repeat(4, 1fr); }
     .st { border-left: 1px solid var(--husk); border-top: 1px solid var(--husk); }
-    .st:nth-child(-n+3) { border-top: none; }
-    .st:nth-child(3n+1) { border-left: none; }
+    .st:nth-child(-n+4) { border-top: none; }
+    .st:nth-child(4n+1) { border-left: none; }
     .st.extra { padding: 9px 16px; }
   }
   @media (max-width: 800px) {
@@ -1857,6 +1857,7 @@
     .st:nth-child(-n+2) { border-top: none; }
     .st:nth-child(even) { border-left: 1px solid var(--husk); }
     .st.extra { display: none; }
+    .st.mama { grid-column: 1 / -1; border-left: none; }
     .stats-strip.open .st.extra { display: flex; }
     .st-toggle {
       display: block;
@@ -1870,6 +1871,28 @@
       cursor: pointer;
     }
   }
+
+  /* ---------- "M": prebačeno mami ---------- */
+  .col-mom { display: flex; justify-content: center; }
+  .sort-btn.mom-head { justify-content: center; width: 100%; }
+  .mom-btn {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1.5px solid var(--husk); background: white; color: #b9ad97;
+    font: 700 14px/1 'Fraunces', Georgia, serif;
+    cursor: pointer; display: inline-grid; place-items: center; flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .mom-btn:hover { border-color: #3d7a4a; color: #3d7a4a; }
+  .mom-btn.on { background: #3d7a4a; border-color: #3d7a4a; color: white; box-shadow: 0 2px 6px rgba(61, 122, 74, 0.35); }
+  .mom-btn.on:hover { background: #336a3f; color: white; }
+  .mom-btn:active { transform: scale(0.92); }
+  .mom-btn:focus-visible { outline: 2px solid #3d7a4a; outline-offset: 2px; }
+  .bulk-btn.mom { background: #3d7a4a; color: white; border-color: #3d7a4a; display: inline-flex; align-items: center; gap: 6px; }
+  .bulk-btn.mom:hover { background: #336a3f; }
+  .mom-dot { width: 18px; height: 18px; border-radius: 50%; background: white; color: #3d7a4a; font: 700 11px/18px 'Fraunces', serif; text-align: center; }
+  .st.mama { box-shadow: inset 4px 0 0 #3d7a4a; }
+  .st.mama .st-v { color: #3d7a4a; }
+  .st.mama .st-s { white-space: normal; }
 </style>
 </head>
 <body>
@@ -1919,6 +1942,11 @@
           <b class="st-v" id="statKg">0 kg</b>
           <small class="st-s" id="statKgSplit"></small>
         </div>
+        <div class="st key mama">
+          <span class="st-l">Za mamu</span>
+          <b class="st-v" id="statMom">0 din</b>
+          <small class="st-s" id="statMomSplit"></small>
+        </div>
         <div class="st extra">
           <span class="st-l">Naplaćeno</span>
           <b class="st-v paid"><span id="statPaid">0 din</span> <em class="st-pct" id="statPaidPct"></em></b>
@@ -1960,6 +1988,7 @@
         <div class="bulk-actions">
           <button class="bulk-btn" onclick="clearSelection()">Poništi</button>
           <button class="bulk-btn arrived" onclick="openArrivedModal()">🌰 Stiglo — javi im</button>
+          <button class="bulk-btn mom" onclick="bulkMom(true)"><span class="mom-dot">M</span> Prebačeno mami</button>
           <button class="bulk-btn danger" onclick="confirmBulkDelete()">🗑️ Obriši izabrane</button>
         </div>
       </div>
@@ -1971,6 +2000,7 @@
           <button type="button" class="sort-btn" data-sort="name">Ime</button>
           <button type="button" class="sort-btn" data-sort="office">Biznis</button>
           <button type="button" class="sort-btn" data-sort="items">Proizvodi</button>
+          <button type="button" class="sort-btn mom-head" data-sort="mom" title="Prebačeno mami">M</button>
           <button type="button" class="sort-btn right" data-sort="total">Iznos</button>
           <button type="button" class="sort-btn" data-sort="paid">Plaćeno</button>
           <button type="button" class="sort-btn" data-sort="picked">Preuzeto</button>
@@ -2359,7 +2389,7 @@
 
   // ---------- sortiranje ----------
   let sortKey = null, sortDir = 'desc';
-  const SORT_DEFAULT_DIR = { date: 'desc', name: 'asc', office: 'asc', items: 'desc', total: 'desc', paid: 'asc', picked: 'asc' };
+  const SORT_DEFAULT_DIR = { date: 'desc', name: 'asc', office: 'asc', items: 'desc', mom: 'asc', total: 'desc', paid: 'asc', picked: 'asc' };
   const PAID_ORDER = { '': 0, 'P': 1, 'eP': 2 };
   function dateValue(d) {
     const m = String(d || '').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
@@ -2377,6 +2407,7 @@
       case 'total': return Number(o.total) || 0;
       case 'paid': return PAID_ORDER[o.paid] ?? 0;
       case 'picked': return o.picked ? 1 : 0;
+      case 'mom': return o.mom ? 1 : 0;
     }
     return 0;
   }
@@ -2492,7 +2523,15 @@
 
     const pe = kgOf(notPicked, 'pečeni'), si = kgOf(notPicked, 'sirovi');
     document.getElementById('statUnpaid').textContent = din(sumOf(unpaid));
-    document.getElementById('statUnpaidCount').textContent = `${unpaid.length} ${form(unpaid.length, 'porudžbina', 'porudžbine', 'porudžbina')}`;
+    document.getElementById('statUnpaidCount').textContent = `${unpaid.length} ${form(unpaid.length, 'porudžbina', 'porudžbine', 'porudžbina')} · ${kgOf(unpaid)} kg`;
+    // mama: sve što još nije prebačeno; od toga "spremno" je ono što je već naplaćeno
+    const momLeft = orders.filter(o => !o.mom);
+    const momReady = sumOf(momLeft.filter(o => o.paid !== ''));
+    const momSent = sumOf(orders.filter(o => o.mom));
+    document.getElementById('statMom').textContent = din(sumOf(momLeft));
+    const kk = n => Math.round(n).toLocaleString('sr');
+    document.getElementById('statMomSplit').textContent = `spremno ${kk(momReady)} · prebačeno ${kk(momSent)} din`;
+    document.getElementById('statMomSplit').title = `Još za mamu: ${din(sumOf(momLeft))} (od toga već naplaćeno ${din(momReady)}). Do sada prebačeno: ${din(momSent)}.`;
     document.getElementById('statKg').textContent = kgOf(notPicked) + ' kg';
     document.getElementById('statKgSplit').textContent = `pečeni ${pe} · sirovi ${si} · ${notPicked.length} ${form(notPicked.length, 'porudžbina', 'porudžbine', 'porudžbina')}`;
     document.getElementById('statPaid').textContent = din(sumOf(paid));
@@ -2581,6 +2620,7 @@
 
       const checkbox = `<input type="checkbox" class="order-select" ${checked} onchange="toggleSelection(${o.id})" onclick="event.stopPropagation()">`;
       const deleteBtn = `<button class="delete-btn" onclick="event.stopPropagation(); confirmSingleDelete(${o.id})" title="Obriši porudžbinu">${trashIcon}</button>`;
+      const momBtn = `<button class="mom-btn ${o.mom ? 'on' : ''}" onclick="event.stopPropagation(); toggleMom(${o.id})" title="${o.mom ? 'Prebačeno mami ' + escapeHtml(o.mom) + ' (klik poništava)' : 'Označi: novac prebačen mami'}" aria-pressed="${o.mom ? 'true' : 'false'}" aria-label="Prebačeno mami">M</button>`;
       const editBtn = `<button class="edit-btn" onclick="event.stopPropagation(); openEditOrder(${o.id})" title="Izmeni porudžbinu" aria-label="Izmeni porudžbinu"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.2 2.6l2.2 2.2L5.6 12.6 2.6 13.4l.8-3z"/><path d="M9.8 4l2.2 2.2"/></svg></button>`;
       
       // Comment button sa badge-om
@@ -2612,6 +2652,7 @@
               ${pickedToggle}
             </div>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
+              ${momBtn}
               ${commentBtn}
               ${editBtn}
               ${deleteBtn}
@@ -2626,6 +2667,7 @@
             <div class="col-name">${o.name}${contactLine(o)}${replyLine(o)}</div>
             <div class="col-office">${o.office}</div>
             <div class="col-items">${itemsHtml(o.items)}</div>
+            <div class="col-mom">${momBtn}</div>
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
             <div>${paidSelect}</div>
             <div>${pickedToggle}</div>
@@ -2801,6 +2843,35 @@
     
     // Focus na textarea
     setTimeout(() => document.getElementById('commentInput').focus(), 100);
+  }
+
+  // ---------- "M": novac prebačen mami ----------
+  async function setMom(ids, value) {
+    const prev = ids.map(id => { const o = orders.find(x => x.id == id); return [o, o ? o.mom : '']; });
+    const today = new Date().toLocaleDateString('sr-RS', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\s/g, '').replace(/\.$/, '');
+    prev.forEach(([o]) => { if (o) o.mom = value ? today : ''; });
+    renderStats(); renderOrdersTable();
+    try {
+      const r = await apiCall({ action: 'updateMom', ids, value });
+      if (!r.success) throw new Error(r.error || 'greška');
+      prev.forEach(([o]) => { if (o) o.mom = value ? r.value : ''; });
+      renderOrdersTable();
+      return true;
+    } catch (e) {
+      prev.forEach(([o, old]) => { if (o) o.mom = old; });   // vrati kako je bilo
+      renderStats(); renderOrdersTable();
+      showToast('Nije sačuvano, proveri internet', true);
+      return false;
+    }
+  }
+  function toggleMom(id) {
+    const o = orders.find(x => x.id == id);
+    if (o) setMom([id], !o.mom);
+  }
+  async function bulkMom(value) {
+    const ids = [...selectedIds];
+    if (!ids.length) return;
+    if (await setMom(ids, value)) showToast(`Prebačeno mami: ${ids.length} ✓`);
   }
 
   // ---------- IZMENA PORUDŽBINE ----------
