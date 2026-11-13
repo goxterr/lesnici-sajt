@@ -1862,6 +1862,16 @@
   @media (prefers-reduced-motion: reduce) {
     .beat-btn, .beat-icon::after { animation: none; }
   }
+
+  /* telefon: redosled podaci → proizvodi → pregled i dugme */
+  .m-checkout { display: none; }
+  @media (max-width: 700px) {
+    .order-grid { display: flex; flex-direction: column; }
+    #secData { order: 1; }
+    #secProducts { order: 2; }
+    .m-checkout { order: 3; display: block; margin-bottom: 28px; }
+    #secData .form-card { padding-bottom: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -1913,7 +1923,7 @@
   <!-- Proizvodi i podaci: na širokom ekranu jedno pored drugog, sve na prvom ekranu -->
   <div class="order-grid">
   <!-- Proizvodi -->
-  <section>
+  <section id="secProducts">
     <div class="section-head">
       <img class="section-icon" src="product-sirovi.png" alt="" aria-hidden="true">
       <h2 class="section-title" aria-label="Naši proizvodi"><span aria-hidden="true"><span class="gw">Na<span class="gl">s<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span><span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span> <em><span class="gw">pro<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span>zvod<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span></em></span></h2>
@@ -1927,7 +1937,7 @@
   </section>
 
   <!-- Podaci -->
-  <section>
+  <section id="secData">
     <div class="section-head">
       <img class="section-icon" src="product-peceni.png" alt="" aria-hidden="true">
       <h2 class="section-title" aria-label="Vaši podaci"><span aria-hidden="true"><span class="gw">Va<span class="gl">s<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span><span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span> <em><span class="gw">podac<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span></span></em></span></h2>
@@ -1967,6 +1977,8 @@
       </button>
     </div>
   </section>
+  <!-- telefon: pregled porudžbine i dugme idu ispod proizvoda -->
+  <div class="form-card m-checkout" id="mCheckout"></div>
   </div>
 
   <!-- Lista porudžbina -->
@@ -2898,6 +2910,21 @@
   ['name', 'office', 'email'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => setFieldError(id, ''));
   });
+
+  // Telefon: prvo podaci o kupcu, pa proizvodi (dok kupac kuca, proizvodi stignu), pa pregled i dugme
+  (function () {
+    const mq = window.matchMedia('(max-width: 700px)');
+    const formCard = document.querySelector('#secData .form-card');
+    const checkout = document.getElementById('mCheckout');
+    const summary = document.getElementById('summary');
+    const submit = document.getElementById('submitBtn');
+    const place = () => {
+      const target = mq.matches ? checkout : formCard;
+      if (summary.parentElement !== target) { target.appendChild(summary); target.appendChild(submit); }
+    };
+    place();
+    if (mq.addEventListener) mq.addEventListener('change', place); else mq.addListener(place);
+  })();
 
   // Submit handler
   document.getElementById('submitBtn').addEventListener('click', async () => {
