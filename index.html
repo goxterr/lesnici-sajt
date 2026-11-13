@@ -1863,15 +1863,43 @@
     .beat-btn, .beat-icon::after { animation: none; }
   }
 
-  /* telefon: redosled podaci → proizvodi → pregled i dugme */
-  .m-checkout { display: none; }
-  @media (max-width: 700px) {
+  /* redosled: podaci o kupcu → izbor proizvoda → pregled i dugme */
+  @media (max-width: 959px) {
     .order-grid { display: flex; flex-direction: column; }
     #secData { order: 1; }
     #secProducts { order: 2; }
-    .m-checkout { order: 3; display: block; margin-bottom: 28px; }
+    .m-checkout { order: 3; margin-bottom: 28px; }
     #secData .form-card { padding-bottom: 14px; }
   }
+  @media (min-width: 960px) {
+    .order-grid {
+      grid-template-columns: 1fr 1.08fr !important;
+      grid-template-areas: "data prod" "data checkout";
+      row-gap: 14px !important;
+    }
+    #secData { grid-area: data; }
+    #secProducts { grid-area: prod; }
+    .m-checkout { grid-area: checkout; padding: 12px 16px !important; }
+    .m-checkout .summary { margin: 0 0 10px !important; padding: 12px 16px !important; }
+    #secProducts .product { padding: 11px 0 !important; }
+  }
+
+  /* pretraga porudžbina na naslovnoj */
+  .orders-search { position: relative; margin: 0 0 16px; }
+  .orders-search input {
+    width: 100%; padding: 12px 40px 12px 14px;
+    border: 1.5px solid #e6d6b8; border-radius: 12px; background: #fffdf8;
+    font: 15px 'Inter', sans-serif; color: #2a1f15;
+    -webkit-appearance: none; appearance: none;
+  }
+  .orders-search input::-webkit-search-cancel-button { display: none; }
+  .orders-search input:focus { outline: none; border-color: #9c4a1b; }
+  .orders-search-clear {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; border-radius: 50%; border: none;
+    background: #eadfcb; color: #5b4a38; font-size: 18px; line-height: 1; cursor: pointer;
+  }
+  .orders-search-clear[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -1987,6 +2015,10 @@
       <img class="section-icon" src="hazelnut-kernels.png" alt="" aria-hidden="true">
       <h2 class="section-title" aria-label="Sve porudžbine"><span aria-hidden="true"><span class="gw">Sve</span> <em><span class="gw">porud<span class="gl">z<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span>b<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span>ne</span></em></span></h2>
       <span class="section-handwrite" id="orderCount">učitavam...</span>
+    </div>
+    <div class="orders-search">
+      <input type="search" id="ordersSearch" placeholder="🔍 Nađi svoju porudžbinu (ime ili biznis)" autocomplete="off" oninput="renderOrders(); paintOrdersSearchClear()" aria-label="Pretraži porudžbine">
+      <button type="button" class="orders-search-clear" id="ordersSearchClear" onclick="clearOrdersSearch()" aria-label="Obriši pretragu" hidden>×</button>
     </div>
 
     <div id="ordersContainer">
@@ -2620,12 +2652,32 @@
     if (!paid) setTimeout(() => openPaymentModal(id), 900);
   }
 
+  // pretraga bez obzira na kvačice: "borsos" nalazi "Boršoš"
+  const plain = t => String(t || '').toLowerCase().replace(/đ/g, 'dj').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  function paintOrdersSearchClear() {
+    document.getElementById('ordersSearchClear').hidden = !document.getElementById('ordersSearch').value;
+  }
+  function clearOrdersSearch() {
+    const inp = document.getElementById('ordersSearch');
+    inp.value = '';
+    paintOrdersSearchClear();
+    renderOrders();
+    inp.focus();
+  }
+
   function renderOrders() {
     const container = document.getElementById('ordersContainer');
     document.getElementById('orderCount').textContent = orders.length + ' do sad';
     
     if (orders.length === 0) {
       container.innerHTML = '<div class="empty">~ još nema porudžbina, budite prvi ~</div>';
+      return;
+    }
+    const searchEl = document.getElementById('ordersSearch');
+    const q = searchEl ? plain(searchEl.value.trim()) : '';
+    const list = q ? orders.filter(o => plain(o.name).includes(q) || plain(o.office).includes(q)) : orders;
+    if (!list.length) {
+      container.innerHTML = `<div class="empty">~ nema porudžbine za „${searchEl.value.trim().replace(/[<>&"]/g, '')}“ ~</div>`;
       return;
     }
 
@@ -2637,8 +2689,8 @@
     // Razvrstavanje: aktuelne vs završene
     // Završeno = isporučeno DA i plaćeno (eP ili P)
     const isDone = (o) => o.picked && (o.paid === 'eP' || o.paid === 'P');
-    const active = orders.filter(o => !isDone(o));
-    const done = orders.filter(o => isDone(o));
+    const active = list.filter(o => !isDone(o));
+    const done = list.filter(o => isDone(o));
 
     // Render aktivnih (pune kartice)
     const qrIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 14h3v3M17 17h4M14 20h7M21 14v3"></path></svg>';
@@ -2913,17 +2965,10 @@
 
   // Telefon: prvo podaci o kupcu, pa proizvodi (dok kupac kuca, proizvodi stignu), pa pregled i dugme
   (function () {
-    const mq = window.matchMedia('(max-width: 700px)');
-    const formCard = document.querySelector('#secData .form-card');
+    // pregled porudžbine i dugme uvek stoje ispod izbora proizvoda (i na telefonu i na računaru)
     const checkout = document.getElementById('mCheckout');
-    const summary = document.getElementById('summary');
-    const submit = document.getElementById('submitBtn');
-    const place = () => {
-      const target = mq.matches ? checkout : formCard;
-      if (summary.parentElement !== target) { target.appendChild(summary); target.appendChild(submit); }
-    };
-    place();
-    if (mq.addEventListener) mq.addEventListener('change', place); else mq.addListener(place);
+    checkout.appendChild(document.getElementById('summary'));
+    checkout.appendChild(document.getElementById('submitBtn'));
   })();
 
   // Submit handler

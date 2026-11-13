@@ -2004,6 +2004,79 @@
   .bulk-unselect-done[hidden] { display: none; }
   .bulk-unselect-done.nudge { animation: nudge 0.9s ease-in-out 2; }
   @keyframes nudge { 0%, 100% { box-shadow: 0 0 0 0 rgba(242, 194, 122, 0); } 50% { box-shadow: 0 0 0 5px rgba(242, 194, 122, 0.6); } }
+
+  /* ---------- završene: tanak red ---------- */
+  .order-row.done-mini {
+    display: flex !important; align-items: center; gap: 12px;
+    padding: 7px 18px !important; min-height: 0;
+    background: #f7f3ea; color: var(--ink-3); cursor: pointer;
+    font-size: 13px; border-left: 3px solid #b9cfa6;
+  }
+  .order-row.done-mini:hover { background: #f1ebde; }
+  .dm-check { width: 18px; height: 18px; border-radius: 50%; background: #3d7a4a; color: white; font-size: 11px; display: grid; place-items: center; flex-shrink: 0; }
+  .dm-name { flex: 1; min-width: 0; font-family: 'Fraunces', serif; font-weight: 600; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dm-kg { white-space: nowrap; }
+  .dm-amt { white-space: nowrap; font-family: 'Fraunces', serif; font-weight: 600; color: var(--ink-2); min-width: 78px; text-align: right; }
+  .dm-collapse {
+    border: 1px solid var(--husk); background: white; color: var(--ink-3);
+    width: 20px; height: 20px; border-radius: 6px; font-size: 10px; line-height: 1;
+    cursor: pointer; margin-right: 6px; vertical-align: 2px; padding: 0; flex-shrink: 0;
+  }
+
+  /* ---------- X u pretrazi ---------- */
+  .search-wrap { position: relative; flex: 1; min-width: 0; display: flex; }
+  .search-wrap .search-input { flex: 1; width: 100%; padding-right: 36px; }
+  .search-clear {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 26px; height: 26px; border-radius: 50%; border: none;
+    background: #e9dfcc; color: var(--ink-2); font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .search-clear:hover { background: #dccfb5; }
+  .search-clear[hidden] { display: none; }
+
+  /* ---------- beleške ---------- */
+  .notes-wrap { max-width: 760px; margin: 0 auto; }
+  .note-compose { background: white; border: 1px solid var(--husk); border-radius: 14px; padding: 14px; margin-bottom: 16px; }
+  .note-compose textarea {
+    width: 100%; border: 1px solid var(--husk); border-radius: 10px; padding: 12px;
+    font: 15px/1.45 'Inter', sans-serif; color: var(--ink); background: #fffdf8; resize: vertical; min-height: 80px;
+  }
+  .note-compose textarea:focus { outline: none; border-color: var(--accent); }
+  .note-compose-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; }
+  .note-hint { font-size: 12px; color: var(--ink-3); }
+  .note-save {
+    padding: 10px 18px; border-radius: 10px; border: none; background: var(--accent); color: white;
+    font: 600 14px 'Inter', sans-serif; cursor: pointer; white-space: nowrap;
+  }
+  .note-save:disabled { opacity: 0.6; cursor: wait; }
+  .notes-list { display: flex; flex-direction: column; gap: 10px; }
+  .notes-empty { text-align: center; padding: 30px; font-family: 'Caveat', cursive; font-size: 20px; color: var(--ink-3); }
+  .note-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: #fffaf0; border: 1px solid var(--husk); border-left: 4px solid #e0b25a;
+    border-radius: 12px; padding: 12px 12px 12px 16px;
+  }
+  .note-body { flex: 1; min-width: 0; }
+  .note-date { font-size: 12px; color: var(--ink-3); font-weight: 600; margin-bottom: 4px; }
+  .note-text { font-size: 15px; line-height: 1.45; color: var(--ink); white-space: pre-wrap; word-wrap: break-word; }
+  .note-del {
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--husk);
+    background: white; color: var(--ink-3); font-size: 18px; line-height: 1; cursor: pointer; flex-shrink: 0;
+  }
+  .note-del:hover { color: var(--red, #b3261e); border-color: var(--red, #b3261e); }
+  .note-delete-modal { max-width: 400px; text-align: center; padding: 24px; }
+  .note-delete-modal h3 { font-family: 'Fraunces', serif; font-size: 22px; margin-bottom: 8px; }
+  .note-delete-preview { font-size: 14px; color: var(--ink-2); background: #faf5ea; border-radius: 10px; padding: 10px; margin-bottom: 18px; text-align: left; white-space: pre-wrap; }
+  .note-delete-actions { display: flex; gap: 10px; justify-content: center; }
+  .product-modal-btn.danger-btn { background: var(--red, #b3261e); color: white; border-color: var(--red, #b3261e); }
+
+  @media (max-width: 800px) {
+    .order-row.done-mini { padding: 8px 12px !important; gap: 8px; font-size: 12.5px; }
+    .dm-amt { min-width: 0; }
+    .search-wrap { flex: 1; }
+    .note-compose-row { flex-direction: column; align-items: stretch; }
+    .note-hint { text-align: center; }
+  }
 </style>
 </head>
 <body>
@@ -2037,6 +2110,7 @@
     <button class="tab active" onclick="switchTab('orders', this)">📋 Porudžbine <span class="tab-count" id="countOrders">0</span></button>
     <button class="tab" onclick="switchTab('products', this)">🌰 Proizvodi <span class="tab-count" id="countProducts">0</span></button>
     <button class="tab" onclick="switchTab('animation', this)">🎬 Animacija</button>
+    <button class="tab" onclick="switchTab('notes', this)">📝 Beleške <span class="tab-count" id="countNotes">0</span></button>
   </div>
 
   <div class="main">
@@ -2093,7 +2167,10 @@
           <button class="filter-chip" data-filter="not-picked" onclick="setFilter('not-picked')">Nije preuzeto</button>
           <button class="filter-chip" data-filter="done" onclick="setFilter('done')">Završeno</button>
         </div>
-        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili biznisu..." oninput="resetPaging(); renderOrdersTable()">
+        <div class="search-wrap">
+          <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili biznisu..." oninput="resetPaging(); renderOrdersTable(); paintSearchClear()">
+          <button type="button" class="search-clear" id="searchClear" onclick="clearSearch()" aria-label="Obriši pretragu" hidden>×</button>
+        </div>
         <select class="m-sort" id="mobileSort2" onchange="setSortFromSelect(this.value)" aria-label="Sortiraj">
           <option value="">najnovije</option>
           <option value="date:asc">najstarije</option>
@@ -2163,6 +2240,30 @@
       <p style="font-size:13px;color:var(--ink-3);text-align:center;margin-top:16px;font-style:italic">
         Kad promeniš dostupnost, korisnici će na sajtu odmah videti promenu.
       </p>
+    </div>
+
+    <div class="view" id="viewNotes">
+      <div class="notes-wrap">
+        <div class="note-compose">
+          <textarea id="noteText" rows="3" maxlength="2000" placeholder="Upiši belešku… (npr. mama dolazi u subotu, Marko plaća sledeće nedelje)"></textarea>
+          <div class="note-compose-row">
+            <span class="note-hint">Datum i vreme se upisuju sami.</span>
+            <button type="button" class="note-save" id="noteSaveBtn" onclick="saveNote()">Sačuvaj belešku</button>
+          </div>
+        </div>
+        <div class="notes-list" id="notesList"><div class="notes-empty">~ još nema beleški ~</div></div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="noteDeleteModal">
+      <div class="modal note-delete-modal">
+        <h3>Obrisati belešku?</h3>
+        <p class="note-delete-preview" id="noteDeletePreview"></p>
+        <div class="note-delete-actions">
+          <button type="button" class="product-modal-btn cancel" onclick="closeNoteDelete()">Ne, ostavi</button>
+          <button type="button" class="product-modal-btn danger-btn" id="noteDeleteBtn" onclick="confirmNoteDelete()">Da, obriši</button>
+        </div>
+      </div>
     </div>
 
     <div class="view" id="viewAnimation">
@@ -2400,6 +2501,7 @@
         password = attemptedPassword;
         products = data.products;
         orders = (data.orders || []).filter(o => String(o.name || '').trim() || String(o.items || '').trim());   // bez praznih redova
+        if (Array.isArray(data.notes)) { notes = data.notes; renderNotes(); }
         receiveSettings(data.settings);
         if (fromMemory || document.getElementById('rememberMe').checked) rememberLogin(password);
         else forgetLogin();
@@ -2454,6 +2556,7 @@
         const fresh = known.size ? data.orders.filter(o => !known.has(o.id)) : [];
         products = data.products;
         orders = (data.orders || []).filter(o => String(o.name || '').trim() || String(o.items || '').trim());   // bez praznih redova
+        if (Array.isArray(data.notes)) { notes = data.notes; renderNotes(); }
         receiveSettings(data.settings);
         fresh.forEach(o => freshIds.add(o.id));
         renderAll();
@@ -2502,8 +2605,20 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     btn.classList.add('active');
-    const views = { orders: 'Orders', products: 'Products', animation: 'Animation' };
+    const views = { orders: 'Orders', products: 'Products', animation: 'Animation', notes: 'Notes' };
     document.getElementById('view' + views[tab]).classList.add('active');
+  }
+
+  function paintSearchClear() {
+    document.getElementById('searchClear').hidden = !document.getElementById('searchInput').value;
+  }
+  function clearSearch() {
+    const inp = document.getElementById('searchInput');
+    inp.value = '';
+    paintSearchClear();
+    resetPaging();
+    renderOrdersTable();
+    inp.focus();
   }
 
   function setFilter(f) {
@@ -2706,6 +2821,13 @@
     btn.textContent = `Učitaj još ${Math.min(PAGE_MORE, rest)}`;
   }
 
+  // završene porudžbine koje su trenutno raširene (dodirom na tanak red)
+  const expandedDone = new Set();
+  function toggleDoneRow(id) {
+    if (expandedDone.has(id)) expandedDone.delete(id); else expandedDone.add(id);
+    renderOrdersTable();
+  }
+
   function renderOrdersTable() {
     const container = document.getElementById('ordersBody');
     const allFiltered = getFilteredOrders();
@@ -2725,6 +2847,17 @@
 
     container.innerHTML = filtered.map(o => {
       const isDone = o.paid !== '' && o.picked;
+      // završena porudžbina (plaćeno + preuzeto): tanak red, samo ime, kg i iznos; dodir je raširi
+      if (isDone && !expandedDone.has(o.id)) {
+        const kg = parseItems(o.items).reduce((s2, it) => s2 + it.qty, 0);
+        return `
+          <div class="order-row done-mini ${freshIds.has(o.id) ? 'fresh' : ''}" onclick="toggleDoneRow(${o.id})" title="Završeno (plaćeno i preuzeto) · klik za detalje">
+            <span class="dm-check" aria-hidden="true">✓</span>
+            <span class="dm-name">${escapeHtml(String(o.name || ''))}</span>
+            <span class="dm-kg">${kg} kg</span>
+            <span class="dm-amt">${Number(o.total).toLocaleString('sr')} din</span>
+          </div>`;
+      }
       const doneClass = isDone ? 'done' : '';
       const selectedClass = selectedIds.has(o.id) ? 'selected' : '';
       const checked = selectedIds.has(o.id) ? 'checked' : '';
@@ -2769,6 +2902,7 @@
             <div class="m-top">
               ${checkbox}
               <div class="m-who">
+                ${isDone ? `<button type="button" class="dm-collapse" onclick="event.stopPropagation(); toggleDoneRow(${o.id})" title="Skupi" aria-label="Skupi">▴</button>` : ''}
                 <span class="m-name">${escapeHtml(String(o.name || ''))}</span>
                 <span class="m-biz">${escapeHtml(String(o.office || ''))}</span>
               </div>
@@ -2776,7 +2910,7 @@
             </div>
             <div class="m-mid">
               <span class="m-items">${escapeHtml(itemLines(o.items).join(' · '))}</span>
-              <span class="m-meta">${formatShortDate(o.date)} · ${o.email ? escapeHtml(o.email) : (o.phone ? escapeHtml(String(o.phone)) : '<i>bez mejla</i>')}</span>
+              <span class="m-meta">${formatShortDate(o.date)}${!o.email && !o.phone ? ' · <i>bez mejla</i>' : ''}</span>
             </div>
             <div class="m-actions">
               <div class="m-paid ${st}" role="group" aria-label="Plaćeno">
@@ -2797,7 +2931,7 @@
           <div class="order-row ${doneClass} ${selectedClass} ${freshIds.has(o.id) ? 'fresh' : ''}">
             <div>${checkbox}</div>
             <div class="col-date">${formatShortDate(o.date)}</div>
-            <div class="col-name">${o.name}${contactLine(o)}${replyLine(o)}</div>
+            <div class="col-name">${isDone ? `<button type="button" class="dm-collapse" onclick="event.stopPropagation(); toggleDoneRow(${o.id})" title="Skupi" aria-label="Skupi">▴</button>` : ''}${o.name}${contactLine(o)}${replyLine(o)}</div>
             <div class="col-office">${o.office}</div>
             <div class="col-items">${itemsHtml(o.items)}</div>
             <div class="col-mom">${momBtn}</div>
@@ -2994,6 +3128,74 @@
     
     // Focus na textarea
     setTimeout(() => document.getElementById('commentInput').focus(), 100);
+  }
+
+  // ---------- BELEŠKE ----------
+  let notes = [];
+  let noteToDelete = null;
+  function renderNotes() {
+    document.getElementById('countNotes').textContent = notes.length;
+    const box = document.getElementById('notesList');
+    if (!notes.length) { box.innerHTML = '<div class="notes-empty">~ još nema beleški ~</div>'; return; }
+    box.innerHTML = notes.map(n => `
+      <div class="note-item">
+        <div class="note-body">
+          <div class="note-date">${escapeHtml(n.date)}</div>
+          <div class="note-text">${escapeHtml(n.text)}</div>
+        </div>
+        <button type="button" class="note-del" onclick="askNoteDelete(${n.id})" aria-label="Obriši belešku" title="Obriši">×</button>
+      </div>`).join('');
+  }
+  async function saveNote() {
+    const ta = document.getElementById('noteText');
+    const text = ta.value.trim();
+    if (!text) { ta.focus(); return; }
+    const btn = document.getElementById('noteSaveBtn');
+    btn.disabled = true; btn.textContent = 'Čuvam…';
+    try {
+      const r = await apiCall({ action: 'addNote', text });
+      if (!r.success) throw new Error(r.error);
+      notes.unshift(r.note);
+      ta.value = '';
+      renderNotes();
+      showToast('Beleška sačuvana ✓');
+    } catch (e) {
+      showToast('Beleška nije sačuvana, proveri internet', true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sačuvaj belešku';
+    }
+  }
+  document.addEventListener('keydown', e => {
+    if (e.target && e.target.id === 'noteText' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveNote(); }
+  });
+  function askNoteDelete(id) {
+    const n = notes.find(x => x.id === id);
+    if (!n) return;
+    noteToDelete = id;
+    document.getElementById('noteDeletePreview').textContent = `${n.date} · ${n.text.length > 120 ? n.text.slice(0, 118) + '…' : n.text}`;
+    document.getElementById('noteDeleteModal').classList.add('show');
+  }
+  function closeNoteDelete() {
+    document.getElementById('noteDeleteModal').classList.remove('show');
+    noteToDelete = null;
+  }
+  async function confirmNoteDelete() {
+    const id = noteToDelete;
+    if (id == null) return;
+    const btn = document.getElementById('noteDeleteBtn');
+    btn.disabled = true;
+    try {
+      const r = await apiCall({ action: 'deleteNote', id });
+      if (!r.success) throw new Error(r.error);
+      notes = notes.filter(n => n.id !== id);
+      renderNotes();
+      closeNoteDelete();
+      showToast('Beleška obrisana');
+    } catch (e) {
+      showToast('Nije obrisano, proveri internet', true);
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   // ---------- "M": novac prebačen mami ----------
