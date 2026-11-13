@@ -1898,6 +1898,112 @@
   .contact-small.no-mail { font-style: italic; color: #b3a58c; }
   .comment-btn.frozen { opacity: 0.45; cursor: not-allowed; background: #f4efe6; border-color: #e3d8c4; color: #a99b82; }
   .comment-btn.frozen svg { width: 14px; height: 14px; }
+
+  /* ================= TELEFON: brz i zbijen admin ================= */
+  .chip-row { display: contents; }
+  .m-sort { display: none; }
+  .row-menu {
+    position: absolute; z-index: 300;
+    background: white; border: 1px solid var(--husk); border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(42, 31, 21, 0.18); padding: 6px; min-width: 190px;
+  }
+  .row-menu button {
+    display: block; width: 100%; text-align: left;
+    padding: 11px 12px; border: none; background: none; border-radius: 8px;
+    font: 500 15px 'Inter', sans-serif; color: var(--ink); cursor: pointer;
+  }
+  .row-menu button:hover, .row-menu button:active { background: var(--cream-2, #f6efe2); }
+  .row-menu button.danger { color: var(--red, #b3261e); }
+
+  @media (max-width: 800px) {
+    .main { padding: 10px 8px 24px; }
+    .tabs { padding: 6px 8px; gap: 4px; }
+    .tab { padding: 8px 12px; font-size: 14px; }
+
+    /* statistika: tri glavna broja u jednom redu */
+    .stats-strip { grid-template-columns: repeat(6, 1fr); margin-bottom: 8px; border-radius: 12px; }
+    .stats-strip .st { grid-column: span 2; padding: 8px 10px; border-left: 1px solid var(--husk); border-top: none; }
+    .stats-strip .st.due { border-left: none; }
+    .stats-strip .st.mama { grid-column: span 2; border-left: 1px solid var(--husk); }
+    .stats-strip .st.extra { grid-column: span 3; border-top: 1px solid var(--husk); }
+    .stats-strip .st.extra:nth-of-type(4), .stats-strip .st.extra:nth-of-type(6) { border-left: none; }
+    .st-l { font-size: 14px; }
+    .st.key .st-v { font-size: 18px; }
+    .st.key .st-s { font-size: 10.5px; font-weight: 500; }
+    .st-v { font-size: 17px; }
+    .st-toggle { padding: 7px; font-size: 12.5px; }
+
+    /* filteri: čipovi se pomeraju prstom, pretraga i sortiranje u jednom redu */
+    .filter-bar { padding: 8px; gap: 8px; margin-bottom: 8px; border-radius: 12px; }
+    .chip-row {
+      display: flex; gap: 6px; width: 100%;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .chip-row::-webkit-scrollbar { display: none; }
+    .chip-row > * { flex-shrink: 0; }
+    .filter-chip, .select-all-wrapper { padding: 7px 12px; font-size: 13px; white-space: nowrap; }
+    .search-input { flex: 1; min-width: 0; padding: 9px 12px; font-size: 15px; }
+    .m-sort {
+      display: block; width: 128px; flex-shrink: 0;
+      padding: 9px 8px; border: 1px solid var(--husk); border-radius: 10px;
+      background: white; font: 13px 'Inter', sans-serif; color: var(--ink);
+    }
+    .mobile-sort { display: none !important; }
+
+    /* kartica porudžbine: tri reda */
+    .order-row.m-card { padding: 10px 12px; gap: 0; display: block; }
+    .m-top { display: flex; align-items: center; gap: 9px; }
+    .m-top .order-select { width: 19px; height: 19px; flex-shrink: 0; margin: 0; }
+    .m-who { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 7px; overflow: hidden; }
+    .m-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
+    .m-biz { font-size: 12px; color: var(--accent); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 2; }
+    .m-amt { font-family: 'Fraunces', serif; font-weight: 700; font-size: 15.5px; color: var(--accent); white-space: nowrap; }
+    .m-mid { display: flex; justify-content: space-between; gap: 10px; margin: 3px 0 0 28px; font-size: 13px; color: var(--ink-2); }
+    .m-items { white-space: nowrap; }
+    .m-meta { font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+    .m-meta i { color: #b3a58c; }
+    .m-actions { display: flex; align-items: center; gap: 6px; margin: 8px 0 0 0; }
+    .m-spacer { flex: 1; }
+    .m-paid { display: inline-flex; border: 1.5px solid var(--husk); border-radius: 999px; overflow: hidden; background: white; flex-shrink: 0; }
+    .m-paid button {
+      min-width: 36px; height: 34px; padding: 0 8px; border: none; background: none;
+      font: 600 13px 'Inter', sans-serif; color: var(--ink-3); cursor: pointer;
+    }
+    .m-paid button + button { border-left: 1px solid var(--husk); }
+    .m-paid.none button.on { background: #fde8e6; color: #b3261e; }
+    .m-paid.ep button.on { background: #3d7a4a; color: white; }
+    .m-paid.p button.on { background: #e08a1e; color: white; }
+    .m-picked {
+      height: 34px; padding: 0 11px; border-radius: 999px; flex-shrink: 0;
+      border: 1.5px solid var(--husk); background: white; color: var(--ink-3);
+      font: 600 13px 'Inter', sans-serif; cursor: pointer; white-space: nowrap;
+    }
+    .m-picked.on { background: #3d7a4a; border-color: #3d7a4a; color: white; }
+    .m-actions .mom-btn, .m-actions .comment-btn, .m-more { width: 34px; height: 34px; flex-shrink: 0; }
+    .m-more {
+      border: 1.5px solid var(--husk); background: white; border-radius: 10px;
+      font-size: 18px; line-height: 1; color: var(--ink-2); cursor: pointer;
+    }
+    .order-row.m-card.done { opacity: 0.75; }
+  }
+  @media (max-width: 370px) {
+    .m-paid button { min-width: 32px; padding: 0 6px; }
+    .m-picked { padding: 0 8px; }
+    .m-actions { margin-left: 0; gap: 4px; }
+    .m-mid { margin-left: 0; }
+  }
+
+  /* "Ukloni završene" u traci sa izabranima */
+  .bulk-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .bulk-unselect-done {
+    padding: 6px 12px; border-radius: 999px;
+    border: 1.5px solid rgba(255, 255, 255, 0.55); background: rgba(255, 255, 255, 0.12);
+    color: white; font: 600 13px 'Inter', sans-serif; cursor: pointer; white-space: nowrap;
+  }
+  .bulk-unselect-done:hover { background: rgba(255, 255, 255, 0.25); }
+  .bulk-unselect-done[hidden] { display: none; }
+  .bulk-unselect-done.nudge { animation: nudge 0.9s ease-in-out 2; }
+  @keyframes nudge { 0%, 100% { box-shadow: 0 0 0 0 rgba(242, 194, 122, 0); } 50% { box-shadow: 0 0 0 5px rgba(242, 194, 122, 0.6); } }
 </style>
 </head>
 <body>
@@ -1977,19 +2083,35 @@
       </div>
 
       <div class="filter-bar">
-        <label class="select-all-wrapper">
-          <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
-          <span>Selektuj sve</span>
-        </label>
-        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">Sve</button>
-        <button class="filter-chip" data-filter="unpaid" onclick="setFilter('unpaid')">Neplaćeno</button>
-        <button class="filter-chip" data-filter="not-picked" onclick="setFilter('not-picked')">Nije preuzeto</button>
-        <button class="filter-chip" data-filter="done" onclick="setFilter('done')">Završeno</button>
+        <div class="chip-row">
+          <label class="select-all-wrapper">
+            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+            <span>Selektuj sve</span>
+          </label>
+          <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">Sve</button>
+          <button class="filter-chip" data-filter="unpaid" onclick="setFilter('unpaid')">Neplaćeno</button>
+          <button class="filter-chip" data-filter="not-picked" onclick="setFilter('not-picked')">Nije preuzeto</button>
+          <button class="filter-chip" data-filter="done" onclick="setFilter('done')">Završeno</button>
+        </div>
         <input type="text" class="search-input" id="searchInput" placeholder="🔍 Pretraži po imenu ili biznisu..." oninput="resetPaging(); renderOrdersTable()">
+        <select class="m-sort" id="mobileSort2" onchange="setSortFromSelect(this.value)" aria-label="Sortiraj">
+          <option value="">najnovije</option>
+          <option value="date:asc">najstarije</option>
+          <option value="name:asc">ime A–Ž</option>
+          <option value="office:asc">biznis A–Ž</option>
+          <option value="paid:asc">neplaćeno prvo</option>
+          <option value="picked:asc">nepreuzeto prvo</option>
+          <option value="mom:asc">nije za mamu</option>
+          <option value="total:desc">najveći iznos</option>
+          <option value="items:desc">najviše kg</option>
+        </select>
       </div>
 
       <div class="bulk-toolbar" id="bulkToolbar" style="display:none">
-        <span class="bulk-count" id="bulkCount">0 izabrano</span>
+        <div class="bulk-left">
+          <span class="bulk-count" id="bulkCount">0 izabrano</span>
+          <button type="button" class="bulk-unselect-done" id="unselectDoneBtn" onclick="unselectDone()" hidden></button>
+        </div>
         <div class="bulk-actions">
           <button class="bulk-btn" onclick="clearSelection()">Poništi</button>
           <button class="bulk-btn arrived" onclick="openArrivedModal()">🌰 Stiglo — javi im</button>
@@ -2641,31 +2763,32 @@
         : commentBtn;
 
       if (isMobile) {
+        const st = o.paid === 'eP' ? 'ep' : (o.paid === 'P' ? 'p' : 'none');
         return `
-          <div class="order-row ${doneClass} ${selectedClass} ${freshIds.has(o.id) ? 'fresh' : ''}">
-            <div class="mobile-row-top">
-              <div style="display:flex;align-items:start;gap:10px;flex:1">
-                ${checkbox}
-                <div class="mobile-name-block">
-                  <div class="col-name">${o.name}${contactLine(o)}${replyLine(o)}</div>
-                  <div class="col-office">${o.office}</div>
-                </div>
+          <div class="order-row m-card ${doneClass} ${selectedClass} ${freshIds.has(o.id) ? 'fresh' : ''}">
+            <div class="m-top">
+              ${checkbox}
+              <div class="m-who">
+                <span class="m-name">${escapeHtml(String(o.name || ''))}</span>
+                <span class="m-biz">${escapeHtml(String(o.office || ''))}</span>
               </div>
-              <div class="mobile-date-amount">
-                <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
-                <div class="col-date" style="margin-top:4px">${formatShortDate(o.date)}</div>
+              <div class="m-amt">${Number(o.total).toLocaleString('sr')} din</div>
+            </div>
+            <div class="m-mid">
+              <span class="m-items">${escapeHtml(itemLines(o.items).join(' · '))}</span>
+              <span class="m-meta">${formatShortDate(o.date)} · ${o.email ? escapeHtml(o.email) : (o.phone ? escapeHtml(String(o.phone)) : '<i>bez mejla</i>')}</span>
+            </div>
+            <div class="m-actions">
+              <div class="m-paid ${st}" role="group" aria-label="Plaćeno">
+                <button type="button" class="${o.paid === '' ? 'on' : ''}" onclick="event.stopPropagation(); quickPaid(${o.id}, '')" aria-label="Nije plaćeno">—</button>
+                <button type="button" class="${o.paid === 'eP' ? 'on' : ''}" onclick="event.stopPropagation(); quickPaid(${o.id}, 'eP')" aria-label="Plaćeno e-računom">eP</button>
+                <button type="button" class="${o.paid === 'P' ? 'on' : ''}" onclick="event.stopPropagation(); quickPaid(${o.id}, 'P')" aria-label="Plaćeno gotovinom">P</button>
               </div>
-            </div>
-            <div class="col-items">${itemsHtml(o.items)}</div>
-            <div class="mobile-actions">
-              ${paidSelect}
-              ${pickedToggle}
-            </div>
-            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
+              <button type="button" class="m-picked ${o.picked ? 'on' : ''}" onclick="event.stopPropagation(); quickPicked(${o.id})" aria-pressed="${o.picked}">${o.picked ? '✓ Preuzeto' : 'Preuzeto?'}</button>
+              <span class="m-spacer"></span>
               ${momBtn}
               ${commentBtnFinal}
-              ${editBtn}
-              ${deleteBtn}
+              <button type="button" class="m-more" onclick="event.stopPropagation(); openRowMenu(${o.id}, this)" aria-label="Još opcija">⋯</button>
             </div>
           </div>
         `;
@@ -2712,6 +2835,18 @@
       filtered.forEach(o => selectedIds.delete(o.id));
     }
     renderOrdersTable();
+    // ako su u izboru i završene, kratko istakni dugme "Ukloni završene"
+    const btn = document.getElementById('unselectDoneBtn');
+    if (checkbox.checked && !btn.hidden) {
+      btn.classList.remove('nudge'); void btn.offsetWidth; btn.classList.add('nudge');
+    }
+  }
+
+  function unselectDone() {
+    const done = orders.filter(o => selectedIds.has(o.id) && o.paid !== '' && o.picked);
+    done.forEach(o => selectedIds.delete(o.id));
+    renderOrdersTable();
+    showToast(`Uklonjeno iz izbora: ${done.length} ${done.length === 1 ? 'završena' : 'završenih'} · ostalo ${selectedIds.size}`);
   }
 
   function clearSelection() {
@@ -2727,6 +2862,12 @@
     if (count > 0) {
       toolbar.style.display = 'flex';
       document.getElementById('bulkCount').textContent = count + ' izabrano';
+      // među izabranima ima završenih (plaćeno i preuzeto)? ponudi da se uklone iz izbora
+      const doneSel = orders.filter(o => selectedIds.has(o.id) && o.paid !== '' && o.picked).length;
+      const btn = document.getElementById('unselectDoneBtn');
+      btn.hidden = doneSel === 0;
+      btn.textContent = `Ukloni završene (${doneSel})`;
+      btn.title = 'Skini iz izbora porudžbine koje su plaćene i preuzete';
     } else {
       toolbar.style.display = 'none';
     }
@@ -3144,6 +3285,52 @@
       }
     });
   });
+
+  // Telefon: oznaka se menja odmah, čuvanje ide u pozadini; ako ne uspe, vraća se kako je bilo
+  async function quickPaid(id, value) {
+    const o = orders.find(x => x.id == id);
+    if (!o || o.paid === value) return;
+    const old = o.paid;
+    o.paid = value;
+    renderStats(); renderOrdersTable();
+    try {
+      const r = await apiCall({ action: 'updatePaid', id, value });
+      if (!r.success) throw new Error(r.error);
+    } catch (e) {
+      o.paid = old; renderStats(); renderOrdersTable();
+      showToast('Nije sačuvano, proveri internet', true);
+    }
+  }
+  async function quickPicked(id) {
+    const o = orders.find(x => x.id == id);
+    if (!o) return;
+    const newValue = !o.picked;
+    o.picked = newValue;
+    renderStats(); renderOrdersTable();
+    try {
+      const r = await apiCall({ action: 'updatePicked', id, picked: newValue });
+      if (!r.success) throw new Error(r.error);
+    } catch (e) {
+      o.picked = !newValue; renderStats(); renderOrdersTable();
+      showToast('Nije sačuvano, proveri internet', true);
+    }
+  }
+  // meni ⋯ : izmeni / obriši (ređe radnje, da se ne pritisnu slučajno)
+  function openRowMenu(id, btn) {
+    closeRowMenu();
+    const m = document.createElement('div');
+    m.className = 'row-menu';
+    m.id = 'rowMenu';
+    m.innerHTML = `<button type="button" onclick="closeRowMenu(); openEditOrder(${id})">✏️ Izmeni porudžbinu</button>
+                   <button type="button" class="danger" onclick="closeRowMenu(); confirmSingleDelete(${id})">🗑️ Obriši</button>`;
+    document.body.appendChild(m);
+    const r = btn.getBoundingClientRect();
+    const top = r.bottom + 6 + m.offsetHeight > innerHeight ? r.top - m.offsetHeight - 6 : r.bottom + 6;
+    m.style.top = (top + scrollY) + 'px';
+    m.style.left = Math.max(8, r.right - m.offsetWidth) + 'px';
+    setTimeout(() => document.addEventListener('click', closeRowMenu, { once: true }), 0);
+  }
+  function closeRowMenu() { const m = document.getElementById('rowMenu'); if (m) m.remove(); }
 
   async function updatePaid(id, value, selectEl) {
     selectEl.disabled = true;
