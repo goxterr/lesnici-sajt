@@ -2126,6 +2126,16 @@
     .tab { white-space: nowrap; flex-shrink: 0; }
     .tab-long { display: none; }
   }
+
+  .rcv-stock td.stock { font-weight: 700; color: var(--ink); background: #faf5ea; }
+  .st-stock { margin-top: 3px; font-weight: 500 !important; }
+  .st-stock b { font-weight: 700; color: #3d7a4a; }
+  .st-stock b.neg { color: var(--red, #b3261e); }
+  @media (max-width: 900px) {
+    .rcv-stock { font-size: 12px; }
+    .rcv-stock th, .rcv-stock td { padding: 6px 4px; }
+    .rcv-stock thead th { font-size: 9.5px; letter-spacing: 0.02em; white-space: normal; line-height: 1.2; }
+  }
 </style>
 </head>
 <body>
@@ -2175,6 +2185,7 @@
           <span class="st-l">Za spremanje</span>
           <b class="st-v" id="statKg">0 kg</b>
           <small class="st-s" id="statKgSplit"></small>
+          <small class="st-s st-stock" id="statStock"></small>
         </div>
         <div class="st key mama">
           <span class="st-l">Za mamu</span>
@@ -2849,6 +2860,16 @@
     const pct = turnover ? Math.round(sumOf(paid) / turnover * 100) : 0;
 
     const pe = kgOf(notPicked, 'pečeni'), si = kgOf(notPicked, 'sirovi');
+    // na stanju (primljeno od mame − preuzeto); crveno ako nema dovoljno za one koji čekaju
+    const sf = stockFigures();
+    const stockEl = document.getElementById('statStock');
+    if (receipts.length) {
+      const k = n => Math.round(n * 10) / 10;
+      stockEl.innerHTML = `na stanju: <b class="${sf['pečeni'].after < 0 ? 'neg' : ''}">pečeni ${k(sf['pečeni'].stock)}</b> · <b class="${sf.sirovi.after < 0 ? 'neg' : ''}">sirovi ${k(sf.sirovi.stock)}</b>`;
+      stockEl.title = `Primljeno od mame minus preuzeto. Za one koji čekaju treba još: pečeni ${k(sf['pečeni'].wait)} kg, sirovi ${k(sf.sirovi.wait)} kg.`;
+    } else {
+      stockEl.textContent = 'stanje: upiši prijem od mame';
+    }
     document.getElementById('statUnpaid').textContent = din(sumOf(unpaid));
     document.getElementById('statUnpaidCount').textContent = `${unpaid.length} ${form(unpaid.length, 'porudžbina', 'porudžbine', 'porudžbina')} · ${kgOf(unpaid)} kg`;
     // mama: sve što još nije prebačeno; od toga "spremno" je ono što je već naplaćeno
@@ -3299,18 +3320,24 @@
     const inp = document.getElementById(id);
     inp.value = Math.max(0, (Number(inp.value) || 0) + d);
   }
+  // STANJE: na stanju = primljeno od mame − sve što je preuzeto ("Preuzeto" kod kupca)
+  function stockFigures() {
+    const f = { pečeni: { got: 0, out: 0, wait: 0 }, sirovi: { got: 0, out: 0, wait: 0 } };
+    (typeof receipts !== 'undefined' ? receipts : []).forEach(r => { f.pečeni.got += r.peceni; f.sirovi.got += r.sirovi; });
+    orders.forEach(o => parseItems(o.items).forEach(it => {
+      if (!f[it.key]) return;
+      if (o.picked) f[it.key].out += it.qty; else f[it.key].wait += it.qty;
+    }));
+    Object.values(f).forEach(x => { x.stock = x.got - x.out; x.after = x.stock - x.wait; });
+    return f;
+  }
   function renderReceipts() {
-    // stanje: primljeno od mame − poručeno (sve porudžbine)
-    const got = { p: receipts.reduce((a, r) => a + r.peceni, 0), s: receipts.reduce((a, r) => a + r.sirovi, 0) };
-    const sold = { p: 0, s: 0 };
-    orders.forEach(o => parseItems(o.items).forEach(it => { if (it.key === 'pečeni') sold.p += it.qty; if (it.key === 'sirovi') sold.s += it.qty; }));
-    const diffCell = v => `<td class="${v < 0 ? 'neg' : 'pos'}">${v < 0 ? 'fali ' + fmtKg(-v) : fmtKg(v)}</td>`;
+    const f = stockFigures();
+    const afterCell = v => `<td class="${v < 0 ? 'neg' : 'pos'}">${v < 0 ? 'fali ' + fmtKg(-v) : fmtKg(v)}</td>`;
+    const row = (label, x) => `<tr><th>${label}</th><td>${fmtKg(x.got)}</td><td>${fmtKg(x.out)}</td><td class="stock">${fmtKg(x.stock)}</td><td>${fmtKg(x.wait)}</td>${afterCell(x.after)}</tr>`;
     document.getElementById('rcvStock').innerHTML = `
-      <thead><tr><th></th><th>Primljeno</th><th>Poručeno</th><th>Ostalo</th></tr></thead>
-      <tbody>
-        <tr><th>Pečeni</th><td>${fmtKg(got.p)}</td><td>${fmtKg(sold.p)}</td>${diffCell(got.p - sold.p)}</tr>
-        <tr><th>Sirovi</th><td>${fmtKg(got.s)}</td><td>${fmtKg(sold.s)}</td>${diffCell(got.s - sold.s)}</tr>
-      </tbody>`;
+      <thead><tr><th></th><th>Primljeno</th><th>Podeljeno</th><th>Na stanju</th><th>Čeka</th><th>Posle podele</th></tr></thead>
+      <tbody>${row('Pečeni', f['pečeni'])}${row('Sirovi', f.sirovi)}</tbody>`;
     const box = document.getElementById('rcvList');
     if (!receipts.length) { box.innerHTML = '<div class="notes-empty">~ još nema prijema ~</div>'; return; }
     box.innerHTML = receipts.map(r => `
