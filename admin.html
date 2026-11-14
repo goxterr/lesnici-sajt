@@ -2598,7 +2598,7 @@
         receiveSettings(data.settings);
         if (fromMemory || document.getElementById('rememberMe').checked) rememberLogin(password);
         else forgetLogin();
-        setTimeout(() => announceReplies(data.newReplies), 400);
+        setTimeout(() => checkRepliesInBackground(true), 300);    // odgovori kupaca: u pozadini, prijava ih ne čeka
         lastLoadAt = Date.now();
         
         document.getElementById('loginScreen').classList.add('hidden');
@@ -2632,6 +2632,21 @@
   // API CALLS
   // ============================================
   // manual: klik na "Osveži" (uvek javi rezultat); inače samo ako ima nečeg novog
+  // Odgovori kupaca na mejlove: provera ide posebno, da ne usporava učitavanje porudžbina
+  let replyCheckBusy = false;
+  async function checkRepliesInBackground(force) {
+    if (replyCheckBusy || !password) return;
+    replyCheckBusy = true;
+    try {
+      const r = await apiCall({ action: 'checkReplies', force: !!force });
+      if (r && r.success && r.newReplies && r.newReplies.length) {
+        announceReplies(r.newReplies);
+        setTimeout(() => loadData(), 400);                         // povuci nove komentare u prepisku
+      }
+    } catch (e) { /* tiho: porudžbine rade i bez ovoga */ }
+    finally { replyCheckBusy = false; }
+  }
+
   async function loadData(opts = {}) {
     const manual = !!opts.manual;
     if (!password || loadingNow) return;
@@ -2658,6 +2673,7 @@
         lastLoadAt = Date.now();
         updateRefreshTitle();
 
+        checkRepliesInBackground(manual);                           // u pozadini (skripta sama pazi da ne proverava prečesto)
         const hasReplies = data.newReplies && data.newReplies.length;
         if (hasReplies) {
           announceReplies(data.newReplies);
