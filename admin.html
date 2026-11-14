@@ -2136,6 +2136,43 @@
     .rcv-stock th, .rcv-stock td { padding: 6px 4px; }
     .rcv-stock thead th { font-size: 9.5px; letter-spacing: 0.02em; white-space: normal; line-height: 1.2; }
   }
+
+  /* ---------- izveštaj za period ---------- */
+  .report-card { background: white; border: 1px solid var(--husk); border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; }
+  .rp-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .rp-top .jr-title { margin: 0 8px 0 0; }
+  .rp-date { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+  .rp-date input { padding: 6px 8px; border: 1px solid var(--husk); border-radius: 8px; font: 14px 'Inter', sans-serif; background: white; color: var(--ink); }
+  .rp-quick { display: flex; gap: 6px; flex-wrap: wrap; }
+  .rp-quick button { padding: 6px 11px; border-radius: 999px; border: 1px solid var(--husk); background: #fbf6ec; font: 600 12.5px 'Inter', sans-serif; color: var(--ink-2); cursor: pointer; }
+  .rp-quick button:hover { border-color: var(--accent); color: var(--accent); }
+  .rp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0 10px; }
+  .rp-tile { border: 1px solid var(--husk); border-radius: 10px; padding: 8px 12px; display: flex; flex-direction: column; background: #fffdf8; }
+  .rp-tile .rp-l { font-family: 'Caveat', cursive; font-size: 16px; color: var(--leaf-dark); line-height: 1.1; }
+  .rp-tile b { font-family: 'Fraunces', serif; font-size: 21px; line-height: 1.2; }
+  .rp-tile small { font-size: 11.5px; color: var(--ink-3); }
+  .rp-tile.ord { box-shadow: inset 3px 0 0 var(--accent); }
+  .rp-tile.rcv { box-shadow: inset 3px 0 0 #e0b25a; }
+  .rp-tile.del { box-shadow: inset 3px 0 0 #7a9150; }
+  .rp-tile.paid { box-shadow: inset 3px 0 0 #3d7a4a; }
+  .rp-tile.paid b { color: #3d7a4a; }
+  .rp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .rp-btn { padding: 9px 14px; border-radius: 10px; border: none; font: 600 13.5px 'Inter', sans-serif; cursor: pointer; white-space: nowrap; }
+  .rp-btn.xlsx { background: #1f7a4d; color: white; }
+  .rp-btn.copy { background: var(--accent); color: white; }
+  .rp-btn.share { background: white; border: 1.5px solid var(--husk); color: var(--ink); }
+  .rp-btn:disabled { opacity: 0.6; cursor: wait; }
+  .rp-note { font-size: 11.5px; color: var(--ink-3); flex: 1; min-width: 200px; }
+  @media (max-width: 900px) {
+    .report-card { padding: 12px; margin-bottom: 10px; }
+    .rp-top .jr-title { width: 100%; }
+    .rp-date { flex: 1; }
+    .rp-date input { flex: 1; min-width: 0; }
+    .rp-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .rp-tile b { font-size: 18px; }
+    .rp-btn { flex: 1; }
+    .rp-note { min-width: 100%; }
+  }
 </style>
 </head>
 <body>
@@ -2303,6 +2340,27 @@
     </div>
 
     <div class="view" id="viewNotes">
+      <!-- IZVEŠTAJ ZA PERIOD -->
+      <section class="report-card">
+        <div class="rp-top">
+          <h3 class="jr-title">Izveštaj <em>za period</em></h3>
+          <label class="rp-date">Od <input type="date" id="rpFrom" onchange="renderReport()"></label>
+          <label class="rp-date">Do <input type="date" id="rpTo" onchange="renderReport()"></label>
+          <div class="rp-quick">
+            <button type="button" onclick="setReportRange('month')">Ovaj mesec</button>
+            <button type="button" onclick="setReportRange('last')">Prošli mesec</button>
+            <button type="button" onclick="setReportRange('all')">Sve</button>
+          </div>
+        </div>
+        <div class="rp-stats" id="rpStats"></div>
+        <div class="rp-actions">
+          <button type="button" class="rp-btn xlsx" id="rpXlsxBtn" onclick="downloadReportXlsx()">⬇ Preuzmi Excel</button>
+          <button type="button" class="rp-btn copy" onclick="copyReportMessage()">📋 Kopiraj poruku</button>
+          <button type="button" class="rp-btn share" id="rpShareBtn" onclick="shareReportMessage()" hidden>↗ Podeli</button>
+          <span class="rp-note">Isporučeno i naplaćeno računaju se po danu kad je označeno (za starije porudžbine po danu porudžbine).</span>
+        </div>
+      </section>
+
       <div class="journal">
         <!-- PRIJEM OD MAME -->
         <section class="jr-col">
@@ -3322,6 +3380,148 @@
     });
   }
 
+  // ---------- IZVEŠTAJ ZA PERIOD ----------
+  const plural = (n, one, few, many) => {
+    const d = n % 10, dd = n % 100;
+    if (d === 1 && dd !== 11) return one;
+    if (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) return few;
+    return many;
+  };
+  const isoDay = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const srDay = iso => { const [y, m, d] = iso.split('-'); return `${d}.${m}.${y}`; };
+  function setReportRange(q) {
+    const now = new Date();
+    let from, to = now;
+    if (q === 'month') from = new Date(now.getFullYear(), now.getMonth(), 1);
+    else if (q === 'last') { from = new Date(now.getFullYear(), now.getMonth() - 1, 1); to = new Date(now.getFullYear(), now.getMonth(), 0); }
+    else {
+      const all = orders.map(o => dateValue(o.date)).concat(receipts.map(r => dateValue(r.date))).filter(Boolean);
+      from = all.length ? new Date(Math.min(...all)) : new Date(now.getFullYear(), 0, 1);
+    }
+    document.getElementById('rpFrom').value = isoDay(from);
+    document.getElementById('rpTo').value = isoDay(to);
+    renderReport();
+  }
+  function reportData() {
+    const fromIso = document.getElementById('rpFrom').value, toIso = document.getElementById('rpTo').value;
+    const f = fromIso ? new Date(fromIso + 'T00:00:00').getTime() : 0;
+    const t = toIso ? new Date(toIso + 'T23:59:59').getTime() : Infinity;
+    const inRange = ds => { const v = dateValue(ds); return v >= f && v <= t; };
+    const kg = (list, key) => list.reduce((s2, o) => s2 + parseItems(o.items).filter(it => !key || it.key === key).reduce((a, it) => a + it.qty, 0), 0);
+    const sum = list => list.reduce((s2, o) => s2 + (Number(o.total) || 0), 0);
+    const ordered = orders.filter(o => inRange(o.date));
+    const delivered = orders.filter(o => o.picked && inRange(o.pickedAt || o.date));
+    const paidList = orders.filter(o => o.paid !== '' && inRange(o.paidAt || o.date));
+    const rcv = receipts.filter(r => inRange(r.date));
+    return {
+      fromIso, toIso, ordered, delivered, paidList, rcv,
+      o: { n: ordered.length, kg: kg(ordered), p: kg(ordered, 'pečeni'), s: kg(ordered, 'sirovi'), din: sum(ordered), unpaid: sum(ordered.filter(x => x.paid === '')) },
+      r: { kg: rcv.reduce((a, x) => a + x.peceni + x.sirovi, 0), p: rcv.reduce((a, x) => a + x.peceni, 0), s: rcv.reduce((a, x) => a + x.sirovi, 0) },
+      d: { n: delivered.length, kg: kg(delivered), p: kg(delivered, 'pečeni'), s: kg(delivered, 'sirovi') },
+      pd: { n: paidList.length, din: sum(paidList), e: sum(paidList.filter(x => x.paid === 'eP')), c: sum(paidList.filter(x => x.paid === 'P')) }
+    };
+  }
+  const kgTxt = n => (Math.round(n * 10) / 10).toLocaleString('sr') + ' kg';
+  const dinTxt = n => Math.round(n).toLocaleString('sr') + ' din';
+  function renderReport() {
+    if (!document.getElementById('rpFrom').value) return;
+    const R = reportData();
+    const tile = (label, big, sub, cls) => `<div class="rp-tile ${cls}"><span class="rp-l">${label}</span><b>${big}</b><small>${sub}</small></div>`;
+    document.getElementById('rpStats').innerHTML =
+      tile('Naručeno', kgTxt(R.o.kg), `${R.o.n} ${plural(R.o.n, 'porudžbina', 'porudžbine', 'porudžbina')} · ${dinTxt(R.o.din)}`, 'ord') +
+      tile('Primljeno', kgTxt(R.r.kg), `pečeni ${kgTxt(R.r.p)} · sirovi ${kgTxt(R.r.s)}`, 'rcv') +
+      tile('Isporučeno', kgTxt(R.d.kg), `${R.d.n} ${plural(R.d.n, 'porudžbina', 'porudžbine', 'porudžbina')}`, 'del') +
+      tile('Naplaćeno', dinTxt(R.pd.din), `e-račun ${dinTxt(R.pd.e)} · gotovina ${dinTxt(R.pd.c)}`, 'paid');
+  }
+  function reportMessage() {
+    const R = reportData();
+    const split = (p, s) => `pečeni ${kgTxt(p)}, sirovi ${kgTxt(s)}`;
+    return [
+      'Izveštaj: Goranovi lešnici',
+      `Period: ${srDay(R.fromIso)} – ${srDay(R.toIso)}`,
+      '',
+      `Naručeno: ${R.o.n} ${plural(R.o.n, 'porudžbina', 'porudžbine', 'porudžbina')}, ${kgTxt(R.o.kg)} (${split(R.o.p, R.o.s)}), ${dinTxt(R.o.din)}`,
+      `Primljeno od mame: ${kgTxt(R.r.kg)} (${split(R.r.p, R.r.s)})`,
+      `Isporučeno: ${R.d.n} ${plural(R.d.n, 'porudžbina', 'porudžbine', 'porudžbina')}, ${kgTxt(R.d.kg)} (${split(R.d.p, R.d.s)})`,
+      `Naplaćeno: ${R.pd.n} ${plural(R.pd.n, 'porudžbina', 'porudžbine', 'porudžbina')}, ${dinTxt(R.pd.din)} (e-račun ${dinTxt(R.pd.e)}, gotovina ${dinTxt(R.pd.c)})`,
+      `Nenaplaćeno od porudžbina iz perioda: ${dinTxt(R.o.unpaid)}`
+    ].join('\n');
+  }
+  async function copyReportMessage() {
+    const text = reportMessage();
+    try { await navigator.clipboard.writeText(text); }
+    catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    }
+    showToast('Poruka kopirana ✓ — nalepi je gde hoćeš');
+  }
+  async function shareReportMessage() {
+    try { await navigator.share({ text: reportMessage() }); } catch (e) { /* korisnik je odustao */ }
+  }
+  if (navigator.share) document.getElementById('rpShareBtn').hidden = false;
+
+  // Excel: biblioteka se učitava tek na klik
+  function loadXlsxLib() {
+    if (window.XLSX) return Promise.resolve();
+    return new Promise((res, rej) => {
+      const sc = document.createElement('script');
+      sc.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      sc.onload = res; sc.onerror = rej;
+      document.head.appendChild(sc);
+    });
+  }
+  async function downloadReportXlsx() {
+    const btn = document.getElementById('rpXlsxBtn');
+    btn.disabled = true; btn.textContent = 'Pravim Excel…';
+    try {
+      await loadXlsxLib();
+      const R = reportData();
+      const wb = XLSX.utils.book_new();
+      const kgOf = (items, key) => parseItems(items).filter(it => it.key === key).reduce((a, it) => a + it.qty, 0);
+      const paidTxt = v => v === 'eP' ? 'e-račun' : (v === 'P' ? 'gotovina' : 'nije plaćeno');
+      // 1. Pregled
+      const pregled = [
+        ['Izveštaj: Goranovi lešnici'],
+        [`Period: ${srDay(R.fromIso)} – ${srDay(R.toIso)}`],
+        [],
+        ['Stavka', 'Porudžbina', 'Pečeni (kg)', 'Sirovi (kg)', 'Ukupno (kg)', 'Iznos (din)'],
+        ['Naručeno', R.o.n, R.o.p, R.o.s, R.o.kg, R.o.din],
+        ['Primljeno od mame', '', R.r.p, R.r.s, R.r.kg, ''],
+        ['Isporučeno', R.d.n, R.d.p, R.d.s, R.d.kg, ''],
+        ['Naplaćeno', R.pd.n, '', '', '', R.pd.din],
+        ['   e-račun', '', '', '', '', R.pd.e],
+        ['   gotovina', '', '', '', '', R.pd.c],
+        ['Nenaplaćeno (porudžbine iz perioda)', '', '', '', '', R.o.unpaid]
+      ];
+      const ws1 = XLSX.utils.aoa_to_sheet(pregled);
+      ws1['!cols'] = [{ wch: 34 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 13 }];
+      XLSX.utils.book_append_sheet(wb, ws1, 'Pregled');
+      // 2. Porudžbine iz perioda
+      const rows = [['Broj', 'Datum', 'Ime', 'Biznis', 'Email', 'Pečeni (kg)', 'Sirovi (kg)', 'Iznos (din)', 'Plaćeno', 'Datum naplate', 'Preuzeto', 'Datum preuzimanja', 'Prebačeno mami']];
+      R.ordered.slice().sort((a, b) => dateValue(a.date) - dateValue(b.date)).forEach(o => rows.push([
+        o.id, String(o.date || '').slice(0, 10), o.name, o.office, o.email || '',
+        kgOf(o.items, 'pečeni'), kgOf(o.items, 'sirovi'), Number(o.total) || 0,
+        paidTxt(o.paid), o.paidAt || '', o.picked ? 'DA' : 'NE', o.pickedAt || '', o.mom || ''
+      ]));
+      const ws2 = XLSX.utils.aoa_to_sheet(rows);
+      ws2['!cols'] = [6, 11, 22, 18, 28, 11, 11, 11, 13, 13, 9, 16, 14].map(w => ({ wch: w }));
+      XLSX.utils.book_append_sheet(wb, ws2, 'Porudžbine');
+      // 3. Prijem od mame
+      const rr = [['Datum', 'Pečeni (kg)', 'Sirovi (kg)']].concat(R.rcv.slice().reverse().map(r => [r.date, r.peceni, r.sirovi]));
+      const ws3 = XLSX.utils.aoa_to_sheet(rr);
+      ws3['!cols'] = [{ wch: 12 }, { wch: 12 }, { wch: 12 }];
+      XLSX.utils.book_append_sheet(wb, ws3, 'Prijem');
+      XLSX.writeFile(wb, `lesnici-izvestaj_${R.fromIso}_${R.toIso}.xlsx`);
+      showToast('Excel preuzet ✓');
+    } catch (e) {
+      showToast('Excel nije napravljen, proveri internet', true);
+    } finally {
+      btn.disabled = false; btn.textContent = '⬇ Preuzmi Excel';
+    }
+  }
+
   // ---------- PRIJEM OD MAME ----------
   let receipts = [];
   const todayIso = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
@@ -3348,6 +3548,7 @@
     return f;
   }
   function renderReceipts() {
+    if (!document.getElementById('rpFrom').value) setReportRange('month'); else renderReport();
     const f = stockFigures();
     const afterCell = v => `<td class="${v < 0 ? 'neg' : 'pos'}">${v < 0 ? 'fali ' + fmtKg(-v) : fmtKg(v)}</td>`;
     const row = (label, x) => `<tr><th>${label}</th><td>${fmtKg(x.got)}</td><td>${fmtKg(x.out)}</td><td class="stock">${fmtKg(x.stock)}</td><td>${fmtKg(x.wait)}</td>${afterCell(x.after)}</tr>`;
