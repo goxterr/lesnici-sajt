@@ -2077,6 +2077,55 @@
     .note-compose-row { flex-direction: column; align-items: stretch; }
     .note-hint { text-align: center; }
   }
+
+  /* ---------- Prijem i beleške ---------- */
+  .journal { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: start; }
+  .jr-col { background: white; border: 1px solid var(--husk); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; min-height: 0; }
+  .jr-title { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 600; margin-bottom: 12px; }
+  .jr-title em { font-style: italic; font-weight: 400; color: var(--accent); }
+  /* spiskovi se pomeraju unutar kolone, pa stranica staje na ekran */
+  .jr-list { overflow-y: auto; max-height: calc(100vh - 445px); min-height: 120px; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
+  .notes-list.jr-list { max-height: calc(100vh - 350px); }
+  .rcv-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; padding: 12px; background: #fbf6ec; border-radius: 12px; margin-bottom: 12px; }
+  .rcv-date { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .rcv-date input { padding: 8px 10px; border: 1px solid var(--husk); border-radius: 10px; background: white; font: 15px 'Inter', sans-serif; color: var(--ink); }
+  .rcv-qty { display: flex; align-items: center; gap: 4px; }
+  .rcv-name { font-weight: 600; font-size: 14px; margin-right: 4px; min-width: 52px; }
+  .rcv-qty button { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--husk); background: white; color: var(--accent); font-size: 17px; line-height: 1; cursor: pointer; }
+  .rcv-qty input { width: 62px; text-align: center; padding: 7px 4px; border: 1px solid var(--husk); border-radius: 8px; font: 700 16px 'Fraunces', serif; color: var(--ink); background: white; -moz-appearance: textfield; }
+  .rcv-qty input::-webkit-outer-spin-button, .rcv-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .rcv-unit { font-size: 13px; color: var(--ink-3); }
+  .rcv-save { margin-left: auto; padding: 10px 16px; border-radius: 10px; border: none; background: #3d7a4a; color: white; font: 600 14px 'Inter', sans-serif; cursor: pointer; white-space: nowrap; }
+  .rcv-save:disabled { opacity: 0.6; cursor: wait; }
+  .rcv-stock { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 12px; }
+  .rcv-stock th, .rcv-stock td { padding: 6px 8px; text-align: right; border-bottom: 1px solid #efe6d5; white-space: nowrap; }
+  .rcv-stock th:first-child { text-align: left; }
+  .rcv-stock thead th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); font-weight: 600; }
+  .rcv-stock td.pos { color: #3d7a4a; font-weight: 700; }
+  .rcv-stock td.neg { color: var(--red, #b3261e); font-weight: 700; }
+  .rcv-item { display: flex; align-items: center; gap: 12px; padding: 9px 10px 9px 14px; border: 1px solid var(--husk); border-left: 4px solid #3d7a4a; border-radius: 10px; background: #fbfdf9; }
+  .rcv-item-date { font-weight: 700; font-size: 13.5px; color: var(--ink-2); min-width: 86px; }
+  .rcv-item-qty { flex: 1; font-size: 14px; }
+  .journal .note-compose { padding: 0; border: none; margin-bottom: 12px; }
+  .journal .note-compose textarea { min-height: 64px; }
+  .journal .note-item { padding: 10px 10px 10px 14px; }
+  .journal .note-text { font-size: 14px; }
+
+  @media (max-width: 900px) {
+    .journal { grid-template-columns: 1fr; gap: 10px; }
+    .jr-col { padding: 12px; }
+    .jr-list, .notes-list.jr-list { max-height: none; min-height: 0; }
+    .rcv-form { padding: 10px; gap: 10px; }
+    .rcv-date { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+    .rcv-date input { flex: 1; margin-left: 10px; }
+    .rcv-qty { width: 100%; }
+    .rcv-name { flex: 1; }
+    .rcv-save { width: 100%; margin-left: 0; padding: 12px; }
+    .tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { white-space: nowrap; flex-shrink: 0; }
+    .tab-long { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -2110,7 +2159,7 @@
     <button class="tab active" onclick="switchTab('orders', this)">📋 Porudžbine <span class="tab-count" id="countOrders">0</span></button>
     <button class="tab" onclick="switchTab('products', this)">🌰 Proizvodi <span class="tab-count" id="countProducts">0</span></button>
     <button class="tab" onclick="switchTab('animation', this)">🎬 Animacija</button>
-    <button class="tab" onclick="switchTab('notes', this)">📝 Beleške <span class="tab-count" id="countNotes">0</span></button>
+    <button class="tab" onclick="switchTab('notes', this)">📦 Prijem<span class="tab-long"> i beleške</span></button>
   </div>
 
   <div class="main">
@@ -2243,25 +2292,56 @@
     </div>
 
     <div class="view" id="viewNotes">
-      <div class="notes-wrap">
-        <div class="note-compose">
-          <textarea id="noteText" rows="3" maxlength="2000" placeholder="Upiši belešku… (npr. mama dolazi u subotu, Marko plaća sledeće nedelje)"></textarea>
-          <div class="note-compose-row">
-            <span class="note-hint">Datum i vreme se upisuju sami.</span>
-            <button type="button" class="note-save" id="noteSaveBtn" onclick="saveNote()">Sačuvaj belešku</button>
+      <div class="journal">
+        <!-- PRIJEM OD MAME -->
+        <section class="jr-col">
+          <h3 class="jr-title">Prijem <em>od mame</em></h3>
+          <div class="rcv-form">
+            <label class="rcv-date">Datum
+              <input type="date" id="rcvDate">
+            </label>
+            <div class="rcv-qty">
+              <span class="rcv-name">Pečeni</span>
+              <button type="button" onclick="rcvStep('rcvPeceni', -1)" aria-label="Manje pečenih">−</button>
+              <input type="number" id="rcvPeceni" min="0" step="0.5" inputmode="decimal" value="0" aria-label="Pečeni kg">
+              <button type="button" onclick="rcvStep('rcvPeceni', 1)" aria-label="Više pečenih">+</button>
+              <span class="rcv-unit">kg</span>
+            </div>
+            <div class="rcv-qty">
+              <span class="rcv-name">Sirovi</span>
+              <button type="button" onclick="rcvStep('rcvSirovi', -1)" aria-label="Manje sirovih">−</button>
+              <input type="number" id="rcvSirovi" min="0" step="0.5" inputmode="decimal" value="0" aria-label="Sirovi kg">
+              <button type="button" onclick="rcvStep('rcvSirovi', 1)" aria-label="Više sirovih">+</button>
+              <span class="rcv-unit">kg</span>
+            </div>
+            <button type="button" class="rcv-save" id="rcvSaveBtn" onclick="saveReceipt()">Sačuvaj prijem</button>
           </div>
-        </div>
-        <div class="notes-list" id="notesList"><div class="notes-empty">~ još nema beleški ~</div></div>
+          <table class="rcv-stock" id="rcvStock" aria-label="Stanje lešnika"></table>
+          <div class="jr-list" id="rcvList"></div>
+        </section>
+
+        <!-- BELEŠKE -->
+        <section class="jr-col">
+          <h3 class="jr-title">Beleške <em id="countNotes">0</em></h3>
+          <div class="note-compose">
+            <textarea id="noteText" rows="2" maxlength="2000" placeholder="Upiši belešku… (npr. Marko plaća sledeće nedelje)"></textarea>
+            <div class="note-compose-row">
+              <span class="note-hint">Datum i vreme se upisuju sami.</span>
+              <button type="button" class="note-save" id="noteSaveBtn" onclick="saveNote()">Sačuvaj belešku</button>
+            </div>
+          </div>
+          <div class="jr-list notes-list" id="notesList"><div class="notes-empty">~ još nema beleški ~</div></div>
+        </section>
       </div>
     </div>
 
-    <div class="modal-overlay" id="noteDeleteModal">
+    <div class="modal-overlay" id="confirmModal">
       <div class="modal note-delete-modal">
-        <h3>Obrisati belešku?</h3>
-        <p class="note-delete-preview" id="noteDeletePreview"></p>
+        <h3 id="confirmTitle">Da li si siguran?</h3>
+        <p class="note-delete-preview" id="confirmPreview"></p>
         <div class="note-delete-actions">
-          <button type="button" class="product-modal-btn cancel" onclick="closeNoteDelete()">Ne, ostavi</button>
-          <button type="button" class="product-modal-btn danger-btn" id="noteDeleteBtn" onclick="confirmNoteDelete()">Da, obriši</button>
+          <button type="button" class="product-modal-btn cancel" onclick="closeConfirm()">Ne, ostavi</button>
+          <button type="button" class="product-modal-btn danger-btn" id="confirmYesBtn" onclick="runConfirm()">Da, obriši</button>
         </div>
       </div>
     </div>
@@ -2502,6 +2582,8 @@
         products = data.products;
         orders = (data.orders || []).filter(o => String(o.name || '').trim() || String(o.items || '').trim());   // bez praznih redova
         if (Array.isArray(data.notes)) { notes = data.notes; renderNotes(); }
+        if (Array.isArray(data.receipts)) receipts = data.receipts;
+        renderReceipts();
         receiveSettings(data.settings);
         if (fromMemory || document.getElementById('rememberMe').checked) rememberLogin(password);
         else forgetLogin();
@@ -2557,6 +2639,8 @@
         products = data.products;
         orders = (data.orders || []).filter(o => String(o.name || '').trim() || String(o.items || '').trim());   // bez praznih redova
         if (Array.isArray(data.notes)) { notes = data.notes; renderNotes(); }
+        if (Array.isArray(data.receipts)) receipts = data.receipts;
+        renderReceipts();
         receiveSettings(data.settings);
         fresh.forEach(o => freshIds.add(o.id));
         renderAll();
@@ -2733,6 +2817,7 @@
   try { if (localStorage.getItem('lesnici_stats_more') === '1') setTimeout(() => toggleStatsMore(true), 0); } catch (e) {}
 
   function renderStats() {
+    try { renderReceipts(); } catch (e) { /* stranica prijema još nije spremna */ }
     const din = n => Math.round(n).toLocaleString('sr') + ' din';
     const kgOf = (list, key) => list.reduce((sum, o) => sum + parseItems(o.items)
       .filter(it => !key || it.key === key).reduce((s2, it) => s2 + it.qty, 0), 0);
@@ -3134,7 +3219,7 @@
   let notes = [];
   let noteToDelete = null;
   function renderNotes() {
-    document.getElementById('countNotes').textContent = notes.length;
+    document.getElementById('countNotes').textContent = notes.length ? '· ' + notes.length : '';
     const box = document.getElementById('notesList');
     if (!notes.length) { box.innerHTML = '<div class="notes-empty">~ još nema beleški ~</div>'; return; }
     box.innerHTML = notes.map(n => `
@@ -3168,35 +3253,109 @@
   document.addEventListener('keydown', e => {
     if (e.target && e.target.id === 'noteText' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveNote(); }
   });
+  // zajednički prozor "Da li si siguran?" (beleške i prijem)
+  let confirmAction = null;
+  function askConfirm(title, preview, action) {
+    confirmAction = action;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmPreview').textContent = preview;
+    document.getElementById('confirmModal').classList.add('show');
+  }
+  function closeConfirm() {
+    document.getElementById('confirmModal').classList.remove('show');
+    confirmAction = null;
+  }
+  async function runConfirm() {
+    if (!confirmAction) return;
+    const btn = document.getElementById('confirmYesBtn');
+    btn.disabled = true;
+    try { await confirmAction(); closeConfirm(); }
+    catch (e) { showToast('Nije obrisano, proveri internet', true); }
+    finally { btn.disabled = false; }
+  }
   function askNoteDelete(id) {
     const n = notes.find(x => x.id === id);
     if (!n) return;
-    noteToDelete = id;
-    document.getElementById('noteDeletePreview').textContent = `${n.date} · ${n.text.length > 120 ? n.text.slice(0, 118) + '…' : n.text}`;
-    document.getElementById('noteDeleteModal').classList.add('show');
-  }
-  function closeNoteDelete() {
-    document.getElementById('noteDeleteModal').classList.remove('show');
-    noteToDelete = null;
-  }
-  async function confirmNoteDelete() {
-    const id = noteToDelete;
-    if (id == null) return;
-    const btn = document.getElementById('noteDeleteBtn');
-    btn.disabled = true;
-    try {
+    askConfirm('Obrisati belešku?', `${n.date} · ${n.text.length > 120 ? n.text.slice(0, 118) + '…' : n.text}`, async () => {
       const r = await apiCall({ action: 'deleteNote', id });
       if (!r.success) throw new Error(r.error);
-      notes = notes.filter(n => n.id !== id);
+      notes = notes.filter(x => x.id !== id);
       renderNotes();
-      closeNoteDelete();
       showToast('Beleška obrisana');
+    });
+  }
+
+  // ---------- PRIJEM OD MAME ----------
+  let receipts = [];
+  const todayIso = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const isoToSr = iso => { const [y, m, d] = iso.split('-'); return `${d}.${m}.${y}`; };
+  const fmtKg = n => (Math.round(n * 10) / 10).toLocaleString('sr') + ' kg';
+  function resetReceiptForm() {
+    document.getElementById('rcvDate').value = todayIso();
+    document.getElementById('rcvPeceni').value = 0;
+    document.getElementById('rcvSirovi').value = 0;
+  }
+  function rcvStep(id, d) {
+    const inp = document.getElementById(id);
+    inp.value = Math.max(0, (Number(inp.value) || 0) + d);
+  }
+  function renderReceipts() {
+    // stanje: primljeno od mame − poručeno (sve porudžbine)
+    const got = { p: receipts.reduce((a, r) => a + r.peceni, 0), s: receipts.reduce((a, r) => a + r.sirovi, 0) };
+    const sold = { p: 0, s: 0 };
+    orders.forEach(o => parseItems(o.items).forEach(it => { if (it.key === 'pečeni') sold.p += it.qty; if (it.key === 'sirovi') sold.s += it.qty; }));
+    const diffCell = v => `<td class="${v < 0 ? 'neg' : 'pos'}">${v < 0 ? 'fali ' + fmtKg(-v) : fmtKg(v)}</td>`;
+    document.getElementById('rcvStock').innerHTML = `
+      <thead><tr><th></th><th>Primljeno</th><th>Poručeno</th><th>Ostalo</th></tr></thead>
+      <tbody>
+        <tr><th>Pečeni</th><td>${fmtKg(got.p)}</td><td>${fmtKg(sold.p)}</td>${diffCell(got.p - sold.p)}</tr>
+        <tr><th>Sirovi</th><td>${fmtKg(got.s)}</td><td>${fmtKg(sold.s)}</td>${diffCell(got.s - sold.s)}</tr>
+      </tbody>`;
+    const box = document.getElementById('rcvList');
+    if (!receipts.length) { box.innerHTML = '<div class="notes-empty">~ još nema prijema ~</div>'; return; }
+    box.innerHTML = receipts.map(r => `
+      <div class="rcv-item">
+        <span class="rcv-item-date">${escapeHtml(r.date)}</span>
+        <span class="rcv-item-qty">${[r.peceni ? fmtKg(r.peceni) + ' pečeni' : '', r.sirovi ? fmtKg(r.sirovi) + ' sirovi' : ''].filter(Boolean).join(' · ')}</span>
+        <button type="button" class="note-del" onclick="askReceiptDelete(${r.id})" aria-label="Obriši prijem" title="Obriši">×</button>
+      </div>`).join('');
+  }
+  async function saveReceipt() {
+    const iso = document.getElementById('rcvDate').value;
+    const peceni = Number(document.getElementById('rcvPeceni').value) || 0;
+    const sirovi = Number(document.getElementById('rcvSirovi').value) || 0;
+    if (!iso) { showToast('Izaberi datum', true); return; }
+    if (peceni <= 0 && sirovi <= 0) { showToast('Upiši koliko kilograma si primio', true); return; }
+    const btn = document.getElementById('rcvSaveBtn');
+    btn.disabled = true; btn.textContent = 'Čuvam…';
+    try {
+      const r = await apiCall({ action: 'addReceipt', date: isoToSr(iso), peceni, sirovi });
+      if (!r.success) throw new Error(r.error);
+      receipts.push(r.receipt);
+      const key = d => { const m = d.split('.'); return Number(m[2] + m[1] + m[0]); };
+      receipts.sort((a, b) => key(b.date) - key(a.date) || b.id - a.id);
+      renderReceipts();
+      resetReceiptForm();
+      showToast('Prijem sačuvan ✓');
     } catch (e) {
-      showToast('Nije obrisano, proveri internet', true);
+      showToast('Prijem nije sačuvan, proveri internet', true);
     } finally {
-      btn.disabled = false;
+      btn.disabled = false; btn.textContent = 'Sačuvaj prijem';
     }
   }
+  function askReceiptDelete(id) {
+    const r = receipts.find(x => x.id === id);
+    if (!r) return;
+    const what = [r.peceni ? fmtKg(r.peceni) + ' pečeni' : '', r.sirovi ? fmtKg(r.sirovi) + ' sirovi' : ''].filter(Boolean).join(' · ');
+    askConfirm('Obrisati prijem?', `${r.date} · ${what}`, async () => {
+      const res = await apiCall({ action: 'deleteReceipt', id });
+      if (!res.success) throw new Error(res.error);
+      receipts = receipts.filter(x => x.id !== id);
+      renderReceipts();
+      showToast('Prijem obrisan');
+    });
+  }
+  resetReceiptForm();
 
   // ---------- "M": novac prebačen mami ----------
   async function setMom(ids, value) {
