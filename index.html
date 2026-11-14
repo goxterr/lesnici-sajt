@@ -1900,6 +1900,38 @@
     background: #eadfcb; color: #5b4a38; font-size: 18px; line-height: 1; cursor: pointer;
   }
   .orders-search-clear[hidden] { display: none; }
+
+  /* ---------- porudžbine: kartica u dva reda ---------- */
+  .order-item.oc { display: flex; align-items: flex-start; gap: 12px; padding: 10px 16px; }
+  .order-item.oc .order-avatar { width: 34px; height: 34px; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .oc-body { flex: 1; min-width: 0; }
+  .oc-line1 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 10px; }
+  .oc-line1 .order-name { font-size: 16px; }
+  .oc-line1 .order-meta { font-size: 12px; }
+  .oc-items { font-size: 13.5px; color: var(--ink-2, #5b4a38); }
+  .oc-amount { margin-left: auto; font-family: 'Fraunces', serif; font-weight: 700; font-size: 16px; color: #9c4a1b; white-space: nowrap; }
+  .oc-line2 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+  .oc-line2 .pay-qr-btn, .oc-line2 .status-badge { margin: 0; padding: 4px 10px; font-size: 12px; min-height: 0; line-height: 1.2; }
+  .oc-line2 .pay-qr-btn svg, .oc-line2 .status-badge svg { width: 13px; height: 13px; }
+  .orders-list { gap: 8px; }
+  .order-item.minimized { padding: 9px 16px; }
+
+  @media (max-width: 700px) {
+    .order-item.oc { padding: 10px 12px; gap: 10px; position: relative; }
+    .oc-line1 { padding-right: 82px; }                       /* mesto za iznos gore desno */
+    .oc-line1 .order-name { font-size: 15px; }
+    .oc-amount { position: absolute; top: 10px; right: 12px; }
+    .oc-items { flex-basis: 100%; }
+  }
+
+  /* računar: aktuelne levo, završene desno; lista na punu širinu */
+  @media (min-width: 960px) {
+    .container > section.orders-section { max-width: none; }
+    .orders-section .orders-search { max-width: 520px; }
+    .orders-cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; align-items: start; }
+    .orders-col-done .orders-subsection { margin-top: 0; padding-top: 0; border-top: none; }
+    .orders-col-done:empty::before { content: '~ još nema završenih ~'; display: block; padding: 20px; text-align: center; font-family: 'Caveat', cursive; font-size: 20px; color: #a8987c; }
+  }
 </style>
 </head>
 <body>
@@ -2010,7 +2042,7 @@
   </div>
 
   <!-- Lista porudžbina -->
-  <section>
+  <section class="orders-section">
     <div class="section-head">
       <img class="section-icon" src="hazelnut-kernels-sm.webp" alt="" aria-hidden="true">
       <h2 class="section-title" aria-label="Sve porudžbine"><span aria-hidden="true"><span class="gw">Sve</span> <em><span class="gw">porud<span class="gl">z<svg class="mk mk-hacek"><use href="#g-hacek"/></svg></span>b<span class="gl">ı<svg class="mk mk-nut"><use href="#g-nut"/></svg></span>ne</span></em></span></h2>
@@ -2652,6 +2684,11 @@
       return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
     });
   }
+  function itemLinesInline(str) {
+    const items = parseItems(str);
+    const lines = items.length ? items.map(it => `${it.qty} kg ${it.key}`) : [String(str || '')];
+    return lines.map(l => l.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]))).join(' · ');
+  }
   function itemsHtml(str) {
     const items = parseItems(str);
     const lines = items.length ? items.map(it => `${it.qty} kg ${it.key}`) : [String(str || '')];
@@ -2733,19 +2770,20 @@
         ? `<button class="pay-qr-btn" onclick="openPaymentModal(${o.id})">${qrIcon} QR za uplatu</button>`
         : '';
       
+      // dva reda: ime · biznis · datum · poručeno … iznos / QR (uvek prvi), isporučeno, plaćeno
+      const tags = qrBtn + badgesHtml;
       return `
-        <div class="order-item" id="order-${o.id}">
+        <div class="order-item oc" id="order-${o.id}">
           <div class="order-avatar">${getInitials(o.name)}</div>
-          <div class="order-body">
-            <div class="order-head">
+          <div class="oc-body">
+            <div class="oc-line1">
               <span class="order-name">${o.name}</span>
               <span class="order-meta">${o.office} · ${dateShort}</span>
+              <span class="oc-items">${itemLinesInline(o.items)}</span>
+              <span class="oc-amount">${Number(o.total).toLocaleString('sr')} din</span>
             </div>
-            <div class="order-items">${itemsHtml(o.items)}</div>
-            ${badgesDiv}
-            ${qrBtn}
+            ${tags ? `<div class="oc-line2">${tags}</div>` : ''}
           </div>
-          <div class="order-amount">${Number(o.total).toLocaleString('sr')} din</div>
         </div>
       `;
     };
@@ -2775,7 +2813,7 @@
       `;
     };
 
-    let html = '';
+    let html = '<div class="orders-cols"><div class="orders-col-active">';
 
     // SEKCIJA 1: Aktuelne
     if (active.length > 0) {
@@ -2791,6 +2829,7 @@
       `;
     }
 
+    html += '</div><div class="orders-col-done">';
     // SEKCIJA 2: Završene (minimizirane)
     if (done.length > 0) {
       const DONE_LIMIT = 5;
@@ -2814,6 +2853,7 @@
       `;
     }
 
+    html += '</div></div>';
     container.innerHTML = html;
   }
 
