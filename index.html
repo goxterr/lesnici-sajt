@@ -1932,6 +1932,29 @@
     .orders-col-done .orders-subsection { margin-top: 0; padding-top: 0; border-top: none; }
     .orders-col-done:empty::before { content: '~ još nema završenih ~'; display: block; padding: 20px; text-align: center; font-family: 'Caveat', cursive; font-size: 20px; color: #a8987c; }
   }
+
+  /* telefon: bez biznisa, poručeno u istom redu sa QR-om i oznakama (2 reda umesto 3) */
+  .oc-items-m { display: none; }
+  .oc-line2.only-items { display: none; }
+  .om-office { display: inline-block; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+  .oc-items { white-space: nowrap; }
+  @media (max-width: 700px) {
+    .om-office, .om-sep { display: none; }
+    .order-item.oc .order-avatar { display: none; }              /* ukras; na telefonu mesto treba podacima */
+    .oc-line2 .pay-qr-btn, .oc-line2 .status-badge { padding: 3px 8px; font-size: 11.5px; }
+    .oc-line1 .oc-items { display: none; }
+    .oc-line2, .oc-line2.only-items { display: flex; margin-top: 4px; }
+    .oc-items-m { display: inline; font-size: 13.5px; color: var(--ink-2, #5b4a38); margin-right: 4px; }
+  }
+
+  /* računar: prvi red kartice uvek u jednoj liniji; biznis se skraćuje koliko treba */
+  @media (min-width: 701px) {
+    .oc-line1 { flex-wrap: nowrap; min-width: 0; }
+    .oc-line1 .order-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; max-width: 45%; }
+    .oc-line1 .order-meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 3; min-width: 40px; }
+    .oc-line1 .oc-items, .oc-line1 .oc-amount { flex-shrink: 0; }
+    .om-office { max-width: none; display: inline; }
+  }
 </style>
 </head>
 <body>
@@ -2780,11 +2803,11 @@
           <div class="oc-body">
             <div class="oc-line1">
               <span class="order-name">${o.name}</span>
-              <span class="order-meta">${o.office} · ${dateShort}</span>
+              <span class="order-meta"><span class="om-office" title="${String(o.office).replace(/"/g, '&quot;')}">${o.office}</span><span class="om-sep"> · </span>${dateShort}</span>
               <span class="oc-items">${itemLinesInline(o.items)}</span>
               <span class="oc-amount">${Number(o.total).toLocaleString('sr')} din</span>
             </div>
-            ${tags ? `<div class="oc-line2">${tags}</div>` : ''}
+            <div class="oc-line2${tags ? '' : ' only-items'}"><span class="oc-items-m">${itemLinesInline(o.items)}</span>${tags}</div>
           </div>
         </div>
       `;
@@ -2803,7 +2826,7 @@
           <div class="order-avatar">${getInitials(o.name)}</div>
           <div class="order-mini-info">
             <span class="order-mini-name">${o.name}</span>
-            <span class="order-mini-meta">${o.office} · ${dateShort}</span>
+            <span class="order-mini-meta"><span class="om-office">${o.office}</span><span class="om-sep"> · </span>${dateShort}</span>
             <div class="expanded-details">
               <div class="order-items" style="margin-top:4px">${itemsHtml(o.items)}</div>
               <div class="order-badges">${badgesInline}</div>
