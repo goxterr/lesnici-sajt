@@ -2727,6 +2727,8 @@
     inp.focus();
   }
 
+  // po 10 porudžbina u svakoj koloni; "Prikaži još" dodaje po 10
+  let activeLimit = 10, doneLimit = 10;
   function renderOrders() {
     const container = document.getElementById('ordersContainer');
     document.getElementById('orderCount').textContent = orders.length + ' do sad';
@@ -2807,7 +2809,6 @@
               <div class="order-badges">${badgesInline}</div>
             </div>
           </div>
-          <div class="order-mini-amount">${Number(o.total).toLocaleString('sr')} din</div>
           ${chevronIcon}
         </div>
       `;
@@ -2824,17 +2825,17 @@
           </span>
         </div>
         <div class="orders-list">
-          ${active.map(renderFullCard).join('')}
+          ${(q ? active : active.slice(0, activeLimit)).map(renderFullCard).join('')}
         </div>
+        ${!q && active.length > activeLimit ? `<button class="show-more-btn" onclick="activeLimit += 10; renderOrders()">Prikaži još ${Math.min(10, active.length - activeLimit)} ↓</button>` : ''}
       `;
     }
 
     html += '</div><div class="orders-col-done">';
     // SEKCIJA 2: Završene (minimizirane)
     if (done.length > 0) {
-      const DONE_LIMIT = 5;
-      const shownDone = showAllDone ? done : done.slice(0, DONE_LIMIT);
-      const hasHidden = !showAllDone && done.length > DONE_LIMIT;
+      const shownDone = q ? done : done.slice(0, doneLimit);
+      const hasHidden = !q && done.length > doneLimit;
       
       const sectionClass = active.length > 0 ? 'orders-subsection' : '';
       html += `
@@ -2847,8 +2848,7 @@
           <div class="orders-list">
             ${shownDone.map(renderMiniCard).join('')}
           </div>
-          ${hasHidden ? `<button class="show-more-btn" onclick="toggleShowAllDone()">Prikaži još ${done.length - DONE_LIMIT} ↓</button>` : ''}
-          ${showAllDone && done.length > DONE_LIMIT ? `<button class="show-more-btn" onclick="toggleShowAllDone()">Sakrij ↑</button>` : ''}
+          ${hasHidden ? `<button class="show-more-btn" onclick="doneLimit += 10; renderOrders()">Prikaži još ${Math.min(10, done.length - doneLimit)} ↓</button>` : ''}
         </div>
       `;
     }

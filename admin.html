@@ -328,7 +328,7 @@
 
   .table-head {
     display: grid;
-    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 56px 120px 150px 130px 40px 72px;
+    grid-template-columns: 30px 60px minmax(120px, 1.1fr) minmax(160px, 1.5fr) minmax(100px, 1fr) minmax(120px, 1.1fr) 42px 92px 136px 124px 34px 64px;
     padding: 12px 16px;
     background: var(--cream-2);
     border-bottom: 1px solid var(--husk);
@@ -344,7 +344,7 @@
 
   .order-row {
     display: grid;
-    grid-template-columns: 32px 92px minmax(200px, 2fr) minmax(110px, 1fr) minmax(130px, 1.2fr) 56px 120px 150px 130px 40px 72px;
+    grid-template-columns: 30px 60px minmax(120px, 1.1fr) minmax(160px, 1.5fr) minmax(100px, 1fr) minmax(120px, 1.1fr) 42px 92px 136px 124px 34px 64px;
     padding: 14px 16px;
     border-bottom: 1px solid var(--husk);
     align-items: center;
@@ -2173,6 +2173,42 @@
     .rp-btn { flex: 1; }
     .rp-note { min-width: 100%; }
   }
+
+  /* ================= RAČUNAR: niski redovi, sve u jednoj liniji ================= */
+  .th-plain { font-size: inherit; }
+  .trunc { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .trunc-pop {
+    position: absolute; z-index: 400; max-width: 360px;
+    background: var(--ink); color: var(--cream); border-radius: 8px;
+    padding: 7px 10px; font: 13px/1.4 'Inter', sans-serif; box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    word-wrap: break-word;
+  }
+  @media (min-width: 801px) {
+    .order-row { padding: 5px 14px; min-height: 0; }
+    .order-row > div { min-width: 0; }
+    .col-name, .col-email, .col-office, .col-items { min-width: 0; }
+    .col-name { display: flex; align-items: center; font-size: 14px; }
+    .col-name .trunc { flex: 1; }
+    .col-email { font-size: 12.5px; color: var(--ink-3); }
+    .col-email .no-mail { color: #b3a58c; font-size: 12px; }
+    .col-office { font-size: 14px; }
+    .col-office .trunc, .col-items .trunc, .col-name .trunc, .col-email .trunc { cursor: default; }
+    .col-amount { white-space: nowrap; font-size: 14px; }
+    .status-select { padding: 4px 6px; font-size: 12.5px; height: 30px; }
+    .pickup-toggle { padding: 4px 8px; font-size: 12px; min-height: 30px; }
+    .pickup-toggle .pickup-check { width: 16px; height: 16px; }
+    .mom-btn { width: 26px; height: 26px; font-size: 12px; }
+    .comment-btn, .edit-btn, .delete-btn { width: 26px; height: 26px; }
+    .order-select { width: 16px; height: 16px; }
+    .table-head { padding: 9px 14px; }
+    .dm-collapse { margin-right: 5px; }
+    /* završene: tanak red, ime / kg / iznos u svojim kolonama */
+    .order-row.done-mini-grid { padding: 3px 14px; background: #f7f3ea; color: var(--ink-3); cursor: pointer; border-left: 3px solid #b9cfa6; font-size: 13px; }
+    .order-row.done-mini-grid:hover { background: #f1ebde; }
+    .order-row.done-mini-grid .col-name { font-size: 13.5px; color: var(--ink-2); }
+    .order-row.done-mini-grid .col-amount { color: var(--ink-2); font-size: 13.5px; }
+    .order-row.done-mini-grid .dm-check { width: 16px; height: 16px; font-size: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -2299,6 +2335,7 @@
           <div></div>
           <button type="button" class="sort-btn" data-sort="date">Datum</button>
           <button type="button" class="sort-btn" data-sort="name">Ime</button>
+          <div class="th-plain">Email</div>
           <button type="button" class="sort-btn" data-sort="office">Biznis</button>
           <button type="button" class="sort-btn" data-sort="items">Proizvodi</button>
           <button type="button" class="sort-btn mom-head" data-sort="mom" title="Prebačeno mami">M</button>
@@ -3001,6 +3038,28 @@
     btn.textContent = `Učitaj još ${Math.min(PAGE_MORE, rest)}`;
   }
 
+  // skraćen tekst u jednoj liniji; klik pokazuje ceo tekst u oblačiću
+  function truncCell(text) {
+    const t = escapeHtml(String(text || ''));
+    return `<span class="trunc" title="${t}">${t}</span>`;
+  }
+  function closeTruncPop() { const p = document.getElementById('truncPop'); if (p) p.remove(); }
+  document.addEventListener('click', e => {
+    const el = e.target.closest && e.target.closest('#ordersBody .trunc');
+    closeTruncPop();
+    if (!el || el.scrollWidth <= el.clientWidth) return;     // nije skraćeno: nema šta da se otvori
+    e.stopPropagation();
+    const pop = document.createElement('div');
+    pop.id = 'truncPop';
+    pop.className = 'trunc-pop';
+    pop.textContent = el.getAttribute('title') || el.textContent;
+    document.body.appendChild(pop);
+    const r = el.getBoundingClientRect();
+    pop.style.left = Math.min(r.left, innerWidth - pop.offsetWidth - 10) + 'px';
+    pop.style.top = (r.bottom + 6 + scrollY) + 'px';
+  }, true);
+  window.addEventListener('scroll', closeTruncPop, { passive: true });
+
   // završene porudžbine koje su trenutno raširene (dodirom na tanak red)
   const expandedDone = new Set();
   function toggleDoneRow(id) {
@@ -3030,6 +3089,19 @@
       // završena porudžbina (plaćeno + preuzeto): tanak red, samo ime, kg i iznos; dodir je raširi
       if (isDone && !expandedDone.has(o.id)) {
         const kg = parseItems(o.items).reduce((s2, it) => s2 + it.qty, 0);
+        if (!isMobile) {
+          return `
+          <div class="order-row done-mini-grid ${freshIds.has(o.id) ? 'fresh' : ''}" onclick="toggleDoneRow(${o.id})" title="Završeno (plaćeno i preuzeto) · klik za detalje">
+            <div><span class="dm-check" aria-hidden="true">✓</span></div>
+            <div></div>
+            <div class="col-name">${truncCell(o.name)}</div>
+            <div></div><div></div>
+            <div class="col-items">${kg} kg</div>
+            <div></div>
+            <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
+            <div></div><div></div><div></div><div></div>
+          </div>`;
+        }
         return `
           <div class="order-row done-mini ${freshIds.has(o.id) ? 'fresh' : ''}" onclick="toggleDoneRow(${o.id})" title="Završeno (plaćeno i preuzeto) · klik za detalje">
             <span class="dm-check" aria-hidden="true">✓</span>
@@ -3111,9 +3183,10 @@
           <div class="order-row ${doneClass} ${selectedClass} ${freshIds.has(o.id) ? 'fresh' : ''}">
             <div>${checkbox}</div>
             <div class="col-date">${formatShortDate(o.date)}</div>
-            <div class="col-name">${isDone ? `<button type="button" class="dm-collapse" onclick="event.stopPropagation(); toggleDoneRow(${o.id})" title="Skupi" aria-label="Skupi">▴</button>` : ''}${o.name}${contactLine(o)}${replyLine(o)}</div>
-            <div class="col-office">${o.office}</div>
-            <div class="col-items">${itemsHtml(o.items)}</div>
+            <div class="col-name">${isDone ? `<button type="button" class="dm-collapse" onclick="event.stopPropagation(); toggleDoneRow(${o.id})" title="Skupi" aria-label="Skupi">▴</button>` : ''}${truncCell(o.name)}</div>
+            <div class="col-email">${o.email ? truncCell(o.email) : (o.phone ? truncCell(String(o.phone)) : '<i class="no-mail">bez mejla</i>')}</div>
+            <div class="col-office">${truncCell(o.office)}</div>
+            <div class="col-items">${truncCell(itemLines(o.items).join(' · '))}</div>
             <div class="col-mom">${momBtn}</div>
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
             <div>${paidSelect}</div>
