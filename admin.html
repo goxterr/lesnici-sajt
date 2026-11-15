@@ -2458,13 +2458,13 @@
       </div>
     </div>
 
-    <div class="modal-overlay" id="confirmModal">
+    <div class="modal-overlay" id="askModal">
       <div class="modal note-delete-modal">
-        <h3 id="confirmTitle">Da li si siguran?</h3>
-        <p class="note-delete-preview" id="confirmPreview"></p>
+        <h3 id="askTitle">Da li si siguran?</h3>
+        <p class="note-delete-preview" id="askPreview"></p>
         <div class="note-delete-actions">
-          <button type="button" class="product-modal-btn cancel" onclick="closeConfirm()">Ne, ostavi</button>
-          <button type="button" class="product-modal-btn danger-btn" id="confirmYesBtn" onclick="runConfirm()">Da, obriši</button>
+          <button type="button" class="product-modal-btn cancel" onclick="closeAsk()">Ne, ostavi</button>
+          <button type="button" class="product-modal-btn danger-btn" id="askYesBtn" onclick="runAsk()">Da, obriši</button>
         </div>
       </div>
     </div>
@@ -3316,6 +3316,7 @@
   function closeModal() {
     document.getElementById('confirmModal').classList.remove('show');
     pendingDelete = null;
+    document.getElementById('modalConfirmBtn').disabled = false;   // spremno za sledeće brisanje
   }
 
   async function executeDelete() {
@@ -3439,22 +3440,22 @@
     if (e.target && e.target.id === 'noteText' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveNote(); }
   });
   // zajednički prozor "Da li si siguran?" (beleške i prijem)
-  let confirmAction = null;
+  let askAction = null;
   function askConfirm(title, preview, action) {
-    confirmAction = action;
-    document.getElementById('confirmTitle').textContent = title;
-    document.getElementById('confirmPreview').textContent = preview;
-    document.getElementById('confirmModal').classList.add('show');
+    askAction = action;
+    document.getElementById('askTitle').textContent = title;
+    document.getElementById('askPreview').textContent = preview;
+    document.getElementById('askModal').classList.add('show');
   }
-  function closeConfirm() {
-    document.getElementById('confirmModal').classList.remove('show');
-    confirmAction = null;
+  function closeAsk() {
+    document.getElementById('askModal').classList.remove('show');
+    askAction = null;
   }
-  async function runConfirm() {
-    if (!confirmAction) return;
-    const btn = document.getElementById('confirmYesBtn');
+  async function runAsk() {
+    if (!askAction) return;
+    const btn = document.getElementById('askYesBtn');
     btn.disabled = true;
-    try { await confirmAction(); closeConfirm(); }
+    try { await askAction(); closeAsk(); }
     catch (e) { showToast('Nije obrisano, proveri internet', true); }
     finally { btn.disabled = false; }
   }
