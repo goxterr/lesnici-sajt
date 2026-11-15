@@ -2214,6 +2214,17 @@
   @media (max-width: 800px) {
     .m-biz { display: none; }
   }
+
+  /* koliko još treba poručiti od mame */
+  .rcv-need { display: flex; gap: 12px; align-items: flex-start; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+  .rcv-need .rn-icon { font-size: 20px; line-height: 1.2; }
+  .rcv-need .rn-title { font-weight: 700; font-size: 15px; }
+  .rcv-need .rn-title b { font-family: 'Fraunces', serif; font-size: 17px; }
+  .rcv-need .rn-sub { font-size: 12px; margin-top: 2px; opacity: 0.85; }
+  .rcv-need.short { background: #fdeee9; border: 1.5px solid #e8a48f; color: #8f2a14; }
+  .rcv-need.ok { background: #edf5ea; border: 1.5px solid #b9d4ae; color: #2f6a3b; }
+  .rcv-need.ok .rn-icon { width: 24px; height: 24px; border-radius: 50%; background: #3d7a4a; color: white; font-size: 13px; display: grid; place-items: center; }
+  .tab-count.need { background: #b3261e; color: white; }
 </style>
 </head>
 <body>
@@ -2245,9 +2256,9 @@
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('orders', this)">📋 Porudžbine <span class="tab-count" id="countOrders">0</span></button>
+    <button class="tab" onclick="switchTab('notes', this)">📦 Prijem<span class="tab-long"> i beleške</span> <span class="tab-count need" id="countNeed" hidden></span></button>
     <button class="tab" onclick="switchTab('products', this)">🌰 Proizvodi <span class="tab-count" id="countProducts">0</span></button>
     <button class="tab" onclick="switchTab('animation', this)">🎬 Animacija</button>
-    <button class="tab" onclick="switchTab('notes', this)">📦 Prijem<span class="tab-long"> i beleške</span></button>
   </div>
 
   <div class="main">
@@ -2427,6 +2438,7 @@
             </div>
             <button type="button" class="rcv-save" id="rcvSaveBtn" onclick="saveReceipt()">Sačuvaj prijem</button>
           </div>
+          <div class="rcv-need" id="rcvNeed"></div>
           <table class="rcv-stock" id="rcvStock" aria-label="Stanje lešnika"></table>
           <div class="jr-list" id="rcvList"></div>
         </section>
@@ -3628,6 +3640,25 @@
   function renderReceipts() {
     if (!document.getElementById('rpFrom').value) setReportRange('month'); else renderReport();
     const f = stockFigures();
+    // KOLIKO JOŠ TREBA PORUČITI: ono što kupci čekaju, a nemaš na stanju
+    const k = n => Math.round(n * 10) / 10;
+    const needP = Math.max(0, k(f['pečeni'].wait - f['pečeni'].stock));
+    const needS = Math.max(0, k(f.sirovi.wait - f.sirovi.stock));
+    const needBox = document.getElementById('rcvNeed');
+    const badge = document.getElementById('countNeed');
+    if (needP > 0 || needS > 0) {
+      const parts = [needP ? `<b>${needP.toLocaleString('sr')} kg</b> pečenih` : '', needS ? `<b>${needS.toLocaleString('sr')} kg</b> sirovih` : ''].filter(Boolean).join(' · ');
+      needBox.className = 'rcv-need short';
+      needBox.innerHTML = `<span class="rn-icon">🛒</span><div><div class="rn-title">Poruči još od mame: ${parts}</div><div class="rn-sub">Toliko fali da bi svi koji čekaju dobili svoje lešnike (čeka: pečeni ${k(f['pečeni'].wait)} kg, sirovi ${k(f.sirovi.wait)} kg · na stanju: pečeni ${k(f['pečeni'].stock)} kg, sirovi ${k(f.sirovi.stock)} kg).</div></div>`;
+      badge.hidden = false;
+      badge.textContent = k(needP + needS) + ' kg';
+      badge.title = 'Treba poručiti od mame';
+    } else {
+      const extra = [f['pečeni'].after > 0 ? `pečeni ${k(f['pečeni'].after)} kg` : '', f.sirovi.after > 0 ? `sirovi ${k(f.sirovi.after)} kg` : ''].filter(Boolean).join(' · ');
+      needBox.className = 'rcv-need ok';
+      needBox.innerHTML = `<span class="rn-icon">✓</span><div><div class="rn-title">Imaš dovoljno za sve porudžbine</div><div class="rn-sub">${extra ? 'Posle podele ostaje: ' + extra + '.' : 'Posle podele ne ostaje ništa.'}</div></div>`;
+      badge.hidden = true;
+    }
     const afterCell = v => `<td class="${v < 0 ? 'neg' : 'pos'}">${v < 0 ? 'fali ' + fmtKg(-v) : fmtKg(v)}</td>`;
     const row = (label, x) => `<tr><th>${label}</th><td>${fmtKg(x.got)}</td><td>${fmtKg(x.out)}</td><td class="stock">${fmtKg(x.stock)}</td><td>${fmtKg(x.wait)}</td>${afterCell(x.after)}</tr>`;
     document.getElementById('rcvStock').innerHTML = `
