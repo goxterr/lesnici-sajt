@@ -2225,6 +2225,44 @@
   .rcv-need.ok { background: #edf5ea; border: 1.5px solid #b9d4ae; color: #2f6a3b; }
   .rcv-need.ok .rn-icon { width: 24px; height: 24px; border-radius: 50%; background: #3d7a4a; color: white; font-size: 13px; display: grid; place-items: center; }
   .tab-count.need { background: #b3261e; color: white; }
+
+  /* ---------- LOG ---------- */
+  .log-wrap { max-width: 1100px; margin: 0 auto; }
+  .log-bar { background: white; border: 1px solid var(--husk); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .log-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .log-chip { padding: 6px 11px; border-radius: 999px; border: 1px solid var(--husk); background: #fbf6ec; font: 600 12.5px 'Inter', sans-serif; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+  .log-chip span { font-weight: 500; opacity: 0.7; margin-left: 2px; }
+  .log-chip.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .log-tools { display: flex; gap: 8px; }
+  .log-search { flex: 1; }
+  .log-refresh { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--husk); background: white; font: 600 13px 'Inter', sans-serif; color: var(--accent); cursor: pointer; white-space: nowrap; }
+  .log-list { background: white; border: 1px solid var(--husk); border-radius: 14px; padding: 4px 14px 10px; }
+  .log-day { font-family: 'Caveat', cursive; font-size: 19px; color: var(--leaf-dark); padding: 10px 0 4px; border-bottom: 1px solid #efe6d5; }
+  .log-row { display: grid; grid-template-columns: 46px 108px 1fr; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed #efe6d5; font-size: 13.5px; }
+  .log-row:last-child { border-bottom: none; }
+  .log-time { font-variant-numeric: tabular-nums; color: var(--ink-3); font-size: 12.5px; }
+  .log-pill { justify-self: start; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: #efe6d5; color: var(--ink-2); white-space: nowrap; }
+  .log-pill.naplata { background: #e6f1e4; color: #2f6a3b; }
+  .log-pill.preuzimanje { background: #e4ecf7; color: #2a4f86; }
+  .log-pill.mama { background: #dceee0; color: #1f5a2e; }
+  .log-pill.izmena { background: #fdf0dc; color: #8a5a00; }
+  .log-pill.brisanje { background: #fde8e6; color: #9b231b; }
+  .log-pill.obavestenje { background: #efe4f7; color: #5b2f86; }
+  .log-pill.prepiska { background: #e8f4f8; color: #1f5d73; }
+  .log-pill.prijem { background: #fbefd6; color: #7a5300; }
+  .log-pill.beleske { background: #fff4cc; color: #6d5900; }
+  .log-pill.proizvodi { background: #f3e6dc; color: #7d3f16; }
+  .log-text { color: var(--ink); min-width: 0; word-wrap: break-word; }
+  .log-ref { display: block; font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+  @media (max-width: 800px) {
+    .log-bar { padding: 10px; }
+    .log-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .log-chips::-webkit-scrollbar { display: none; }
+    .log-list { padding: 2px 10px 8px; }
+    .log-row { grid-template-columns: 40px 1fr; gap: 4px 8px; font-size: 13px; }
+    .log-pill { grid-column: 2; grid-row: 1; }
+    .log-text { grid-column: 2; }
+  }
 </style>
 </head>
 <body>
@@ -2259,6 +2297,7 @@
     <button class="tab" onclick="switchTab('notes', this)">📦 Prijem<span class="tab-long"> i beleške</span> <span class="tab-count need" id="countNeed" hidden></span></button>
     <button class="tab" onclick="switchTab('products', this)">🌰 Proizvodi <span class="tab-count" id="countProducts">0</span></button>
     <button class="tab" onclick="switchTab('animation', this)">🎬 Animacija</button>
+    <button class="tab" onclick="switchTab('log', this)">🧾 Log</button>
   </div>
 
   <div class="main">
@@ -2466,6 +2505,22 @@
           <button type="button" class="product-modal-btn cancel" onclick="closeAsk()">Ne, ostavi</button>
           <button type="button" class="product-modal-btn danger-btn" id="askYesBtn" onclick="runAsk()">Da, obriši</button>
         </div>
+      </div>
+    </div>
+
+    <div class="view" id="viewLog">
+      <div class="log-wrap">
+        <div class="log-bar">
+          <div class="log-chips" id="logChips"></div>
+          <div class="log-tools">
+            <div class="search-wrap log-search">
+              <input type="text" class="search-input" id="logSearch" placeholder="🔍 Pretraži (ime, #broj, tekst)…" oninput="renderLog(); document.getElementById('logSearchClear').hidden = !this.value">
+              <button type="button" class="search-clear" id="logSearchClear" onclick="const i = document.getElementById('logSearch'); i.value = ''; this.hidden = true; renderLog(); i.focus();" aria-label="Obriši pretragu" hidden>×</button>
+            </div>
+            <button type="button" class="log-refresh" onclick="loadLog(true)">↻ Osveži</button>
+          </div>
+        </div>
+        <div class="log-list" id="logList"><div class="notes-empty">~ učitavam log… ~</div></div>
       </div>
     </div>
 
@@ -2828,8 +2883,9 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     btn.classList.add('active');
-    const views = { orders: 'Orders', products: 'Products', animation: 'Animation', notes: 'Notes' };
+    const views = { orders: 'Orders', products: 'Products', animation: 'Animation', notes: 'Notes', log: 'Log' };
     document.getElementById('view' + views[tab]).classList.add('active');
+    if (tab === 'log') loadLog();
   }
 
   function paintSearchClear() {
@@ -3399,6 +3455,59 @@
     
     // Focus na textarea
     setTimeout(() => document.getElementById('commentInput').focus(), 100);
+  }
+
+  // ---------- LOG: istorija mojih akcija ----------
+  const LOG_CATS = [
+    ['all', 'Sve'], ['naplata', 'Naplata'], ['preuzimanje', 'Preuzimanje'], ['mama', 'Mama'],
+    ['izmena', 'Izmene'], ['brisanje', 'Brisanje'], ['obavestenje', 'Obaveštenja'], ['prepiska', 'Prepiska'],
+    ['prijem', 'Prijem'], ['beleske', 'Beleške'], ['proizvodi', 'Proizvodi'], ['podesavanja', 'Podešavanja']
+  ];
+  let logItems = [], logCat = 'all', logLoadedAt = 0, logBusy = false;
+  async function loadLog(force) {
+    if (logBusy || (!force && Date.now() - logLoadedAt < 20000)) { renderLog(); return; }
+    logBusy = true;
+    if (!logItems.length) document.getElementById('logList').innerHTML = '<div class="notes-empty">~ učitavam log… ~</div>';
+    try {
+      const r = await apiCall({ action: 'getLog' });
+      if (!r.success) throw new Error(r.error);
+      logItems = r.log || [];
+      logLoadedAt = Date.now();
+      renderLog();
+    } catch (e) {
+      document.getElementById('logList').innerHTML = '<div class="notes-empty">~ log nije učitan, proveri internet ~</div>';
+    } finally { logBusy = false; }
+  }
+  function setLogCat(c) { logCat = c; renderLog(); }
+  function renderLog() {
+    const plainTxt = t => String(t || '').toLowerCase().replace(/đ/g, 'dj').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const q = plainTxt(document.getElementById('logSearch').value.trim());
+    const bySearch = q ? logItems.filter(x => plainTxt(x.ref + ' ' + x.text).includes(q)) : logItems;
+    // dugmad za vrste sa brojem stavki
+    const count = c => c === 'all' ? bySearch.length : bySearch.filter(x => x.cat === c).length;
+    document.getElementById('logChips').innerHTML = LOG_CATS
+      .filter(([c]) => c === 'all' || logItems.some(x => x.cat === c))
+      .map(([c, label]) => `<button type="button" class="log-chip ${c} ${logCat === c ? 'active' : ''}" onclick="setLogCat('${c}')">${label} <span>${count(c)}</span></button>`).join('');
+    const list = logCat === 'all' ? bySearch : bySearch.filter(x => x.cat === logCat);
+    const box = document.getElementById('logList');
+    if (!list.length) { box.innerHTML = `<div class="notes-empty">~ ${logItems.length ? 'nema stavki za ovaj filter' : 'još nema zabeleženih akcija'} ~</div>`; return; }
+    // grupisano po danima
+    const today = new Date(), yest = new Date(Date.now() - 864e5);
+    const dstr = d => String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear();
+    const dayLabel = day => day === dstr(today) ? 'Danas' : (day === dstr(yest) ? 'Juče' : day);
+    const catLabel = Object.fromEntries(LOG_CATS);
+    let html = '', lastDay = '';
+    list.slice(0, 600).forEach(x => {
+      const day = x.t.slice(0, 10), time = x.t.slice(11, 16);
+      if (day !== lastDay) { html += `<div class="log-day">${dayLabel(day)}</div>`; lastDay = day; }
+      html += `<div class="log-row">
+        <span class="log-time">${escapeHtml(time)}</span>
+        <span class="log-pill ${escapeHtml(x.cat)}">${escapeHtml(catLabel[x.cat] || x.cat)}</span>
+        <span class="log-text">${escapeHtml(x.text)}${x.ref ? `<span class="log-ref">${escapeHtml(x.ref)}</span>` : ''}</span>
+      </div>`;
+    });
+    if (list.length > 600) html += `<div class="notes-empty">~ prikazano 600 najnovijih; suzi filter za starije ~</div>`;
+    box.innerHTML = html;
   }
 
   // ---------- BELEŠKE ----------
