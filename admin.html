@@ -2263,6 +2263,9 @@
     .log-pill { grid-column: 2; grid-row: 1; }
     .log-text { grid-column: 2; }
   }
+
+  /* sirovi lešnici podebljani u listi porudžbina */
+  .raw-item { font-weight: 800; color: var(--ink); }
 </style>
 </head>
 <body>
@@ -2982,6 +2985,10 @@
   function itemsHtml(str) {
     return itemLines(str).map(l => `<span class="item-line">${escapeHtml(l)}</span>`).join('');
   }
+  // poručeno u jednom redu; sirovi podebljani, da se lakše primete
+  function itemsInlineHtml(str) {
+    return itemLines(str).map(l => /sirov/i.test(l) ? `<b class="raw-item">${escapeHtml(l)}</b>` : escapeHtml(l)).join(' · ');
+  }
 
   function getFilteredOrders() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -3234,7 +3241,7 @@
               <div class="m-amt">${Number(o.total).toLocaleString('sr')} din</div>
             </div>
             <div class="m-mid">
-              <span class="m-items">${escapeHtml(itemLines(o.items).join(' · '))}</span>
+              <span class="m-items">${itemsInlineHtml(o.items)}</span>
               <span class="m-meta">${formatShortDate(o.date)}${!o.email && !o.phone ? ' · <i>bez mejla</i>' : ''}</span>
             </div>
             <div class="m-actions">
@@ -3259,7 +3266,7 @@
             <div class="col-name">${isDone ? `<button type="button" class="dm-collapse" onclick="event.stopPropagation(); toggleDoneRow(${o.id})" title="Skupi" aria-label="Skupi">▴</button>` : ''}${truncCell(o.name)}</div>
             <div class="col-email">${o.email ? truncCell(o.email) : (o.phone ? truncCell(String(o.phone)) : '<i class="no-mail">bez mejla</i>')}</div>
             <div class="col-office">${truncCell(o.office)}</div>
-            <div class="col-items">${truncCell(itemLines(o.items).join(' · '))}</div>
+            <div class="col-items"><span class="trunc" title="${escapeHtml(itemLines(o.items).join(' · '))}">${itemsInlineHtml(o.items)}</span></div>
             <div class="col-mom">${momBtn}</div>
             <div class="col-amount">${Number(o.total).toLocaleString('sr')} din</div>
             <div>${paidSelect}</div>

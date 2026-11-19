@@ -1975,6 +1975,9 @@
     .order-item.minimized, .order-item.minimized.expanded { padding: 8px 12px; grid-template-columns: 1fr auto; }
     .order-item.minimized .order-avatar { display: none; }
   }
+
+  /* sirovi lešnici podebljani u listi porudžbina */
+  .raw-item { font-weight: 800; color: #2a1f15; }
 </style>
 </head>
 <body>
@@ -2730,7 +2733,11 @@
   function itemLinesInline(str) {
     const items = parseItems(str);
     const lines = items.length ? items.map(it => `${it.qty} kg ${it.key}`) : [String(str || '')];
-    return lines.map(l => l.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]))).join(' · ');
+    // sirovi podebljani, da se lakše primete
+    return lines.map(l => {
+      const t = l.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+      return /sirov/i.test(l) ? `<b class="raw-item">${t}</b>` : t;
+    }).join(' · ');
   }
   function itemsHtml(str) {
     const items = parseItems(str);
