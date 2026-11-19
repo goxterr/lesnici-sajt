@@ -2777,6 +2777,21 @@
     inp.focus();
   }
 
+
+  // završene: gore onaj ko je poslednji završio (plaćeno i preuzeto); stare bez vremena završetka idu na dno
+  function doneKey(o) {
+    const m = String(o.doneAt || '').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+    return m ? ((+m[3] * 100 + +m[2]) * 100 + +m[1]) * 10000 + (m[4] ? +m[4] * 100 + +m[5] : 0) : 0;
+  }
+  function byDoneDesc(a, b) {
+    return doneKey(b) - doneKey(a) || (dateValueOf(b.date) - dateValueOf(a.date)) || (b.id - a.id);
+  }
+  function dateValueOf(s) {
+    const m = String(s || '').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0)).getTime();
+    const t = Date.parse(s); return isNaN(t) ? 0 : t;
+  }
+
   // po 10 porudžbina u svakoj koloni; "Prikaži još" dodaje po 10
   let activeLimit = 10, doneLimit = 10;
   function renderOrders() {
@@ -2804,7 +2819,7 @@
     // Završeno = isporučeno DA i plaćeno (eP ili P)
     const isDone = (o) => o.picked && (o.paid === 'eP' || o.paid === 'P');
     const active = list.filter(o => !isDone(o));
-    const done = list.filter(o => isDone(o));
+    const done = list.filter(o => isDone(o)).sort(byDoneDesc);
 
     // Render aktivnih (pune kartice)
     const qrIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 14h3v3M17 17h4M14 20h7M21 14v3"></path></svg>';
